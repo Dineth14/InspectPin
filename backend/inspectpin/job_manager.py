@@ -13,6 +13,7 @@ import time
 import uuid
 
 from .errors import ServiceError
+from .conversations import Conversations
 from .pipeline import process
 
 log = logging.getLogger("inspectpin.jobs")
@@ -27,6 +28,7 @@ class JobManager:
         self.queue = queue.Queue(maxsize=settings.queue_size)
         self.stop = threading.Event()
         self.active = None
+        self.conversations = Conversations(settings)
         self._restore()
         self.worker = threading.Thread(target=self._work, daemon=True, name="inspectpin-worker")
         self.watchdog = threading.Thread(target=self._watch, daemon=True, name="inspectpin-watchdog")
@@ -48,35 +50,53 @@ class JobManager:
                 log.warning("Skipped an unreadable job journal")
         self.cleanup()
 
-    def submit(self, kind, data, question="Describe the visible equipment. State uncertainty."):
+    def submit(self, kind, data, question="Describe the visible equipment. State uncertainty.",
+               device_id=None, image_id=None, context_id=None):
         with self.lock:
             self.cleanup()
             if self.stop.is_set() or self.queue.full() or len(self.jobs) >= self.settings.max_jobs:
                 raise ServiceError("QUEUE_FULL", "Job capacity reached; retry later", 503)
             ident = uuid.uuid4().hex
+            context, pixels = {}, None
+            if image_id and not device_id:
+                raise ServiceError("DEVICE_ID_REQUIRED", "Image jobs require X-Device-ID", 400)
+            if device_id and kind in ("voice", "question"):
+                context, pixels = self.conversations.begin_turn(device_id, ident, image_id, context_id)
+            binding = {"id": ident, "device_id": device_id, "context_id": context.get("context_id")}
             try:
                 _, digest = self.storage.save_input(ident, kind, data)
+                if pixels is not None:
+                    (self.storage.directory(ident) / "context.jpg").write_bytes(pixels)
                 job = {"id": ident, "kind": kind, "status": "queued", "created_at": time.time(),
                        "started_at": None, "finished_at": None, "transcript": "", "answer": "",
                        "question": question, "audio_available": False, "error": None,
-                       "input_bytes": len(data), "input_sha256": digest, "timings_seconds": {}}
+                       "input_bytes": len(data), "input_sha256": digest, "timings_seconds": {},
+                       "device_id": device_id, "image_id": image_id, "context_id": context.get("context_id"),
+                       "history": context.get("history", [])}
                 self.storage.journal(job)
                 self.jobs[ident] = job
                 self.queue.put_nowait(ident)
             except OSError as exc:
+                self.conversations.release(binding)
                 self.storage.remove(ident)
                 raise ServiceError("STORAGE_FAILED", "Cannot save upload to server disk", 507) from exc
-            return copy.deepcopy(job)
+            return self._public(job)
 
-    def get(self, ident):
+    @staticmethod
+    def _public(job):
+        result = copy.deepcopy(job)
+        result.pop("history", None)  # bounded prompt history stays server-side
+        return result
+
+    def get(self, ident, device_id=None):
         with self.lock:
-            if ident not in self.jobs:
+            if ident not in self.jobs or self.jobs[ident].get("device_id") != device_id:
                 raise ServiceError("JOB_NOT_FOUND", "Unknown or expired job", 404)
-            return copy.deepcopy(self.jobs[ident])
+            return self._public(self.jobs[ident])
 
-    def audio(self, ident):
+    def audio(self, ident, device_id=None):
         with self.lock:
-            job = self.get(ident)
+            job = self.get(ident, device_id)
             if job["status"] != "completed" or not job["audio_available"]:
                 raise ServiceError("AUDIO_NOT_READY", "Job has no completed audio", 409)
             return (self.storage.directory(ident) / "answer.wav").read_bytes()
@@ -86,6 +106,8 @@ class JobManager:
                    audio_available=error is None, finished_at=time.time())
         if result:
             job.update(result)
+        if error:
+            self.conversations.release(job)
         job["timings_seconds"]["total"] = round(job["finished_at"] - job["created_at"], 4)
         try:
             self.storage.journal(job)
@@ -115,12 +137,16 @@ class JobManager:
                 def check():
                     if self.stop.is_set() or self._expired(job):
                         raise ServiceError("JOB_TIMEOUT", "Job exceeded processing deadline")
+                    if job.get("context_id"):
+                        self.conversations.check_turn(job)
 
                 result = process(job, folder, self.services, self.settings, check)
                 with self.lock:
                     check()
                     if job["status"] == "processing":
                         (folder / "answer.pending.wav").replace(folder / "answer.wav")
+                        if job.get("context_id"):
+                            self.conversations.commit_turn(job, result["transcript"] or job["question"], result["answer"])
                         self._finish(job, result=result)
             except ServiceError as exc:
                 with self.lock:
@@ -138,6 +164,7 @@ class JobManager:
 
     def cleanup(self):
         with self.lock:
+            self.conversations.cleanup()
             now = time.time()
             for ident, job in list(self.jobs.items()):
                 if job["status"] not in TERMINAL and self._expired(job):
@@ -157,3 +184,5 @@ class JobManager:
         self.stop.set()
         self.worker.join(timeout=2)
         self.watchdog.join(timeout=2)
+        if not self.worker.is_alive() and not self.watchdog.is_alive():
+            self.conversations.close()

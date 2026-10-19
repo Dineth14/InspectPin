@@ -1,6 +1,7 @@
 .venv*/
 .tools/
 .build/
+.backups/
 __pycache__/
 .pytest_cache/
 .ruff_cache/

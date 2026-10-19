@@ -12,7 +12,12 @@ SYSTEM = ("You are InspectPin AI, a technical inspection assistant. Answer engin
 
 
 class LLMProvider(Protocol):
-    def answer(self, text: str) -> str: ...
+    def answer(self, text: str, history=None) -> str: ...
+
+
+def messages_for(text, history=None, system=SYSTEM):
+    return [{"role": "system", "content": system}, *(history or []),
+            {"role": "user", "content": text}]
 
 
 def post_json(url, payload, timeout, key=""):
@@ -45,7 +50,7 @@ def extract_answer(data, ollama=False):
 
 
 class MockLLM:
-    def answer(self, text):
+    def answer(self, text, history=None):
         return "Mock answer. This verifies the communication pipeline and is not AI reasoning."
 
 
@@ -53,11 +58,11 @@ class OllamaProvider:
     def __init__(self, settings):
         self.settings = settings
 
-    def answer(self, text):
+    def answer(self, text, history=None):
         s = self.settings
         result = post_json(s.ollama_url.rstrip("/") + "/api/chat", {
             "model": s.llm_model, "stream": False, "options": {"num_predict": 220},
-            "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}]}, s.request_timeout)
+            "messages": messages_for(text, history)}, s.request_timeout)
         return extract_answer(result, True)
 
 
@@ -65,12 +70,12 @@ class CloudProvider:
     def __init__(self, settings):
         self.settings = settings
 
-    def answer(self, text):
+    def answer(self, text, history=None):
         s = self.settings
         openai = s.llm_provider == "openai"
         url = "https://api.openai.com/v1/chat/completions" if openai else "https://api.deepseek.com/chat/completions"
         payload = {"model": s.llm_model, "stream": False,
-                   "messages": [{"role": "system", "content": SYSTEM}, {"role": "user", "content": text}]}
+                   "messages": messages_for(text, history)}
         payload["max_completion_tokens" if openai else "max_tokens"] = 300
         if not openai:
             payload["thinking"] = {"type": "disabled"}

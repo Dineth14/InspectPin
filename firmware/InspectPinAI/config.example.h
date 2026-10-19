@@ -4,6 +4,8 @@
 #define IP_WIFI_PASSWORD ""
 #define IP_SERVER_URL "http://172.20.10.3:5000"
 #define IP_DEVICE_TOKEN ""
+// Leave empty to identify this board by its unique eFuse MAC.
+#define IP_DEVICE_ID ""
 #define IP_RECORD_SECONDS 5
 #define IP_PLAYBACK_GAIN 0.20f
 #define IP_DEBUG true

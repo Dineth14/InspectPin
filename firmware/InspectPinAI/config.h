@@ -5,6 +5,9 @@
 #else
 #include "config.example.h"
 #endif
+#ifndef IP_DEVICE_ID
+#define IP_DEVICE_ID ""
+#endif
 namespace Config {
 constexpr int micClock = 42, micData = 41;
 constexpr int sdCS = 21, sdSCK = 7, sdMISO = 8, sdMOSI = 9;

@@ -15,7 +15,7 @@ def create_app(settings=None, services=None):
     settings = settings or Settings.from_env()
     settings.validate()
     app = Flask(__name__)
-    app.config.update(SETTINGS=settings, MAX_CONTENT_LENGTH=max(settings.max_voice_bytes, settings.max_image_bytes))
+    app.config.update(SETTINGS=settings, MAX_CONTENT_LENGTH=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes))
     services = services or Services.create(settings)
     app.extensions["services"] = services
     app.extensions["jobs"] = JobManager(settings, Storage(settings.data_dir), services)

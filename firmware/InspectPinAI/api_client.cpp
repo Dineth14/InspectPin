@@ -14,7 +14,8 @@ bool start(HTTPClient &http, WiFiClient &client, const String &route) {
   http.setConnectTimeout(Config::httpTimeoutMs); http.setTimeout(Config::httpTimeoutMs);
   http.useHTTP10(true); http.setReuse(false);
   if (!http.begin(client,base+route)) return false;
-  http.addHeader("X-Device-Token",IP_DEVICE_TOKEN); return true;
+  http.addHeader("X-Device-Token",IP_DEVICE_TOKEN);
+  http.addHeader("X-Device-ID",Api::deviceId()); return true;
 }
 bool jsonReply(HTTPClient &http, JsonDocument &doc) {
   int length=http.getSize();
@@ -28,21 +29,81 @@ bool validJob(const String &s) {
   return true;
 }
 String httpError(int code) { return String("HTTP_")+code; }
+String responseError(HTTPClient &http, int code) {
+  JsonDocument doc;
+  if (code>0 && jsonReply(http,doc) && doc["error"]["code"].is<const char*>())
+    return doc["error"]["code"].as<String>();
+  return httpError(code);
 }
-bool Api::upload(const String &path, String &job, String &error) {
+bool readContext(JsonDocument &doc, SessionContext &context) {
+  context.contextId=doc["context_id"] | "";
+  context.imageId=doc["active_image_id"] | "";
+  double remaining=doc["remaining_seconds"] | 0.0;
+  if (!validJob(context.contextId) || (context.imageId.length() && !validJob(context.imageId)) || remaining<0 || remaining>86400) return false;
+  context.remainingMs=uint32_t(remaining*1000);
+  return true;
+}
+}
+String Api::deviceId() {
+  if (strlen(IP_DEVICE_ID)) return String(IP_DEVICE_ID);
+  char value[24];
+  snprintf(value,sizeof(value),"pin-%012llx",ESP.getEfuseMac());
+  return String(value);
+}
+bool Api::uploadImage(const String &path, SessionContext &context, String &error) {
+  File f=SD.open(path,FILE_READ);
+  if (!f || !f.size() || f.size()>2097152) { f.close(); error="INVALID_IMAGE_FILE"; return false; }
+  WiFiClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/images")) { f.close(); error="INVALID_SERVER_URL"; return false; }
+  http.addHeader("Content-Type","image/jpeg");
+  Serial.printf("JPEG streaming upload: %lu bytes\n",(unsigned long)f.size());
+  int code=http.sendRequest("POST",&f,f.size()); f.close();
+  JsonDocument doc; bool ok=false;
+  if (code==201) ok=jsonReply(http,doc) && readContext(doc,context) && validJob(context.imageId);
+  else error=responseError(http,code);
+  if (!ok && !error.length()) error="INVALID_IMAGE_RESPONSE";
+  http.end(); return ok;
+}
+bool Api::session(SessionContext &context, String &error, bool clear) {
+  WiFiClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/session")) { error="INVALID_SERVER_URL"; return false; }
+  int code=clear?http.sendRequest("DELETE"):http.GET();
+  JsonDocument doc; bool ok=false;
+  if (code==200) ok=jsonReply(http,doc) && readContext(doc,context);
+  else error=responseError(http,code);
+  if (!ok && !error.length()) error="INVALID_CONTEXT_RESPONSE";
+  http.end(); return ok;
+}
+bool Api::upload(const String &path, String &job, String &error,
+                 const String &imageId, const String &contextId, String *returnedContext) {
   File f=SD.open(path,FILE_READ);
   if (!f) { error="SD_OPEN_FAILED"; return false; }
   bool image=path.endsWith(".jpg"); uint32_t pcm=0;
   if (!image && !Wav::validate(f,pcm)) { f.close(); error="INVALID_WAV"; return false; }
   f.seek(0);
+  if ((imageId.length() && !validJob(imageId)) || (contextId.length() && !validJob(contextId))) {
+    f.close(); error="INVALID_CONTEXT_ID"; return false;
+  }
   WiFiClient client; HTTPClient http;
-  if (!start(http,client,String("/api/v1/jobs/")+(image?"image":"voice"))) { f.close(); error="INVALID_SERVER_URL"; return false; }
+  String route=String("/api/v1/jobs/")+(image?"image":"voice");
+  if (!image) {
+    route+="?";
+    if (imageId.length()) route+="image_id="+imageId+"&";
+    if (contextId.length()) route+="context_id="+contextId;
+  }
+  if (!start(http,client,route)) { f.close(); error="INVALID_SERVER_URL"; return false; }
   http.addHeader("Content-Type",image?"image/jpeg":"audio/wav");
   Serial.printf("HTTP upload started bytes=%lu\n",(unsigned long)f.size());
   int code=http.sendRequest("POST",&f,f.size()); f.close();
-  JsonDocument doc; bool ok=code==202 && jsonReply(http,doc);
-  if (ok) { job=doc["id"].as<String>(); ok=validJob(job); }
-  if (!ok) error=httpError(code);
+  JsonDocument doc; bool ok=false;
+  if (code==202) {
+    ok=jsonReply(http,doc);
+    if (ok) {
+      job=doc["id"].as<String>(); ok=validJob(job);
+      if (returnedContext) *returnedContext=doc["context_id"] | "";
+    }
+  } else error=responseError(http,code);
+  if (!ok && !error.length()) error="INVALID_JOB_RESPONSE";
   http.end(); return ok;
 }
 bool Api::poll(const String &job, JobResult &result, String &error) {
@@ -56,7 +117,7 @@ bool Api::poll(const String &job, JobResult &result, String &error) {
     result.error=doc["error"]["code"].as<String>();
     ok=result.status=="queued" || result.status=="processing" || result.status=="completed" || result.status=="failed";
   }
-  if (!ok) error=httpError(code);
+  if (!ok) error=code==200?"INVALID_JOB_RESPONSE":responseError(http,code);
   http.end(); return ok;
 }
 bool Api::download(const String &job, const String &destination, String &error) {

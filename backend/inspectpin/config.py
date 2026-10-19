@@ -28,6 +28,9 @@ class Settings:
     tts_gain: float = 0.35
     vision_provider: str = "none"
     vision_model: str = ""
+    vision_max_image_bytes: int = 2097152
+    vision_context_seconds: float = 300.0
+    conversation_max_turns: int = 6
     ocr_enabled: bool = False
     tesseract_command: str = "tesseract"
     request_timeout: float = 60.0
@@ -66,7 +69,8 @@ class Settings:
             if getattr(self, name) not in allowed:
                 raise ValueError(f"Invalid {name}")
         for name in ("request_timeout", "job_timeout", "queue_size", "max_jobs",
-                     "retention_seconds", "max_voice_bytes", "max_image_bytes", "whisper_beam"):
+                     "retention_seconds", "max_voice_bytes", "max_image_bytes", "whisper_beam",
+                     "vision_max_image_bytes", "vision_context_seconds", "conversation_max_turns"):
             if not 0 < getattr(self, name) < 1e9:
                 raise ValueError(f"{name} must be finite and positive")
         if not 1 <= self.port <= 65535 or not 0 < self.tts_gain <= 1 or not 0 <= self.min_rms <= 32767:
@@ -78,6 +82,10 @@ class Settings:
             raise ValueError("Invalid OLLAMA_URL")
         if self.vision_provider in ("ollama", "openai") and not self.vision_model:
             raise ValueError("Set an explicitly vision-capable VISION_MODEL")
+        if self.vision_provider == "ollama" and self.vision_model.split(":")[0] == "llama3.2":
+            raise ValueError("llama3.2 is text-only; use a vision model such as qwen2.5vl:3b")
+        if self.conversation_max_turns > 20 or self.vision_max_image_bytes > 16*1024*1024:
+            raise ValueError("Context is limited to 20 turns and JPEG uploads to 16 MiB")
         if self.llm_provider in ("openai", "deepseek"):
             if not getattr(self, self.llm_provider + "_api_key") or self.llm_model.startswith("llama"):
                 raise ValueError("Cloud provider needs its API key and an explicit LLM_MODEL")

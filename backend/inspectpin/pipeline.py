@@ -42,9 +42,17 @@ def process(job, folder, services, settings, check_deadline):
         transcript = stage("stt", lambda: services.stt.transcribe(path))
         if not transcript.strip():
             raise ServiceError("NO_SPEECH", "No detectable speech")
-        answer = stage("llm", lambda: services.llm.answer(transcript))
-    else:
+    elif job["kind"] == "question":
+        transcript = job["question"]
+    if job["kind"] == "image":
         answer = stage("vision", lambda: services.vision.analyze(folder / "input.jpg", job["question"]))
+    elif job.get("image_id"):
+        answer = stage("vision", lambda: services.vision.answer(
+            (folder / "context.jpg").read_bytes(), transcript, job["history"]))
+    elif job.get("context_id"):
+        answer = stage("llm", lambda: services.llm.answer(transcript, job["history"]))
+    else:
+        answer = stage("llm", lambda: services.llm.answer(transcript))
     if not isinstance(answer, str) or not answer.strip():
         raise ServiceError("EMPTY_ANSWER", "Provider returned an empty answer")
     pending = folder / "answer.pending.wav"

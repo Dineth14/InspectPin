@@ -18,25 +18,48 @@ bool App::idle() const { return state_==AppState::READY || state_==AppState::OFF
 void App::begin() {
   state(AppState::INITIALIZING); Feedback::begin(); button_.begin(); Battery::begin();
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
-  Serial.println("Commands: v=voice c=camera r=retry s=SD test w=Wi-Fi scan b=battery p=play /tone.wav");
+  Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
+  Serial.println("Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
-  state(Wifi::connect()?AppState::READY:AppState::OFFLINE);
+  if (Wifi::connect()) { syncContext(); if (state_!=AppState::ERROR) state(AppState::READY); }
+  else state(AppState::OFFLINE);
+}
+void App::useContext(const SessionContext &context) {
+  context_=context; contextAt_=millis();
+  Serial.printf("Context=%s active image=%s remaining=%lu seconds\n",context_.contextId.c_str(),
+                context_.imageId.length()?context_.imageId.c_str():"none",(unsigned long)(context_.remainingMs/1000));
+}
+void App::syncContext(bool clear) {
+  SessionContext current; String error;
+  if (!Wifi::connect() || !Api::session(current,error,clear)) {
+    fail(error.length()?error:"SERVER_UNAVAILABLE",true); return;
+  }
+  useContext(current);
+  if (clear) { imagePending_=false; Serial.println("Conversation and image context cleared; voice-only mode"); }
 }
 void App::capture(bool image) {
   if (!sdReady_) { fail("SD_NOT_READY"); return; }
   if (Battery::low()) { state(AppState::LOW_BATTERY); Serial.println("Battery low; recharge before recording"); return; }
+  if (!image && imagePending_) { fail("IMAGE_UPLOAD_PENDING: send r before asking about this photo"); return; }
+  if (!image && context_.imageId.length() && millis()-contextAt_>=context_.remainingMs) {
+    fail("IMAGE_EXPIRED: capture again with c or clear with x"); return;
+  }
+  captureImage_=image?"":context_.imageId;
+  captureContext_=image?"":context_.contextId;
   path_=Store::newPath(image); job_=""; attempts_=0;
   state(AppState::RECORDING); Feedback::pulse();
   bool ok=image?captureJpeg(path_):recordWav(path_);
   state(AppState::SAVING);
   if (!ok) { fail("CAPTURE_FAILED"); return; }
-  if (!Store::markPending(path_)) { fail("PENDING_JOURNAL_FAILED"); return; }
+  if (image) imagePending_=true;
+  if (!Store::markPending(path_,"",captureImage_,captureContext_)) { fail("PENDING_JOURNAL_FAILED"); return; }
   state(AppState::UPLOADING);
 }
 void App::retry() {
   if (!sdReady_) { begin(); return; }
-  if (!Store::nextPending(path_,job_)) { Serial.println("No pending captures"); state(AppState::READY); return; }
+  if (!Store::nextPending(path_,job_,captureImage_,captureContext_)) { Serial.println("No pending captures"); state(AppState::READY); return; }
+  if (path_.endsWith(".jpg")) { job_=""; imagePending_=true; }
   attempts_=0; jobStart_=millis(); lastPoll_=0;
   Serial.printf("Retrying saved input: %s\n",path_.c_str());
   state(job_.length()?AppState::WAITING_FOR_AI:AppState::UPLOADING);
@@ -51,6 +74,8 @@ void App::tick() {
       if (cmd=='v') capture(false);
       else if (cmd=='c') capture(true);
       else if (cmd=='r') retry();
+      else if (cmd=='i') syncContext();
+      else if (cmd=='x') syncContext(true);
       else if (cmd=='s') Serial.println(Store::selfTest()?"SD test PASS":"SD test FAIL");
       else if (cmd=='w') { Wifi::scan(); Wifi::connect(); }
       else if (cmd=='b') Serial.printf("Battery voltage=%.3f V (disabled=-1)\n",Battery::volts());
@@ -64,14 +89,32 @@ void App::tick() {
   String error; JobResult result_;
   if (state_==AppState::UPLOADING) {
     if (!Wifi::connect()) { fail("OFFLINE_RECORDING_SAVED",true); return; }
-    if (!Api::upload(path_,job_,error)) {
+    if (path_.endsWith(".jpg")) {
+      SessionContext current;
+      if (!Api::uploadImage(path_,current,error)) {
+        Serial.printf("Image upload failed: %s\n",error.c_str());
+        if (++attempts_<3) { retryAt_=millis(); state(AppState::RETRYING); } else fail(error,true);
+        return;
+      }
+      useContext(current); imagePending_=false; Store::complete(path_);
+      Serial.println("Image registered. Short press or send v, then ask a question about this image.");
+      Feedback::pulse(); state(AppState::READY); return;
+    }
+    String returnedContext;
+    if (!Api::upload(path_,job_,error,captureImage_,captureContext_,&returnedContext)) {
       Serial.printf("Upload failed: %s\n",error.c_str());
-      if (++attempts_<3) { retryAt_=millis(); state(AppState::RETRYING); }
+      if (error=="IMAGE_EXPIRED" || error=="CONTEXT_CHANGED" || error=="IMAGE_NOT_FOUND" || error=="IMAGE_ID_REQUIRED") {
+        fail(error+": use i to inspect context, c to recapture, or x to clear. Original WAV pairing retained.");
+      } else if (++attempts_<3) { retryAt_=millis(); state(AppState::RETRYING); }
       else fail(error,true);
       return;
     }
     Serial.printf("Job ID received: %s\n",job_.c_str());
-    if (!Store::markPending(path_,job_)) { fail("JOB_JOURNAL_FAILED"); return; }
+    if (!captureContext_.length()) {
+      captureContext_=returnedContext;
+      if (captureImage_==context_.imageId) context_.contextId=returnedContext;
+    }
+    if (!Store::markPending(path_,job_,captureImage_,captureContext_)) { fail("JOB_JOURNAL_FAILED"); return; }
     jobStart_=millis(); lastPoll_=0; state(AppState::WAITING_FOR_AI);
   } else if (state_==AppState::RETRYING && millis()-retryAt_>=3000) state(AppState::UPLOADING);
   else if (state_==AppState::WAITING_FOR_AI) {
@@ -79,10 +122,10 @@ void App::tick() {
     if (millis()-lastPoll_<Config::pollIntervalMs) return;
     lastPoll_=millis();
     if (!Wifi::connect() || !Api::poll(job_,result_,error)) {
-      if (error=="HTTP_404") { job_=""; Store::markPending(path_); }
+      if (error=="HTTP_404" || error=="JOB_NOT_FOUND") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_); }
       fail(error.length()?error:"WIFI_DISCONNECTED",true); return;
     }
-    if (result_.status=="failed") { job_=""; Store::markPending(path_); fail(result_.error); return; }
+    if (result_.status=="failed") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_); fail(result_.error); return; }
     if (result_.status=="completed" && result_.audio) {
       Serial.printf("Speech recognized: %s\nAI processing completed: %s\n",result_.transcript.c_str(),result_.answer.c_str());
       answerPath_=String("/inspectpin/answer_")+job_+".wav"; state(AppState::DOWNLOADING);

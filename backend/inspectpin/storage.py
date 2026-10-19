@@ -21,7 +21,7 @@ class Storage:
     def save_input(self, job_id, kind, data):
         folder = self.directory(job_id)
         folder.mkdir(exist_ok=False)
-        path = folder / ("input.wav" if kind == "voice" else "input.jpg")
+        path = folder / {"voice": "input.wav", "image": "input.jpg", "question": "input.json"}[kind]
         path.write_bytes(data)
         return path, hashlib.sha256(data).hexdigest()
 

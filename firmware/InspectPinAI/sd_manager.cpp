@@ -3,6 +3,7 @@
 #include <SD.h>
 #include <SPI.h>
 #include <esp_system.h>
+#include <ArduinoJson.h>
 bool Store::begin() {
   SPI.begin(Config::sdSCK,Config::sdMISO,Config::sdMOSI,Config::sdCS);
   if (!SD.begin(Config::sdCS) || SD.cardType()==CARD_NONE) return false;
@@ -16,24 +17,38 @@ String Store::newPath(bool image) {
   while (SD.exists(path));
   return String(path);
 }
-bool Store::markPending(const String &path, const String &job) {
-  // Short journal; a torn write can lose a job ID, but never the captured input.
-  File f=SD.open(path+".pending",FILE_WRITE);
+bool Store::markPending(const String &path, const String &job, const String &imageId, const String &contextId) {
+  // Save the original association: retry must never silently use a newer image.
+  String temporary=path+".pending.tmp", finalPath=path+".pending";
+  File f=SD.open(temporary,FILE_WRITE);
   if (!f) return false;
-  String value=job+"\n";
-  bool ok=f.print(value)==value.length(); f.flush(); f.close(); return ok;
+  JsonDocument doc; doc["version"]=2; doc["job"]=job; doc["image_id"]=imageId; doc["context_id"]=contextId;
+  bool ok=serializeJson(doc,f)==measureJson(doc); f.flush(); f.close();
+  if (!ok) return false;
+  if (SD.exists(finalPath) && !SD.remove(finalPath)) return false;
+  return SD.rename(temporary,finalPath);
 }
-bool Store::nextPending(String &path, String &job) {
+bool Store::nextPending(String &path, String &job, String &imageId, String &contextId) {
   File dir=SD.open("/inspectpin");
   if (!dir) return false;
   for (File entry=dir.openNextFile(); entry; entry=dir.openNextFile()) {
     String name=entry.name();
     if (!entry.isDirectory() && name.endsWith(".pending")) {
       path=String("/inspectpin/")+name.substring(0,name.length()-8);
-      job=entry.readStringUntil('\n'); job.trim(); entry.close(); dir.close();
+      job=""; imageId=""; contextId="";
+      if (entry.peek()=='{') {
+        JsonDocument doc;
+        if (entry.size()>1024 || deserializeJson(doc,entry)) {
+          Serial.println("Skipping corrupt pending metadata; original input retained"); entry.close(); continue;
+        }
+        job=doc["job"] | ""; imageId=doc["image_id"] | ""; contextId=doc["context_id"] | "";
+      } else { job=entry.readStringUntil('\n'); job.trim(); }  // Original voice-only journals.
+      entry.close();
+      if (!SD.exists(path)) continue;
+      dir.close();
       if (job.length()!=32) job="";
       for (char c:job) { if (!isxdigit(c)) { job=""; break; } }
-      return SD.exists(path);
+      return true;
     }
     entry.close();
   }

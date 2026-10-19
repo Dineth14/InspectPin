@@ -20,7 +20,7 @@ def main():
                  settings.llm_provider, settings.tts_provider, settings.vision_provider)
     try:
         serve(app, host=settings.host, port=settings.port, threads=4,
-              max_request_body_size=max(settings.max_voice_bytes, settings.max_image_bytes),
+              max_request_body_size=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes),
               channel_timeout=30)
     finally:
         app.extensions["jobs"].close()
