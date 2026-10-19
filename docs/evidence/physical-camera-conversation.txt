@@ -1,0 +1,94 @@
+﻿STATE RECORDING
+Microphone recording started
+WAV saved: /inspectpin/64e69d94_0004595f.wav bytes=160044 peak=12902 RMS=546.9 complete=yes
+STATE SAVING
+STATE UPLOADING
+HTTP upload started bytes=160044
+Job ID received: b65229062eef4594838baa8af487bb91
+STATE WAITING_FOR_AI
+
+Context=f561c1702cd046a1ae83571f5a530171 active image=none remaining=0 seconds
+STATE READY
+
+STATE RECORDING
+Microphone recording started
+
+WAV saved: /inspectpin/8d0c6e72_00082200.wav bytes=160044 peak=12861 RMS=556.3 complete=yes
+STATE SAVING
+
+STATE UPLOADING
+
+HTTP upload started bytes=160044
+
+Job ID received: d9408cfc253049b2bf9451fe5475143c
+
+STATE WAITING_FOR_AI
+
+Speech recognized: But do you mean by a synchronous motor?
+AI processing completed: No, that's not it. An inductor is a component that stores energy in a magnetic field, as I mentioned earlier. A synchronous motor is a type of electric motor that uses an inductor to create rotating magnetic fields to produce motion.
+STATE DOWNLOADING
+
+Answer audio downloaded: 448098 bytes
+STATE PLAYING
+Speaker playback started
+
+Playback finished
+STATE READY
+Free heap=257592 PSRAM=8345284
+
+STATE RECORDING
+
+cam_hal: FB-OVF
+
+cam_hal: FB-OVF
+
+JPEG saved: /inspectpin/18bdb6d8_00096125.jpg bytes=44812
+STATE SAVING
+
+STATE UPLOADING
+JPEG streaming upload: 44812 bytes
+
+Context=3b0a484d9337418e8a3ff480ffcaa606 active image=d6352580e9c346c889f76c74f4b6f0e8 remaining=299 seconds
+Image registered. Short press or send v, then ask a question about this image.
+STATE READY
+
+STATE RECORDING
+Microphone recording started
+
+WAV saved: /inspectpin/6236eaf3_0009feb1.wav bytes=160044 peak=12863 RMS=707.4 complete=yes
+STATE SAVING
+
+STATE UPLOADING
+HTTP upload started bytes=160044
+
+Job ID received: f136041d82114bd3a81551a93929351e
+
+STATE WAITING_FOR_AI
+
+Speech recognized: What is this and what does the label tell me?
+AI processing completed: This appears to be a power supply unit (PSU) for a computer or similar electronic device. The label on the PSU provides important information:
+
+- **Model Number:** 225
+- **Output:** 24V 4000mA
+- **Output Voltage:** 24V
+- **Output Current:** 4000mA (4A)
+- **Output Power:** 96W (24V x 4A)
+
+The label also includes a serial number and some other details that might be specific to the model. This information is crucial for troubleshooting and verifying the specifications of the PSU.
+STATE DOWNLOADING
+
+Answer audio downloaded: 1424822 bytes
+STATE PLAYING
+Speaker playback started
+
+Playback finished
+STATE READY
+Free heap=257420 PSRAM=8345284
+STATE RECORDING
+JPEG saved: /inspectpin/145d9012_000be607.jpg bytes=20419
+STATE SAVING
+STATE UPLOADING
+JPEG streaming upload: 20419 bytes
+
+STATE READY
+

@@ -1,0 +1,25 @@
+{
+  "id": "f136041d82114bd3a81551a93929351e",
+  "kind": "voice",
+  "status": "completed",
+  "created_at": 1792404830.2332485,
+  "started_at": 1792404830.23425,
+  "finished_at": 1792404842.1041324,
+  "transcript": "What is this and what does the label tell me?",
+  "answer": "This appears to be a power supply unit (PSU) for a computer or similar electronic device. The label on the PSU provides important information:\n\n- **Model Number:** 225\n- **Output:** 24V 4000mA\n- **Output Voltage:** 24V\n- **Output Current:** 4000mA (4A)\n- **Output Power:** 96W (24V x 4A)\n\nThe label also includes a serial number and some other details that might be specific to the model. This information is crucial for troubleshooting and verifying the specifications of the PSU.",
+  "question": "Describe the visible equipment. State uncertainty.",
+  "audio_available": true,
+  "error": null,
+  "input_bytes": 160044,
+  "input_sha256": "5a938096edb74745e7c42d81bd3b4abd7e55103f53b083ec88cd0392aaa0cba2",
+  "timings_seconds": {
+    "stt": 0.485,
+    "vision": 7.172,
+    "tts": 4.187,
+    "total": 11.8709
+  },
+  "device_id": "pin-dc225c8fee68",
+  "image_id": "d6352580e9c346c889f76c74f4b6f0e8",
+  "context_id": "3b0a484d9337418e8a3ff480ffcaa606",
+  "evaluation": "Pipeline completed; visual answer unsupported by blurry battery-label image. Do not treat the stated 24 V/4 A/96 W as verified ratings. Ground truth and clearer recapture pending."
+}
