@@ -4,6 +4,14 @@
 #include <SPI.h>
 #include <esp_system.h>
 #include <ArduinoJson.h>
+namespace {
+bool validId(const String &value) {
+  if (!value.length()) return true;
+  if (value.length()!=32) return false;
+  for (char c:value) if (!isxdigit(c)) return false;
+  return true;
+}
+}
 bool Store::begin() {
   SPI.begin(Config::sdSCK,Config::sdMISO,Config::sdMOSI,Config::sdCS);
   if (!SD.begin(Config::sdCS) || SD.cardType()==CARD_NONE) return false;
@@ -38,16 +46,18 @@ bool Store::nextPending(String &path, String &job, String &imageId, String &cont
       job=""; imageId=""; contextId="";
       if (entry.peek()=='{') {
         JsonDocument doc;
-        if (entry.size()>1024 || deserializeJson(doc,entry)) {
+        if (entry.size()>1024 || deserializeJson(doc,entry) || doc["version"]!=2 ||
+            !doc["job"].is<const char*>() || !doc["image_id"].is<const char*>() || !doc["context_id"].is<const char*>()) {
           Serial.println("Skipping corrupt pending metadata; original input retained"); entry.close(); continue;
         }
         job=doc["job"] | ""; imageId=doc["image_id"] | ""; contextId=doc["context_id"] | "";
       } else { job=entry.readStringUntil('\n'); job.trim(); }  // Original voice-only journals.
       entry.close();
       if (!SD.exists(path)) continue;
+      if (!validId(job) || !validId(imageId) || !validId(contextId)) {
+        Serial.println("Skipping invalid pending IDs; refusing to change image association"); continue;
+      }
       dir.close();
-      if (job.length()!=32) job="";
-      for (char c:job) { if (!isxdigit(c)) { job=""; break; } }
       return true;
     }
     entry.close();
