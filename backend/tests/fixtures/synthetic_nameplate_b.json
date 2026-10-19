@@ -1,0 +1,8 @@
+{
+  "synthetic": true,
+  "model": "DEMO-123",
+  "voltage": "400 V",
+  "current": "2.4 A",
+  "power": "0.75 kW",
+  "frequency": "50 Hz"
+}

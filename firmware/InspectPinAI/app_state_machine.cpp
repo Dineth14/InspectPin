@@ -22,7 +22,7 @@ void App::begin() {
   Serial.println("Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
-  if (Wifi::connect()) { syncContext(); if (state_!=AppState::ERROR) state(AppState::READY); }
+  if (Wifi::connect()) syncContext();
   else state(AppState::OFFLINE);
 }
 void App::useContext(const SessionContext &context) {
@@ -37,6 +37,7 @@ void App::syncContext(bool clear) {
   }
   useContext(current);
   if (clear) { imagePending_=false; Serial.println("Conversation and image context cleared; voice-only mode"); }
+  state(AppState::READY);
 }
 void App::capture(bool image) {
   if (!sdReady_) { fail("SD_NOT_READY"); return; }

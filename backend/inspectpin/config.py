@@ -84,8 +84,8 @@ class Settings:
             raise ValueError("Set an explicitly vision-capable VISION_MODEL")
         if self.vision_provider == "ollama" and self.vision_model.split(":")[0] == "llama3.2":
             raise ValueError("llama3.2 is text-only; use a vision model such as qwen2.5vl:3b")
-        if self.conversation_max_turns > 20 or self.vision_max_image_bytes > 16*1024*1024:
-            raise ValueError("Context is limited to 20 turns and JPEG uploads to 16 MiB")
+        if self.conversation_max_turns > 20 or self.vision_max_image_bytes > 16*1024*1024 or self.vision_context_seconds > 86400:
+            raise ValueError("Limits: 20 turns, 16 MiB JPEG uploads, and 86400 seconds image context")
         if self.llm_provider in ("openai", "deepseek"):
             if not getattr(self, self.llm_provider + "_api_key") or self.llm_model.startswith("llama"):
                 raise ValueError("Cloud provider needs its API key and an explicit LLM_MODEL")
