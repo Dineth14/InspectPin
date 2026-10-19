@@ -1,0 +1,1 @@
+PASS: python backend/receiver.py loads configuration and serves HTTP with explicitly mock providers

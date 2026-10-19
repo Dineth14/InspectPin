@@ -1,0 +1,96 @@
+InspectPin/
+|-- backend/
+|   |-- data/
+|   |   `-- .gitkeep
+|   |-- inspectpin/
+|   |   |-- __init__.py
+|   |   |-- app.py
+|   |   |-- audio_processing.py
+|   |   |-- config.py
+|   |   |-- diagnostics.py
+|   |   |-- errors.py
+|   |   |-- job_manager.py
+|   |   |-- llm_providers.py
+|   |   |-- pipeline.py
+|   |   |-- routes.py
+|   |   |-- storage.py
+|   |   |-- stt.py
+|   |   |-- tts.py
+|   |   `-- vision.py
+|   |-- scripts/
+|   |   |-- audio_tool.py
+|   |   |-- check_av.py
+|   |   |-- device_smoke.py
+|   |   |-- download_models.py
+|   |   |-- http_check.py
+|   |   `-- local_audio_check.py
+|   |-- tests/
+|   |   |-- conftest.py
+|   |   |-- test_api.py
+|   |   |-- test_audio.py
+|   |   |-- test_failures.py
+|   |   `-- test_providers.py
+|   |-- .env.example
+|   |-- .env.mock.example
+|   |-- receiver.py
+|   |-- requirements-ai.txt
+|   |-- requirements-dev.txt
+|   |-- requirements-lock.txt
+|   `-- requirements.txt
+|-- docs/
+|   |-- evidence/
+|   |   |-- alive-build.txt
+|   |   |-- backend-tests.txt
+|   |   |-- entrypoint-check.txt
+|   |   |-- firmware-build.txt
+|   |   |-- http-check.txt
+|   |   |-- local-audio-check.json
+|   |   `-- pyav-check.txt
+|   |-- API_REFERENCE.md
+|   |-- ARCHITECTURE.md
+|   |-- DEMO_GUIDE.md
+|   |-- DIRECTORY_TREE.txt
+|   |-- HARDWARE_WIRING.md
+|   |-- IMPLEMENTATION_GUIDE.md
+|   |-- INSTALLATION.md
+|   |-- PERFORMANCE_TESTS.md
+|   |-- PROJECT_STATUS.md
+|   |-- SOURCES.md
+|   |-- TESTING.md
+|   `-- TROUBLESHOOTING.md
+|-- firmware/
+|   |-- InspectPinAI/
+|   |   |-- InspectPinAI.ino
+|   |   |-- api_client.cpp
+|   |   |-- api_client.h
+|   |   |-- app_state_machine.cpp
+|   |   |-- app_state_machine.h
+|   |   |-- audio_player.cpp
+|   |   |-- audio_player.h
+|   |   |-- audio_recorder.cpp
+|   |   |-- audio_recorder.h
+|   |   |-- battery_monitor.cpp
+|   |   |-- battery_monitor.h
+|   |   |-- button_manager.cpp
+|   |   |-- button_manager.h
+|   |   |-- camera_manager.cpp
+|   |   |-- camera_manager.h
+|   |   |-- config.example.h
+|   |   |-- config.h
+|   |   |-- sd_manager.cpp
+|   |   |-- sd_manager.h
+|   |   |-- status_feedback.cpp
+|   |   |-- status_feedback.h
+|   |   |-- wav_utils.cpp
+|   |   |-- wav_utils.h
+|   |   |-- wifi_manager.cpp
+|   |   `-- wifi_manager.h
+|   `-- tests/
+|       `-- Alive/
+|           `-- Alive.ino
+|-- .gitignore
+|-- README.md
+`-- pytest.ini
+
+Excluded generated/local contents: .venv/, .tools/, .build/, caches, backend/models/, backend/data artifacts, backend/.env.
+Local generated audio: backend/data/tone.wav; backend/data/local-check.wav.

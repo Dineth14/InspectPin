@@ -1,0 +1,1 @@
+PASS: Waitress loopback health -> 202 upload -> completed job -> valid WAV download (mock AI)

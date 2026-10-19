@@ -1,0 +1,16 @@
+{
+  "input_text": "What is the nominal voltage of a lithium ion cell?",
+  "transcript": "What is the nominal voltage of a lithium ion cell?",
+  "tts_seconds": 4.062000000034459,
+  "stt_load_seconds": 0.6099999999860302,
+  "stt_seconds": 0.5779999999795109,
+  "audio": {
+    "bytes": 90696,
+    "duration_seconds": 2.832875,
+    "peak": 8191,
+    "rms": 1350.2415727535395,
+    "dc": -0.18675815205400872,
+    "clipped_fraction": 0.0
+  },
+  "note": "Synthetic Piper speech, not microphone data; no LLM used."
+}

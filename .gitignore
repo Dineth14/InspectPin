@@ -1,0 +1,16 @@
+.venv*/
+.tools/
+.build/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc
+.env
+config.local.h
+backend/data/*
+!backend/data/.gitkeep
+backend/models/
+*.log
+*.wav
+*.jpg
+!docs/evidence/
