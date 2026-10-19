@@ -10,6 +10,9 @@
 #define IP_PLAYBACK_GAIN 0.20f
 #define IP_DEBUG true
 #define IP_CAMERA_ENABLED true
+// Enable for a second momentary camera button: D5/GPIO6 to GND.
+// Otherwise D2/GPIO3 retains short=voice, long=camera behavior.
+#define IP_CAMERA_BUTTON_ENABLED false
 #define IP_BATTERY_ENABLED false
 #define IP_LIGHT_ENABLED false
 #define IP_HAPTIC_ENABLED false

@@ -1,0 +1,14 @@
+﻿STATE RECORDING
+Microphone recording started
+
+WAV saved: /inspectpin/93b290ca_0003b55f.wav bytes=160044 peak=12864 RMS=408.5 complete=yes
+STATE SAVING
+STATE UPLOADING
+HTTP upload started bytes=160044
+
+Job ID received: 7ac319a9c5ae45aea53101af35f52466
+
+STATE WAITING_FOR_AI
+Error: NO_SPEECH. Captures retained on SD; 'r' retries pending work.
+STATE ERROR
+

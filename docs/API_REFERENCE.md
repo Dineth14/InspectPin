@@ -1,6 +1,6 @@
 # HTTP API v1
 
-Base URL is configurable, e.g. `http://172.20.10.3:5000`. Every `/api/*` request uses `X-Device-Token: <shared token>` when configured. Do not put credentials in URL query strings. All data endpoints belong to the same token trust domain. There is no per-job account ownership. Responses include `Cache-Control: no-store`.
+Base URL is configurable, e.g. `http://172.20.10.3:5000`. Every `/api/*` request uses `X-Device-Token: <shared token>` when configured. Conversation endpoints also require `X-Device-ID` (1–64 ASCII letters/digits/underscore/hyphen). Image, job and audio ownership is checked against this ID. All devices still share one token trust domain: an ID is not an independently authenticated account. Responses include `Cache-Control: no-store`.
 
 | Method | Path | Success | Purpose |
 |---|---|---|---|
@@ -8,10 +8,26 @@ Base URL is configurable, e.g. `http://172.20.10.3:5000`. Every `/api/*` request
 | GET | `/api/v1/status` | 200 | Provider selections, mock flag, STT startup error, job counts/worker |
 | POST | `/api/v1/jobs/voice` | 202 | Raw `audio/wav` body; canonical PCM16 mono 16 kHz |
 | POST | `/api/v1/jobs/image` | 202 | Raw `image/jpeg` body; optional `?question=...` |
+| POST | `/api/v1/images` | 201 | Register raw JPEG and reset this device's context; no model call |
+| GET | `/api/v1/images/{id}` | 200 | Owned, unexpired image metadata |
+| GET | `/api/v1/images/{id}/content` | 200 | Exact owned JPEG bytes |
+| GET | `/api/v1/session` | 200 | Context/image IDs, expiry, remaining seconds, history count, busy job |
+| DELETE | `/api/v1/session` | 200 | Reset image and history; invalidate old in-flight results |
+| POST | `/api/v1/jobs/question` | 202 | JSON question and optional explicit image/context IDs; skips STT |
 | GET | `/api/v1/jobs/{id}` | 200 | Status, transcript, answer, error, input digest, timings |
 | GET | `/api/v1/jobs/{id}/audio` | 200 | Canonical answer WAV with Content-Length |
 
-No multipart/form-data: stream the file itself as the request body. Voice limit defaults to 1,000,000 bytes and 30 seconds, image to 2,000,000 bytes and 12 megapixels. Empty, invalid or truncated files are rejected before job creation. For device WAVs the API intentionally requires the standard 44-byte header: RIFF, WAVE, 16-byte fmt chunk, format 1, mono, 16,000 Hz, 32,000 bytes/s, block alignment 2, bit depth 16 and one data chunk. Extra RIFF metadata chunks are not accepted on this device protocol. Normalize general desktop WAVs before uploading.
+No multipart/form-data: stream the file itself as the request body. Voice limit defaults to 1,000,000 bytes and 30 seconds; new image registration to 2,097,152 bytes, legacy image jobs to 2,000,000 bytes, and both to 12 megapixels. Empty, invalid or truncated files are rejected before job creation. For device WAVs the API intentionally requires the standard 44-byte header: RIFF, WAVE, 16-byte fmt chunk, format 1, mono, 16,000 Hz, 32,000 bytes/s, block alignment 2, bit depth 16 and one data chunk. Extra RIFF metadata chunks are not accepted on this device protocol. Normalize general desktop WAVs before uploading.
+
+## Explicit image and conversation association
+
+Registration returns `image_id`, `device_id`, `created_at`, `expires_at`, `input_sha256`, `input_bytes`, `width`, `height` plus session fields including `context_id`, `active_image_id` and `remaining_seconds`. IDs are 32-character hexadecimal UUIDs; times are Unix seconds. The default five-minute lifetime begins at upload and is not extended by questions. New image registration creates a fresh context and clears history.
+
+For visual voice, POST the WAV to `/api/v1/jobs/voice?image_id=IMAGE_ID&context_id=CONTEXT_ID` with the same device header. For typed questions POST JSON `{"question":"What voltage is printed?","image_id":"IMAGE_ID","context_id":"CONTEXT_ID"}` to `/api/v1/jobs/question`. Question length is 1–500 characters. `context_id` is an optional stale-context guard; firmware includes it when known. `image_id` is mandatory whenever an image is active. Only one unfinished conversational job per device is admitted. Every visual turn sends actual JPEG bytes to the model and successful turns append bounded history.
+
+Use the same device header when polling/downloading. Job objects include `device_id`, `image_id`, and `context_id`; visual voice results include recognized `transcript`, `answer`, and `vision` timings. Typed jobs have kind `question` and use their submitted text as transcript. Session status reveals counts, not full history. Clear/new-image/expiry invalidates old in-flight results before publication. Original files follow configured retention, so clearing does not immediately erase evidence.
+
+Legacy requests without `X-Device-ID` remain stateless and must also be polled/downloaded without that header. `/jobs/image` is a one-shot compatibility route, not the new registration workflow. It does not establish active image context. See [exact PowerShell registration, question and download examples](MULTIMODAL_GUIDE.md#3-test-flask-registration-and-two-turns-without-hardware).
 
 ## Job result
 
@@ -59,6 +75,15 @@ HTTP errors are `{"error":{"code":"...","message":"..."}}`. Processing errors li
 | Missing or failed speech synthesis | failed `TTS_MODEL_MISSING`, `TTS_FAILED`, `TTS_TIMEOUT`, `TTS_FORMAT` |
 | Vision disabled | failed `VISION_NOT_CONFIGURED`; JPEG retained |
 | Deadline/restart | failed `JOB_TIMEOUT` / `SERVER_RESTARTED` |
+| Missing/invalid device header | 400 `DEVICE_ID_REQUIRED` / `INVALID_DEVICE_ID` |
+| Image absent or owned by another device | 404 `IMAGE_NOT_FOUND` |
+| Registered JPEG missing on disk | 410 `IMAGE_MISSING` |
+| Retained image/session capacity reached | 503 `IMAGE_CAPACITY` / `SESSION_CAPACITY` |
+| Explicit image expired | 410 `IMAGE_EXPIRED` |
+| Active image omitted / stale generation | 409 `IMAGE_ID_REQUIRED` / `CONTEXT_CHANGED` |
+| Same device has unfinished turn | 409 `DEVICE_BUSY` |
+| Invalid question/context fields | 400 `INVALID_QUESTION` / `INVALID_CONTEXT` |
+| Body shorter than declared length | 400 `INCOMPLETE_UPLOAD` (or HTTP transport rejection) |
 
 No external exception strings/provider bodies are returned. Check provider configuration separately rather than exposing keys through verbose HTTP logging.
 

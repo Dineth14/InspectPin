@@ -1,0 +1,14 @@
+{
+  "model": "qwen2.5vl:3b",
+  "question": "What voltage is printed?",
+  "answer": "The voltage printed is 230 V.",
+  "seconds": 41.172,
+  "image_bytes": 86182
+}
+{
+  "model": "qwen2.5vl:3b",
+  "question": "What about its current rating?",
+  "answer": "The current rating is 4.2 A.",
+  "seconds": 0.984,
+  "image_bytes": 86182
+}

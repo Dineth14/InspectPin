@@ -11,7 +11,7 @@ Use a **XIAO ESP32-S3 Sense**, including its Sense expansion board and external 
 | MAX98357A BCLK / LRC / DIN | D0 GPIO1 / D1 GPIO2 / D3 GPIO4 | Tone and WAV previously working, user reported |
 | Action button | D2 GPIO3 to GND, internal pull-up | Proposed; strap behavior requires physical validation |
 | Battery divider midpoint | D4 GPIO5 | Proposed; calibrate before enabling |
-| Spare | D5 GPIO6 | Reserved |
+| Optional second camera button | D5 GPIO6 to GND, internal pull-up | Enabled in this bench's private config; physical gesture test pending |
 | Illumination driver gate | D6 GPIO43 | Proposed; UART0 TX alternate function |
 | Haptic driver gate | D7 GPIO44 | Proposed; UART0 RX alternate function |
 | Common ground | XIAO, amplifier, external drivers | Required |
@@ -51,3 +51,7 @@ Use USB CDC for diagnostics. GPIO43/44 must not also be used by UART0 peripheral
 Use a suitable logic-level MOSFET/transistor, gate/base resistor, pull-down, and external rated supply for illumination/motor loads. Fit a flyback diode across an inductive motor where appropriate. Use LED current regulation/resistance appropriate to the LED. Never drive a bare motor or high-current LED directly from the GPIO. Confirm startup-off behavior with power cycling. The firmware's haptic pulse is bounded to 60 ms; illumination is enabled only for capture.
 
 No BMI270, MAX17048 or MAX4466 is used. All proposed circuits, battery-only power and integrated audio/camera operation remain subject to the physical tests in TESTING.md.
+
+## Multimodal integration
+
+This extension changes no wiring: PDM CLK42/DATA41, SD CS21, amplifier BCLK1/LRC2/DIN4 and planned action GPIO3 remain unchanged. Camera capture finishes, returns its frame buffer and deinitializes before microphone recording. JPEG and WAV uploads stream from SD. Use serial `c`, wait for image registration, then `v` for a question and `v` again for a follow-up; use `x` to clear. Test these controls before the physical short/long button gestures, keeping GPIO3 released at reset. Follow [V01–V10](VISION_TESTING.md); firmware compilation does not verify camera revision, power quality or physical playback.

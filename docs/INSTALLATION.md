@@ -77,7 +77,7 @@ Edit ignored `backend/.env` and restart the server. Environment variables overri
 
 Check your provider's model access and current model catalogue before choosing a cloud model. The adapters use Chat Completions; OpenAI uses `max_completion_tokens`, DeepSeek uses `max_tokens` and disables thinking for concise spoken answers. Some models may require other settings; select a compatible chat model. A 429 response may mean insufficient credits or rate limiting. Keys are never sent to the XIAO or printed by the application. Do not put secrets in examples or reports.
 
-Images default to `VISION_PROVIDER=none`. For actual vision use `VISION_PROVIDER=ollama` or `openai` and explicitly set a vision-capable `VISION_MODEL`; download/access it separately. Confirm the model's image support in its own documentation. `llama3.2:1b` and `llama3.2:3b` are text-only. OCR is optional: install Tesseract separately using its documented Windows distribution, set `OCR_ENABLED=true` and `TESSERACT_COMMAND` to its executable path. OCR text is supplementary evidence, not an electrical measurement.
+For this extension, the local `.env` and real example select `VISION_PROVIDER=ollama`, `VISION_MODEL=qwen2.5vl:3b`, `VISION_MAX_IMAGE_BYTES=2097152`, and `VISION_CONTEXT_SECONDS=300`. Other local settings were preserved. Run `ollama pull qwen2.5vl:3b` and retain `ollama pull llama3.2:3b` for text. The final Ollama check listed qwen3.5:4b, but not the requested Qwen2.5-VL or llama3.2 models, so these downloads remain required. Follow [MULTIMODAL_GUIDE](MULTIMODAL_GUIDE.md) for exact independent vision, Flask and two-turn commands before flashing. `llama3.2:1b` and `llama3.2:3b` are text-only and rejected as vision configurations. OCR is optional: install Tesseract separately, set `OCR_ENABLED=true` and `TESSERACT_COMMAND`; it supplements pixels and cannot measure electricity.
 
 ## Start the server and configure the network
 
@@ -108,7 +108,7 @@ Install **esp32 by Espressif Systems**. The project uses Arduino core 3.x `ESP_I
 
 ```powershell
 # From repository root; do not overwrite an existing local configuration.
-Copy-Item firmware\InspectPinAI\config.example.h firmware\InspectPinAI\config.local.h
+if (-not (Test-Path firmware\InspectPinAI\config.local.h)) { Copy-Item firmware\InspectPinAI\config.example.h firmware\InspectPinAI\config.local.h }
 ```
 
 Open `InspectPinAI.ino` in its same-named folder and edit `config.local.h`. Select:

@@ -1,0 +1,38 @@
+﻿STATE INITIALIZING
+PSRAM total=8388608 free=8386096 heap=302316
+Device ID: pin-dc225c8fee68
+Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone d=button levels
+
+SD card initialized: 30000 MB
+
+Context=f561c1702cd046a1ae83571f5a530171 active image=none remaining=0 seconds
+Conversation and image context cleared; voice-only mode
+STATE READY
+
+STATE RECORDING
+
+Microphone recording started
+
+WAV saved: /inspectpin/1d3fc4c7_0000d0f2.wav bytes=160044 peak=12904 RMS=808.0 complete=yes
+STATE SAVING
+
+STATE UPLOADING
+HTTP upload started bytes=160044
+
+Job ID received: 2ab4e655e3a74a43ae355d1051bf6c43
+
+STATE WAITING_FOR_AI
+
+Speech recognized: What is the purpose of a resistor?
+AI processing completed: A resistor is used to reduce voltage, current, or power in an electrical circuit. It slows down the flow of electricity and helps to regulate the voltage or current. This is achieved by adding resistance to the circuit, which increases the opposition to the flow of electrons.
+STATE DOWNLOADING
+
+Answer audio downloaded: 480790 bytes
+STATE PLAYING
+Speaker playback started
+
+Playback finished
+
+STATE READY
+Free heap=257592 PSRAM=8344976
+

@@ -2,6 +2,8 @@
 
 This document is a procedure, not a record of passes. Actual executed results are in PROJECT_STATUS. Prior successes in the project brief are user-reported baseline tests. The new integrated firmware requires the physical acceptance tests below.
 
+The multimodal extension adds **[V01–V10 detailed acceptance procedures](VISION_TESTING.md)**. Run the independent Qwen image check in [MULTIMODAL_GUIDE](MULTIMODAL_GUIDE.md) before combining camera, voice and playback. The current automated suite has **104 passing tests**, including exact image/question pairing, expiry/reset during inference, device separation, bounded history, real HTTP transport with mocked AI, and the existing voice regression suite. Mock results establish integration behavior, not visual recognition accuracy. See `evidence/multimodal-backend-tests.txt` and `evidence/multimodal-http-check.txt`.
+
 ## Common preparation and exact commands
 
 Save all evidence under a dated local folder and redact secrets. Archive backend job folders before their 24-hour retention expires. Required bench items: XIAO ESP32-S3 Sense with camera/microphone/antenna, USB data cable, suitable microSD, MAX98357A, 8-ohm/0.5-W speaker, button, laptop, hotspot, and multimeter. Battery/driver tests additionally need their proposed circuits and suitable measurement instruments. Follow HARDWARE_WIRING before connecting power.
@@ -217,7 +219,7 @@ $env:HF_HOME = Join-Path (Get-Location) 'models\huggingface'
 - **Objective:** Verify actual pixel-based inspection and explicit disabled behavior.
 - **Hardware:** T16 plus laptop. **Software:** Explicit vision-capable Ollama/OpenAI model, optional Tesseract.
 - **Wiring:** Unchanged. **Preparation:** Photograph a readable, de-energized nameplate/test label with known content; no live electrical work.
-- **Commands:** `..\.venv\Scripts\python.exe -m scripts.device_smoke nameplate.jpg --image --url http://LAPTOP_IP:5000`; then long button action.
+- **Commands:** `..\.venv\Scripts\python.exe -m scripts.device_smoke nameplate.jpg --image --url http://LAPTOP_IP:5000` tests the legacy one-shot route. For the new firmware, long press to register, wait for confirmation, then short press to ask; repeat short press for a follow-up. See V01–V10 for the complete conversation test.
 - **Procedure:** 1. With vision none, verify `VISION_NOT_CONFIGURED` and saved JPEG. 2. Enable an actual vision model/restart. 3. Submit clear and blurred images. 4. Compare responses to visible information. 5. If OCR enabled, verify its result as supplementary uncertain data.
 - **Expected/pass:** Real image-supported answer, uncertainty for unreadable details, valid spoken result; no invented current/voltage measurement. **Fail:** Text-only model claimed to see pixels, hallucinated readings, lost image.
 - **Troubleshooting:** Model image capability/access, focus, illumination, OCR installation, payload limits.

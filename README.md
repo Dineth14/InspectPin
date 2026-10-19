@@ -1,10 +1,14 @@
 # InspectPin AI
 
+**Current bench session:** real models are installed and firmware is uploaded. Physical voice capture, backend processing and audible playback have worked; volume tuning and clear-label camera acceptance are still in progress. The private config uses **D2 = voice, D5 = camera**, with vibration disabled. See [latest measured results](docs/ACTUAL_MODEL_TEST.md) and [bench wiring](docs/BENCH_PIN_DIAGRAM.md). Earlier delivery notes below are historical.
+
 Wearable inspection assistant for **Seeed Studio XIAO ESP32-S3 Sense**. The board records raw 16 kHz PCM WAV or captures JPEG to microSD, streams it to a laptop, polls a job, downloads a validated spoken WAV and plays it through a MAX98357A. Inference runs on the laptop (or a deliberately selected cloud provider), not on the ESP32.
 
 This workspace was empty when implementation began. No existing working sketches or virtual environment were replaced. The prior hardware successes in the project brief are user-reported baseline evidence, not validation of this integrated firmware. See [current evidence and limitations](docs/PROJECT_STATUS.md).
 
-Delivery verification: **73 tests passed**, both firmware sketches compiled on ESP32 core 3.3.12, real Piper-to-Whisper local audio check passed, and actual Waitress HTTP upload/poll/download passed. Real Ollama/cloud/vision and physical hardware acceptance remain pending.
+The multimodal extension is implemented: capture/register a JPEG, ask a spoken question, and ask follow-ups about the same image. Each device has a bounded conversation; actual image pixels accompany every visual question. **104 tests passed**, the updated firmware compiled on ESP32 core 3.3.12, and actual HTTP tests passed with mocked inference. Ollama is running but the requested Qwen2.5-VL model is not downloaded; real visual recognition and physical acceptance remain pending.
+
+**To make your pin functional, follow [the step-by-step multimodal setup](docs/MULTIMODAL_GUIDE.md)**: download Qwen and llama, select real providers, run the laptop image check, start Flask, configure/upload firmware, then use `c` followed by `v`. See [V01–V10](docs/VISION_TESTING.md) for physical acceptance and [changed files](docs/MULTIMODAL_CHANGES.md) for implementation details.
 
 ## Quick start — Windows PowerShell
 
@@ -14,7 +18,7 @@ From this repository root, with Python 3.12 installed:
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
 .\.venv\Scripts\python.exe -m pytest -v
-Copy-Item backend\.env.mock.example backend\.env
+if (-not (Test-Path backend\.env)) { Copy-Item backend\.env.mock.example backend\.env }
 .\.venv\Scripts\python.exe backend\receiver.py
 ```
 
@@ -36,7 +40,7 @@ Supported: bounded asynchronous jobs, raw input retention, validated upload/down
 
 Open `firmware/InspectPinAI/InspectPinAI.ino` in Arduino IDE. Copy `config.example.h` to ignored `config.local.h`, configure Wi-Fi, laptop LAN URL and token. Select **XIAO_ESP32S3**, OPI PSRAM, 8 MB flash, USB CDC enabled; install ArduinoJson 7.4.2. See [exact build/upload instructions](docs/INSTALLATION.md#arduino-firmware).
 
-Short press and release records voice; hold at least 1.2 seconds and release captures an image. Serial commands at 115200 baud: `v` voice, `c` camera, `r` retry a pending capture, `s` SD test, `w` Wi-Fi scan/connect, `b` voltage, `p` play `/tone.wav`.
+Short press and release records voice; hold at least 1.2 seconds and release captures and registers an image. Wait for “Image registered”, then short press to ask about it. Further questions reuse that image for up to five minutes. Serial commands at 115200 baud: `v` voice, `c` camera/register, `i` synchronize session, `x` clear context, `r` retry a pending capture, `s` SD test, `w` Wi-Fi scan/connect, `b` voltage, `p` play `/tone.wav`.
 
 ## Documentation
 
@@ -55,4 +59,4 @@ Short press and release records voice; hold at least 1.2 seconds and release cap
 | [DIRECTORY_TREE](docs/DIRECTORY_TREE.txt) | Complete deliverable tree; generated environments excluded |
 | [SOURCES](docs/SOURCES.md) | Official hardware and API references |
 
-Do not expose this prototype server to the public internet. Bind its configured LAN address and use the shared device token. Cloud keys remain on the laptop. The shared token authorizes access to all jobs in this single-user prototype; it is not multi-user isolation.
+Bind the prototype to its configured trusted LAN address and use the shared device token. Cloud keys remain on the laptop. Image/history/job ownership is checked against `X-Device-ID`, but anyone with the shared token can impersonate an ID; independent device authentication and public deployment hardening remain future work.

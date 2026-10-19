@@ -19,7 +19,8 @@ void App::begin() {
   state(AppState::INITIALIZING); Feedback::begin(); button_.begin(); Battery::begin();
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
-  Serial.println("Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone");
+  Serial.println("Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone d=button levels");
+  Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Buttons: D2/GPIO3=voice, D5/GPIO6=camera (press and release)" : "Button D2/GPIO3: short=voice, long=camera");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
   if (Wifi::connect()) syncContext();
@@ -80,6 +81,8 @@ void App::tick() {
       else if (cmd=='s') Serial.println(Store::selfTest()?"SD test PASS":"SD test FAIL");
       else if (cmd=='w') { Wifi::scan(); Wifi::connect(); }
       else if (cmd=='b') Serial.printf("Battery voltage=%.3f V (disabled=-1)\n",Battery::volts());
+      else if (cmd=='d') Serial.printf("Buttons: D2/GPIO3=%s D5/GPIO6=%s two-button=%s (pressed=LOW)\n",
+        digitalRead(Config::button)?"HIGH":"LOW",digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
       else if (cmd=='p') { state(AppState::PLAYING); if (playWav("/tone.wav")) state(AppState::READY); else fail("TONE_PLAYBACK_FAILED"); }
     }
     if (idle() && IP_BATTERY_ENABLED && millis()-lastBattery_>30000) {

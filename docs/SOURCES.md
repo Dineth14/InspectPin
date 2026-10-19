@@ -14,3 +14,9 @@ Checked during implementation on 2026-10-19. The project brief supplies the earl
 - [Piper voice files](https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_US/lessac/medium): manual-download fallback and voice licence/model-card review.
 
 No third-party article was used as proof of successful hardware operation.
+
+## Multimodal extension references
+
+- [Qwen2.5-VL 3B](https://ollama.com/library/qwen2.5vl:3b): vision model tag, download size and minimum Ollama version.
+- [Ollama chat API](https://docs.ollama.com/api/chat): base64 images on user messages, history and nonstreaming responses.
+- [Ollama Windows download](https://ollama.com/download/windows): runtime installation.

@@ -1,0 +1,150 @@
+﻿Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+

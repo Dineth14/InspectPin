@@ -1,0 +1,35 @@
+..\.venv\Scripts\python.exe : Traceback (most recent call last):
+At line:12 char:1
++ ..\.venv\Scripts\python.exe -m scripts.conversation_client --device r ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Traceback (most recent call last)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "E:\University Files\CS2\EE356\InspectPin\backend\scripts\conversation_client.py", line 78, in <module>
+    main()
+  File "E:\University Files\CS2\EE356\InspectPin\backend\scripts\conversation_client.py", line 70, in main
+    with args.voice.open("rb") as stream:
+         ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\26785\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\Lib\pathlib.py", line 1013, in 
+open
+    return io.open(self, mode, buffering, encoding, errors, newline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'data\\real-visual-question.wav'
+{'active_image_id': None, 'busy_job_id': None, 'context_id': '2910a6e426b545abac70baf865fdf8bd', 'device_id': 'real-laptop-test', 'expires_at': None, 'history_turns': 0, 'remaining_seconds': 0}
+{
+  "active_image_id": "1bfdb8106a404031afd8a0a8cd98c740",
+  "busy_job_id": null,
+  "context_id": "fd15fcb2b88a450d998f371beec53acc",
+  "created_at": 1792402197.63219,
+  "device_id": "real-laptop-test",
+  "expires_at": 1792402497.63219,
+  "height": 768,
+  "history_turns": 0,
+  "image_id": "1bfdb8106a404031afd8a0a8cd98c740",
+  "input_bytes": 86182,
+  "input_sha256": "00b333e067853d35c50fa2fb68947e9c096bd32edd28f7648a25c44584fc8947",
+  "remaining_seconds": 299.99835443496704,
+  "width": 1024
+}

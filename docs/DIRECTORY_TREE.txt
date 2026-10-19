@@ -1,96 +1,99 @@
-InspectPin/
-|-- backend/
-|   |-- data/
-|   |   `-- .gitkeep
-|   |-- inspectpin/
-|   |   |-- __init__.py
-|   |   |-- app.py
-|   |   |-- audio_processing.py
-|   |   |-- config.py
-|   |   |-- diagnostics.py
-|   |   |-- errors.py
-|   |   |-- job_manager.py
-|   |   |-- llm_providers.py
-|   |   |-- pipeline.py
-|   |   |-- routes.py
-|   |   |-- storage.py
-|   |   |-- stt.py
-|   |   |-- tts.py
-|   |   `-- vision.py
-|   |-- scripts/
-|   |   |-- audio_tool.py
-|   |   |-- check_av.py
-|   |   |-- device_smoke.py
-|   |   |-- download_models.py
-|   |   |-- http_check.py
-|   |   `-- local_audio_check.py
-|   |-- tests/
-|   |   |-- conftest.py
-|   |   |-- test_api.py
-|   |   |-- test_audio.py
-|   |   |-- test_failures.py
-|   |   `-- test_providers.py
-|   |-- .env.example
-|   |-- .env.mock.example
-|   |-- receiver.py
-|   |-- requirements-ai.txt
-|   |-- requirements-dev.txt
-|   |-- requirements-lock.txt
-|   `-- requirements.txt
-|-- docs/
-|   |-- evidence/
-|   |   |-- alive-build.txt
-|   |   |-- backend-tests.txt
-|   |   |-- entrypoint-check.txt
-|   |   |-- firmware-build.txt
-|   |   |-- http-check.txt
-|   |   |-- local-audio-check.json
-|   |   `-- pyav-check.txt
-|   |-- API_REFERENCE.md
-|   |-- ARCHITECTURE.md
-|   |-- DEMO_GUIDE.md
-|   |-- DIRECTORY_TREE.txt
-|   |-- HARDWARE_WIRING.md
-|   |-- IMPLEMENTATION_GUIDE.md
-|   |-- INSTALLATION.md
-|   |-- PERFORMANCE_TESTS.md
-|   |-- PROJECT_STATUS.md
-|   |-- SOURCES.md
-|   |-- TESTING.md
-|   `-- TROUBLESHOOTING.md
-|-- firmware/
-|   |-- InspectPinAI/
-|   |   |-- InspectPinAI.ino
-|   |   |-- api_client.cpp
-|   |   |-- api_client.h
-|   |   |-- app_state_machine.cpp
-|   |   |-- app_state_machine.h
-|   |   |-- audio_player.cpp
-|   |   |-- audio_player.h
-|   |   |-- audio_recorder.cpp
-|   |   |-- audio_recorder.h
-|   |   |-- battery_monitor.cpp
-|   |   |-- battery_monitor.h
-|   |   |-- button_manager.cpp
-|   |   |-- button_manager.h
-|   |   |-- camera_manager.cpp
-|   |   |-- camera_manager.h
-|   |   |-- config.example.h
-|   |   |-- config.h
-|   |   |-- sd_manager.cpp
-|   |   |-- sd_manager.h
-|   |   |-- status_feedback.cpp
-|   |   |-- status_feedback.h
-|   |   |-- wav_utils.cpp
-|   |   |-- wav_utils.h
-|   |   |-- wifi_manager.cpp
-|   |   `-- wifi_manager.h
-|   `-- tests/
-|       `-- Alive/
-|           `-- Alive.ino
-|-- .gitignore
-|-- README.md
-`-- pytest.ini
-
-Excluded generated/local contents: .venv/, .tools/, .build/, caches, backend/models/, backend/data artifacts, backend/.env.
-Local generated audio: backend/data/tone.wav; backend/data/local-check.wav.
+InspectPin/ (source and documentation; generated/private files excluded)
+  .gitignore
+  backend/.env.example
+  backend/.env.mock.example
+  backend/inspectpin/__init__.py
+  backend/inspectpin/app.py
+  backend/inspectpin/audio_processing.py
+  backend/inspectpin/config.py
+  backend/inspectpin/conversations.py
+  backend/inspectpin/diagnostics.py
+  backend/inspectpin/errors.py
+  backend/inspectpin/job_manager.py
+  backend/inspectpin/llm_providers.py
+  backend/inspectpin/pipeline.py
+  backend/inspectpin/routes.py
+  backend/inspectpin/storage.py
+  backend/inspectpin/stt.py
+  backend/inspectpin/tts.py
+  backend/inspectpin/vision.py
+  backend/receiver.py
+  backend/requirements-ai.txt
+  backend/requirements-dev.txt
+  backend/requirements-lock.txt
+  backend/requirements.txt
+  backend/scripts/audio_tool.py
+  backend/scripts/check_av.py
+  backend/scripts/conversation_client.py
+  backend/scripts/device_smoke.py
+  backend/scripts/download_models.py
+  backend/scripts/http_check.py
+  backend/scripts/local_audio_check.py
+  backend/scripts/make_vision_fixtures.py
+  backend/scripts/vision_check.py
+  backend/tests/conftest.py
+  backend/tests/fixtures/README.md
+  backend/tests/fixtures/synthetic_nameplate_a.jpg
+  backend/tests/fixtures/synthetic_nameplate_a.json
+  backend/tests/fixtures/synthetic_nameplate_b.jpg
+  backend/tests/fixtures/synthetic_nameplate_b.json
+  backend/tests/test_api.py
+  backend/tests/test_audio.py
+  backend/tests/test_conversations.py
+  backend/tests/test_failures.py
+  backend/tests/test_multimodal_provider.py
+  backend/tests/test_providers.py
+  docs/API_REFERENCE.md
+  docs/ARCHITECTURE.md
+  docs/DEMO_GUIDE.md
+  docs/DIRECTORY_TREE.txt
+  docs/evidence/alive-build.txt
+  docs/evidence/backend-tests.txt
+  docs/evidence/entrypoint-check.txt
+  docs/evidence/firmware-build.txt
+  docs/evidence/http-check.txt
+  docs/evidence/local-audio-check.json
+  docs/evidence/multimodal-backend-tests.txt
+  docs/evidence/multimodal-firmware-build.txt
+  docs/evidence/multimodal-http-check.txt
+  docs/evidence/multimodal-real-vision-check.txt
+  docs/evidence/pyav-check.txt
+  docs/HARDWARE_WIRING.md
+  docs/IMPLEMENTATION_GUIDE.md
+  docs/INSTALLATION.md
+  docs/MULTIMODAL_CHANGES.md
+  docs/MULTIMODAL_GUIDE.md
+  docs/PERFORMANCE_TESTS.md
+  docs/PROJECT_STATUS.md
+  docs/SOURCES.md
+  docs/TESTING.md
+  docs/TROUBLESHOOTING.md
+  docs/VISION_TESTING.md
+  firmware/InspectPinAI/api_client.cpp
+  firmware/InspectPinAI/api_client.h
+  firmware/InspectPinAI/app_state_machine.cpp
+  firmware/InspectPinAI/app_state_machine.h
+  firmware/InspectPinAI/audio_player.cpp
+  firmware/InspectPinAI/audio_player.h
+  firmware/InspectPinAI/audio_recorder.cpp
+  firmware/InspectPinAI/audio_recorder.h
+  firmware/InspectPinAI/battery_monitor.cpp
+  firmware/InspectPinAI/battery_monitor.h
+  firmware/InspectPinAI/button_manager.cpp
+  firmware/InspectPinAI/button_manager.h
+  firmware/InspectPinAI/camera_manager.cpp
+  firmware/InspectPinAI/camera_manager.h
+  firmware/InspectPinAI/config.example.h
+  firmware/InspectPinAI/config.h
+  firmware/InspectPinAI/InspectPinAI.ino
+  firmware/InspectPinAI/sd_manager.cpp
+  firmware/InspectPinAI/sd_manager.h
+  firmware/InspectPinAI/status_feedback.cpp
+  firmware/InspectPinAI/status_feedback.h
+  firmware/InspectPinAI/wav_utils.cpp
+  firmware/InspectPinAI/wav_utils.h
+  firmware/InspectPinAI/wifi_manager.cpp
+  firmware/InspectPinAI/wifi_manager.h
+  firmware/tests/Alive/Alive.ino
+  pytest.ini
+  README.md

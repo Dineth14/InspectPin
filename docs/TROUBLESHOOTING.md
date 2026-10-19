@@ -31,7 +31,13 @@ Start with `/healthz`, then authenticated `/api/v1/status`, then a job's `error.
 | Piper Windows import/DLL failure | Use Python 3.12 x64, pinned Windows wheel, supported VC++ runtime; verify `python -m piper --help`; see captured stable TTS error without exposing secrets |
 | I²S init failure | Correct XIAO board and ESP32 3.x core; avoid legacy I²S driver libraries; confirm prior mode called end; disconnect unrelated peripherals; test mic and speaker independently |
 | Camera failure | Verify Sense module seating, PSRAM and official pins, sensor revision and supply; no AI Thinker mapping; test `c` while other acquisition is idle |
-| `VISION_NOT_CONFIGURED` | Expected default; image is saved. Choose explicit image-capable model/provider, then retry. Text-only llama3.2:3b is insufficient |
+| `VISION_NOT_CONFIGURED` | Set `VISION_PROVIDER=ollama` and `VISION_MODEL=qwen2.5vl:3b`, download the model and restart. Text-only llama3.2:3b is insufficient |
+
+## Visual conversations
+
+Use [independent recognition diagnosis](MULTIMODAL_GUIDE.md#6-diagnose-incorrect-image-recognition) to separate the saved pixels, image association, transcript and model quality. `MODEL_UNAVAILABLE`: inspect `ollama list`; the final check listed qwen3.5:4b but not the requested qwen2.5vl:3b. `IMAGE_EXPIRED`: recapture with `c` or explicitly clear with `x`. `IMAGE_NOT_FOUND`: check device/image IDs and saved file. `IMAGE_ID_REQUIRED`: send the registered ID or clear the active image. `CONTEXT_CHANGED`: a new image or clear invalidated the old question; record a fresh question. `DEVICE_BUSY`: await the previous job. Use `i` to synchronize firmware state.
+
+A long press now only registers the image. Wait for “Image registered”, then use `v` or short press to ask. No sound immediately after capture is expected. A tone instead of speech means mock TTS is selected. If capture/upload failed offline, `r` retries the saved file; pending voice retries retain their original image/context IDs and must never be reassigned to a newer scene. Raw files remain on SD for review. Record blurry-label guesses as failures; request a better photo rather than treating an invented value as a measurement.
 | GPIO3 button prevents boot | Release button during reset and power-up; verify strapping effects; use serial `v`/`c` while investigating hardware |
 | LED/haptic behaves unexpectedly | Disable optional features, inspect driver gate pull-downs and GPIO43/44 UART conflicts; confirm USB CDC settings |
 | Battery reading wrong | Feature defaults disabled (-1); confirm divider midpoint with meter, calibrate scale, average readings, record load; battery voltage is not exact SOC |

@@ -9,6 +9,8 @@ flowchart LR
   ESP -->|stream HTTP upload| API[Flask API + Waitress]
   ESP -->|poll job / download WAV| API
   API --> Jobs[Bounded queue + journals]
+  API <--> Sessions[SQLite device sessions / JPEG store]
+  Sessions -->|explicit image snapshot + history| Jobs
   Jobs --> Worker[Single inference worker]
   Worker --> STT[faster-whisper CPU int8]
   STT --> LLM[Ollama / OpenAI / DeepSeek]
@@ -44,7 +46,32 @@ sequenceDiagram
   E->>E: Remove pending marker; READY
 ```
 
-A long press/release selects JPEG capture. The camera is initialized only during capture, first frame discarded, then its JPEG is saved. Illumination is optional. It is deinitialized afterward. The image job invokes a separate vision adapter, then TTS. A missing vision provider yields `VISION_NOT_CONFIGURED`, preserving the input. The text LLM never receives a JPEG disguised as text. Optional OCR adds untrusted extracted text to the vision question; it does not replace pixel input.
+A long press/release selects JPEG capture. The camera is initialized only during capture, first frame discarded, then its JPEG is saved and the camera deinitialized. The SD file streams to `POST /images`, which validates it and returns an image ID without running inference. A later short press records the user's question and sends its explicit image/context IDs with the WAV. The separate Qwen vision adapter receives JPEG pixels, the transcript and recent history; its answer goes through existing Piper synthesis. Optional OCR supplements the pixels. The legacy `/jobs/image` endpoint remains a separate one-shot compatibility path.
+
+```mermaid
+sequenceDiagram
+  participant Pin as XIAO / SD
+  participant API as Flask
+  participant DB as SQLite sessions / JPEG store
+  participant Worker as Job worker
+  participant Qwen as Qwen2.5-VL
+  Pin->>API: Long press: POST /images (JPEG, device ID)
+  API->>DB: Save exact pixels; new context; clear history
+  API-->>Pin: 201 image_id + context_id + lifetime
+  Pin->>API: Short press: POST /jobs/voice?image_id=...&context_id=...
+  API->>DB: Check owner, lifetime, generation; reserve turn
+  API-->>Pin: 202 job ID
+  Worker->>Worker: Whisper transcript
+  Worker->>Qwen: Actual JPEG + transcript + bounded history
+  Qwen-->>Worker: Grounded answer
+  Worker->>Worker: Piper + canonical WAV
+  Worker->>DB: Recheck context; commit successful turn
+  Pin->>API: Poll job; download answer WAV
+  API-->>Pin: Transcript, answer, WAV
+  Pin->>Pin: MAX98357A playback
+```
+
+The next visual turn repeats JPEG attachment. Without image context, the worker uses llama3.2 with text history. Sessions persist in `data/conversations.sqlite3`; images in `data/images`; each admitted visual job gets an exact `context.jpg` snapshot. A lock and SQLite transactions protect reservations and context generations. Only one unfinished turn per device is accepted. New capture, explicit clear or expiry prevents a late in-flight answer from being published or added to history. Image lifetime is fixed at upload (300 s); history is capped at six pairs by default. Expiry removes eligibility immediately; raw evidence follows retention cleanup. The firmware's pending JSON records original image/context IDs so retries cannot silently switch scenes.
 
 ## Firmware states and recovery
 

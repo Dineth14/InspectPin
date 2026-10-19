@@ -16,7 +16,12 @@
 | `inspectpin/stt.py` | One Whisper model at startup; consumes all segments; explicit mock implementation |
 | `inspectpin/llm_providers.py` | Provider protocol, Ollama/cloud/mock implementations, HTTP error mapping, concise system instruction |
 | `inspectpin/tts.py` | TTS protocol, real bounded Piper subprocess, clearly synthetic mock output |
-| `inspectpin/vision.py` | Full JPEG decode validation, vision protocol, explicit disabled mode, pixel upload, optional OCR |
+| `inspectpin/vision.py` | `answer(JPEG bytes, question, history)`; grounded prompt; Qwen base64 image message on every turn; compatibility `analyze(path, question)` |
+| `inspectpin/conversations.py` | SQLite device sessions, UUID generations, JPEG metadata/hash, fixed expiry, bounded history, atomic turn reservation and commit |
+| `scripts/vision_check.py` | Independent real JPEG/question/follow-up model probe, measured latency and stable failure output |
+| `scripts/conversation_client.py` | Actual HTTP image registration, text/voice turns, polling and valid WAV downloads |
+| `scripts/make_vision_fixtures.py` | Reproducible synthetic labels and ground-truth JSON |
+| `tests/test_conversations.py`, `tests/test_multimodal_provider.py` | Pixel pairing, ownership, expiry/reset races, history, speech delivery and model failures |
 | `inspectpin/diagnostics.py` | Safe status snapshot without credentials or user recordings |
 | `scripts/audio_tool.py` | Generate a low-level 1 kHz test signal or report WAV measurements |
 | `scripts/device_smoke.py` | Real server upload, digest comparison, bounded polling, download validation |
@@ -74,7 +79,7 @@ The laptop can afford bounded in-memory validation of its small uploads. It reco
 
 Whisper uses CTranslate2 with CPU int8 by default. Its segments are lazy: the `join` expression in `WhisperSTT.transcribe` fully consumes the iterator so all recognition actually runs. VAD and beam size are configurable. The preflight RMS check rejects near-zero recordings; it is not proof that a nonzero signal contains speech. VAD and an empty transcript handle that later. Raw input is preserved; there is no automatic microphone gain, denoising or invented expected sentence.
 
-The LLM receives the recognized text plus a technical-inspection system instruction. Ollama accepts a nonstreaming `/api/chat` request; cloud providers use their own HTTPS base URLs. A prompt and generation token cap encourage two to four sentences; a 1200-character cap limits speech duration. Model answers still need engineering review. Vision has a separate configuration and sends actual JPEG pixels; unconfigured vision reports an error.
+The ordinary LLM receives recognized text and recent text history. Visual jobs instead send the exact registered JPEG snapshot, transcript and recent history through the vision adapter. Ollama accepts a nonstreaming `/api/chat` request with base64 `images` on the current user message. Every follow-up reattaches pixels. A grounded instruction and generation cap encourage two to four spoken sentences; a 1200-character cap bounds speech. The session is checked before stages and committed only after successful TTS; reset/expiry suppresses stale results. The camera path registers first and asks later. `api_client` adds stable device headers, session operations and explicit IDs; `app` manages their lifetime; `sd_manager` persists original associations in versioned pending markers. See [architecture](ARCHITECTURE.md) and [changed files](MULTIMODAL_CHANGES.md).
 
 Piper produces a native-rate WAV. Python `wave` reads PCM16 mono/stereo, stereo is averaged in floating point, then SciPy `resample_poly` applies polyphase FIR resampling at the reduced integer ratio. For 22,050 -> 16,000 Hz, that is 320/441. Filtering prevents the aliasing of naive sample dropping. Tests check duration, mono output, peak limit and preservation of a 1 kHz signal across 16/22.05/44.1/48 kHz sources. After configurable attenuation, peaks exceeding 8191 are reduced; quiet signals are never automatically amplified. The result is written as a fresh canonical PCM16 WAV.
 

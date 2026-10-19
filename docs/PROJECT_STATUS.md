@@ -1,64 +1,54 @@
 # Project status — 2026-10-19
 
-The implementation, automated backend checks and firmware builds are complete for this delivery. **The physical end-to-end definition of done has not been demonstrated.** No board was flashed or exercised during this session. Ollama, cloud services and a real vision model were not exercised. The repository was empty at the start; the hardware successes in the supplied brief remain user-reported baseline evidence rather than new test results.
+**Later bench update:** the models are now installed, two-button firmware has been uploaded to COM7, SD/network checks passed, and actual microphone → Qwen → Piper → board playback completed. The user confirmed audible speech but reported low volume; a local gain adjustment is in progress. Clear real-camera label recognition remains unverified. See [the current bench record](ACTUAL_MODEL_TEST.md) for results, failures and timings. The delivery snapshot below records the earlier state before these hardware tests.
+
+The multimodal source implementation and software verification are complete. **Real Qwen recognition and physical end-to-end acceptance remain pending.** No board was flashed or exercised during this extension. Ollama responds locally, but the requested qwen2.5vl:3b model is absent (qwen3.5:4b is installed); the real image probe returned MODEL_UNAVAILABLE. Follow [MULTIMODAL_GUIDE](MULTIMODAL_GUIDE.md) to download models and use the system, then execute [V01–V10](VISION_TESTING.md).
 
 ## Observed verification
 
-| Check actually executed | Observed result | Evidence |
+| Executed check | Actual result | Evidence |
 |---|---|---|
-| pytest, Windows Python 3.12.13 | **73 passed in 3.22 s** | [Full test log](evidence/backend-tests.txt) |
-| Ruff static checks | All checks passed | Command: `.venv\Scripts\python.exe -m ruff check backend` |
-| Python byte compilation | Completed without errors | Command: `.venv\Scripts\python.exe -m compileall -q backend` |
-| pip dependency consistency | No broken requirements found | Exact environment: `backend/requirements-lock.txt` |
-| PyAV 15.1.0 regression | `metadata_errors` accepted; 16000 decoded samples | [PyAV log](evidence/pyav-check.txt) |
-| Actual Waitress loopback HTTP | Health -> 202 upload -> completed mock job -> valid WAV download passed | [HTTP log](evidence/http-check.txt) |
-| Compatibility entry point | `python backend/receiver.py` served HTTP with explicit mock configuration | [Entry point log](evidence/entrypoint-check.txt) |
-| Actual local Piper + Whisper | Generated speech and exact transcription of the test sentence | [Measured result](evidence/local-audio-check.json) |
-| Integrated firmware compile | ESP32 core **3.3.12**, ArduinoJson **7.4.2**; **1,064,814 bytes flash**, **57,960 bytes static RAM** | [Build log](evidence/firmware-build.txt) |
-| Alive diagnostic compile | Same core; **277,259 bytes flash**, **22,300 bytes static RAM** | [Build log](evidence/alive-build.txt) |
-| Generated five-second tone | **160044 bytes**, 16000 Hz PCM16 mono, peak 1638, no clipping | Local asset `backend/data/tone.wav` |
+| Full backend suite, Python 3.12.13 | **104 passed in 7.04 s**; existing voice tests retained | [Test log](evidence/multimodal-backend-tests.txt) |
+| Ruff / Python byte compilation / pip consistency | All passed; no broken requirements | Commands below |
+| Waitress loopback HTTP with mocked AI | Voice upload/poll/WAV; JPEG registration, two visual turns, audio, device isolation and clear passed | [HTTP log](evidence/multimodal-http-check.txt) |
+| Final updated firmware compile | ESP32 **3.3.12**, ArduinoJson **7.4.2**; **1,077,194 bytes flash**, **58,032 bytes static RAM** | [Build log](evidence/multimodal-firmware-build.txt) |
+| Actual Ollama availability and Qwen probe | Service reachable; qwen3.5:4b installed, requested Qwen2.5-VL absent; **MODEL_UNAVAILABLE**, not recognition success | [Probe log](evidence/multimodal-real-vision-check.txt) |
+| Earlier real Piper → Whisper experiment | Exact transcription of synthetic speech; 2.833 s WAV, TTS 4.062 s, STT 0.578 s | [Prior measured result](evidence/local-audio-check.json) |
+| Earlier Alive sketch compile | 277,259 bytes flash / 22,300 bytes static RAM | [Prior build](evidence/alive-build.txt) |
 
-Real audio experiment: Piper en_US-lessac-medium generated “What is the nominal voltage of a lithium ion cell?” and faster-whisper base.en returned exactly that transcript. Single observed run: TTS 4.062 s, model load 0.610 s, transcription 0.578 s. Output 90696 bytes, duration 2.832875 s, peak 8191, RMS 1350.24, clipping fraction zero. These are laptop measurements on **synthetic speech**, not microphone recognition accuracy or speaker listening evidence. Output is retained at `backend/data/local-check.wav`. No actual LLM answer was involved.
+Final checks from repository root:
 
-## Subsystem matrix
+```powershell
+.\.venv\Scripts\python.exe -m pytest -v
+.\.venv\Scripts\python.exe -m ruff check backend
+.\.venv\Scripts\python.exe -m compileall -q backend
+.\.venv\Scripts\python.exe -m pip check
+```
 
-| Subsystem | Implementation | Automated/software validation | Physical validation |
-|---|---|---|---|
-| Flask v1 API, auth, limits | Implemented | Passed | Board/LAN test pending |
-| Job queue, deadlines, journals, retention | Implemented | Passed | Power/network interruption tests pending |
-| Raw WAV preservation and validation | Implemented | Passed | Actual SD microphone capture pending |
-| Whisper STT | Implemented | Mock/adapter tests + real synthetic speech passed | Real microphone accuracy pending |
-| Ollama text adapter | Implemented | Request/error tests passed | Real service/model not installed/tested |
-| OpenAI/DeepSeek adapters | Implemented | Mocked request/error tests passed | Live credentials/credits/model access not tested |
-| Piper + resampling | Implemented | Real generation, format and spectral tests passed | Laptop listening and hardware speech playback pending |
-| JPEG validation / disabled vision | Implemented | Passed | Sense image capture pending |
-| Vision pixel adapters / optional OCR | Implemented | Pixel payload test passed; real vision/OCR not tested | Model/physical inspection pending |
-| SD/PDM/I²S/Wi-Fi streaming | Implemented | Integrated firmware compiled | T04–T15 pending |
-| Button / voltage / illumination / haptic | Implemented; optional features default off | Firmware compiled | Proposed wiring requires validation |
-| Minimal alive sketch | Implemented | Compiled | COM/USB/PSRAM checks pending |
-| Viva, installation and learning guides | Implemented | Local link/source review | Execute acceptance plan |
+Mocked inference verifies request construction and integration, not recognition accuracy or spoken voice quality. The earlier Piper/Whisper experiment used synthetic speech, not a recording from the pin. Real cloud services and OCR were not tested. ESP32 core 3.3.3 was not compiled; 3.3.12 is the actual build version.
 
-The terms “hardware test passed” and “product ready” do not apply to this delivery. T01 compilation is passed on 3.3.12; T02–T20 remain manual, with only the explicitly listed laptop portions already exercised. Core 3.3.3 API compatibility was reviewed against its header, but **3.3.3 was not compiled here**.
+## Implemented behavior
 
-## Environment and deliverables
+- Qwen receives actual JPEG bytes, current question and bounded history on every visual turn. llama3.2 remains the ordinary text model. Prompts require visible evidence, uncertainty for unreadable labels and no electrical measurement/safety claims from appearance.
+- JPEG registration returns a unique image ID independently of inference. Explicit image/context IDs bind asynchronous voice and typed questions to snapshots; transcripts, answers and WAVs use existing job APIs.
+- SQLite per-device sessions persist image references and recent successful turns. Default fixed expiry is five minutes; default history bound is six pairs. New image/clear resets history; expired/replaced contexts reject late answers. Ownership checks cover images, jobs and audio.
+- Firmware long press/c registers; short press/v asks; follow-up v reuses explicit context. i synchronizes and x clears. SD streaming, raw recordings, WAV validation/playback and original pins remain. Pending retries retain original associations.
+- Synthetic labelled JPEGs, direct model probe, HTTP conversation client, architecture/API/setup guides and V01–V10 procedures are delivered. See [source change inventory](MULTIMODAL_CHANGES.md).
 
-- New isolated `.venv` in the actual workspace uses an available Python 3.12.13 runtime. The existing Windows Store `python`/`py -3.11` aliases failed; no prior environment was overwritten. Use the project's explicit interpreter path.
-- Base, development and local AI dependencies were installed and frozen. Whisper and Piper models were downloaded under ignored `backend/models`; no models are committed source assets.
-- An ignored `backend/.env` is prepared in **mock mode** for immediate reproducible startup; change it deliberately for real inference. No Wi-Fi passwords, device tokens or cloud keys were generated into source.
-- Arduino CLI 1.2.0 and installed ESP32 3.3.12 were used; ArduinoJson is in ignored `.tools/arduino-user/libraries`. Build outputs are under `.build`. No upload command was executed.
+## Local environment and remaining setup
 
-## Known limitations / external dependencies
+Existing .venv, Whisper/Piper models and user settings were retained. Only the four requested vision variables were upserted in private backend/.env; other provider choices may still be mock, so select Whisper/Ollama/Piper for real use. The pre-extension backup is under ignored .backups; it contains private local settings and must remain private. No credentials were printed or added to examples.
 
-1. Complete physical voice workflow still requires wiring/configuration, firmware upload and real Ollama (or configured cloud) inference. Follow T15 before claiming core completion.
-2. Native Whisper runs in a thread and cannot be forcibly killed safely. The watchdog fails overdue jobs and prevents late publication, but an indefinitely stuck call needs server restart. No unlimited replacement threads are created.
-3. POST retries are bounded but not idempotent; loss of a successful POST response can create duplicate jobs. A known ID is persisted and resumed whenever possible.
-4. Device raw files are retained without automatic SD reclamation. Partial capture files and failed pending entries need periodic archival/review; check free space. Server retention removes journalled terminal jobs after its configured period. A crash between writing an input and its first journal can leave an orphan directory requiring manual review; originals are deliberately not silently deleted.
-5. The server is one-process/single-user and uses trusted-LAN HTTP with a shared token. It does not provide TLS, per-device ownership, distributed job recovery or public deployment hardening.
-6. Optional battery/driver circuitry, GPIO3 strapping, GPIO43/44 UART interactions, actual camera revision and battery-only amplifier supply require physical validation. Digital gain is not proof of safe speaker electrical power.
-7. Real vision and Tesseract need separate installation/configuration. No image observations are fabricated when these are absent.
-8. Optional dashboard and voice-activity-controlled recording are future additions. Fixed-duration recording, API diagnostics and serial controls are implemented; the module boundaries support later extensions.
-9. Canonical WAVs only on the device API. General desktop WAV metadata formats must be normalized before upload. Long provider answers are bounded, but model accuracy remains an evaluation task.
+Ollama needs `ollama pull qwen2.5vl:3b` and `ollama pull llama3.2:3b`; its CLI may require a fresh terminal or installation PATH repair. Configure firmware Wi-Fi/LAN URL/token, compile/upload to the actual COM port, then test serial controls before buttons. All physical V01–V10 tests remain pending, along with unexecuted portions of the original T01–T20 plan. Hardware successes described in the original brief remain user-reported evidence.
 
-## Next engineering improvements
+## Known limitations
 
-First execute T04–T15 on USB power and fix any measured integration issues. Then validate battery-only power, button straps and enclosure acoustics. After baseline measurements, prioritize a supervised inference process, upload idempotency, SD retention/archive controls, a button retry gesture, and calibrated audio/VAD experiments. Choose and evaluate a vision model on a labelled collection of real nameplates before relying on its output. Add a dashboard only if it makes testing easier; it is not required by the device protocol.
+1. Shared-token trusted-LAN HTTP: IDs enforce logical separation, but anyone knowing the token can impersonate an ID. TLS and independent credentials are future work. Use one backend process per data directory.
+2. Vision quality, camera readability, microphone accuracy and MAX98357A playback need measured real-world tests. A camera cannot measure live electrical values, find hidden defects or certify safety. Record wrong guesses.
+3. Native inference uses a thread; deadlines prevent late publication but cannot terminate a stuck native call. Restart if it never returns. Measure cold model latency and coordinate provider/job/firmware deadlines with context lifetime.
+4. POST retry is not idempotent; lost acknowledgement may create another image/job. Known IDs and original context persist on SD; stale questions must be recorded again after recapture. Device raw files need manual archival/free-space management.
+5. Clearing/expiry removes image eligibility, not all evidence immediately. Server originals follow retention (default 24 h); jobs retain exact JPEG snapshots. A crash can leave an orphan file requiring review. Back up evidence before cleanup.
+6. Battery-only amplifier power, GPIO3 strapping, optional drivers, camera revision and acoustics need physical validation. Static build RAM is not peak runtime memory.
+7. General desktop WAVs may need normalization to the canonical 44-byte-header, 16 kHz PCM16 mono device format. Firmware JPEG uploads cap at 2 MiB even if the server accepts more.
+
+Next: real laptop recognition on known labels, then serial c → v → v and V01–V10 on the pin. Software completion does not establish physical acceptance.

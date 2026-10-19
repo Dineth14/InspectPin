@@ -1,0 +1,13 @@
+﻿STATE INITIALIZING
+PSRAM total=8388608 free=8386096 heap=302316
+Device ID: pin-dc225c8fee68
+Commands: v=voice c=capture/upload image i=context x=clear context r=retry s=SD w=Wi-Fi b=battery p=tone
+
+SD card initialized: 30000 MB
+STATE READY
+
+SD test PASS
+
+Context=35e63f53729645c982679874532efa0a active image=none remaining=0 seconds
+STATE READY
+

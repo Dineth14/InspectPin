@@ -1,0 +1,24 @@
+{
+  "id": "9085898fb5c846c4b7cebf43b11e7dbb",
+  "kind": "voice",
+  "status": "completed",
+  "created_at": 1792403962.4062753,
+  "started_at": 1792403962.4072766,
+  "finished_at": 1792403973.2394478,
+  "transcript": "What is the purpose of a resistor?",
+  "answer": "A resistor is used to control the flow of current in an electrical circuit. It helps to limit the amount of current that can flow through a circuit, which can be useful for protecting other components or devices from damage caused by excessive current.",
+  "question": "Describe the visible equipment. State uncertainty.",
+  "audio_available": true,
+  "error": null,
+  "input_bytes": 160044,
+  "input_sha256": "29cc646ce15e7398170ac609734ccea16334e284efb804e2da01c67a34c3fd40",
+  "timings_seconds": {
+    "stt": 0.532,
+    "vision": 7.031,
+    "tts": 3.25,
+    "total": 10.8332
+  },
+  "device_id": "pin-dc225c8fee68",
+  "image_id": "7b8168ba1c9e4eb2b1a3030f4cf1dd2f",
+  "context_id": "68d8f86cc2294275b564029a0e885804"
+}

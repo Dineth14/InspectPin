@@ -1,0 +1,26 @@
+{'active_image_id': None, 'busy_job_id': None, 'context_id': '7aa0ba1dcf8b4b8cb2344171411ed9f9', 'device_id': 'laptop-text-check', 'expires_at': None, 'history_turns': 0, 'remaining_seconds': 0}
+{
+  "answer": "A resistor is a component that reduces or controls the flow of electrical current in a circuit. Its primary purpose is to regulate voltage, current, or power consumption, and often helps protect equipment from excessive current or voltage.",
+  "audio_available": true,
+  "context_id": "7aa0ba1dcf8b4b8cb2344171411ed9f9",
+  "created_at": 1792403509.7292514,
+  "device_id": "laptop-text-check",
+  "error": null,
+  "finished_at": 1792403522.767309,
+  "id": "26a8e08d7cfe4bd69b670635e78c5c18",
+  "image_id": null,
+  "input_bytes": 50,
+  "input_sha256": "f4e3718c2047bf94e650335f4d897d50edd172f48c0d706b72b7a8b831bcff14",
+  "kind": "question",
+  "question": "What is the purpose of a resistor?",
+  "started_at": 1792403509.7302504,
+  "status": "completed",
+  "timings_seconds": {
+    "llm": 9.797,
+    "total": 13.0381,
+    "tts": 3.219
+  },
+  "transcript": "What is the purpose of a resistor?"
+}
+Validated spoken-answer WAV: data\actual-text-test\26a8e08d7cfe4bd69b670635e78c5c18.wav
+{'active_image_id': None, 'busy_job_id': None, 'context_id': '7aa0ba1dcf8b4b8cb2344171411ed9f9', 'device_id': 'laptop-text-check', 'expires_at': None, 'history_turns': 1, 'remaining_seconds': 0}

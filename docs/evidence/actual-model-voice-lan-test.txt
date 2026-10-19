@@ -1,0 +1,42 @@
+{'active_image_id': None, 'busy_job_id': None, 'context_id': '7e9be3604f154c4c9e6d645a27a9c8f0', 'device_id': 'real-laptop-test', 'expires_at': None, 'history_turns': 0, 'remaining_seconds': 0}
+{
+  "active_image_id": "2840f362982245dea4cf81ae0c724485",
+  "busy_job_id": null,
+  "context_id": "f232e38e593240b99d11137b6878b00a",
+  "created_at": 1792403053.3971136,
+  "device_id": "real-laptop-test",
+  "expires_at": 1792403353.3971136,
+  "height": 768,
+  "history_turns": 0,
+  "image_id": "2840f362982245dea4cf81ae0c724485",
+  "input_bytes": 86182,
+  "input_sha256": "00b333e067853d35c50fa2fb68947e9c096bd32edd28f7648a25c44584fc8947",
+  "remaining_seconds": 299.9959988594055,
+  "width": 1024
+}
+{
+  "answer": "The voltage printed on this label is 230 V.",
+  "audio_available": true,
+  "context_id": "f232e38e593240b99d11137b6878b00a",
+  "created_at": 1792403053.4321146,
+  "device_id": "real-laptop-test",
+  "error": null,
+  "finished_at": 1792403067.9464278,
+  "id": "c808b3f9b5344bf59838e14721b56805",
+  "image_id": "2840f362982245dea4cf81ae0c724485",
+  "input_bytes": 72120,
+  "input_sha256": "08dd0ddc80e7c954b638ba26adbd449b4b21b421331531fdc9bedc749ad25bb8",
+  "kind": "voice",
+  "question": "Describe the visible equipment. State uncertainty.",
+  "started_at": 1792403053.4421139,
+  "status": "completed",
+  "timings_seconds": {
+    "stt": 10.141,
+    "total": 14.5143,
+    "tts": 3.813,
+    "vision": 0.515
+  },
+  "transcript": "What voltage is printed on this label?"
+}
+Validated spoken-answer WAV: data\actual-model-test\c808b3f9b5344bf59838e14721b56805.wav
+{'active_image_id': '2840f362982245dea4cf81ae0c724485', 'busy_job_id': None, 'context_id': 'f232e38e593240b99d11137b6878b00a', 'device_id': 'real-laptop-test', 'expires_at': 1792403353.3971136, 'history_turns': 1, 'remaining_seconds': 283.72047996520996}

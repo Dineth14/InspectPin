@@ -28,7 +28,7 @@ as a vision model, approximately 3.2 GB, requiring Ollama 0.7.0 or newer. Extra 
 and compute are needed at inference time. The two llama3.2 text model sizes are
 not vision models. This project rejects that family as a vision configuration.
 
-Ollama was reachable during implementation but had **no downloaded models**.
+The final Ollama check listed **qwen3.5:4b**, but the requested **qwen2.5vl:3b** and **llama3.2:3b** were absent.
 The real-model probe returned `MODEL_UNAVAILABLE`. Mock tests cannot establish
 actual nameplate reading accuracy. The download commands above are still required.
 
@@ -163,6 +163,11 @@ Serial sequence before physical button testing:
 Physical gestures: short press/release = voice; hold >=1.2 s/release = capture and
 register image. Recording starts after release. Haptic confirmation is optional;
 Serial Monitor always confirms. Do not press again while processing/playing.
+
+For the user's two-button bench, the private config enables `IP_CAMERA_BUTTON_ENABLED=true`:
+**D2/GPIO3 press/release = voice; D5/GPIO6 press/release = camera**. D2's long gesture is
+not used in this mode. Both buttons connect to GND and use internal pull-ups.
+The disconnected bare vibration motor remains disabled until a suitable driver is fitted.
 
 Existing `s` SD, `w` Wi-Fi, `b` battery, `p` tone and `r` retry commands remain.
 The new firmware downloads/validates/plays WAVs through the unchanged player.

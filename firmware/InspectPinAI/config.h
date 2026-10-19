@@ -8,11 +8,15 @@
 #ifndef IP_DEVICE_ID
 #define IP_DEVICE_ID ""
 #endif
+#ifndef IP_CAMERA_BUTTON_ENABLED
+#define IP_CAMERA_BUTTON_ENABLED false
+#endif
 namespace Config {
 constexpr int micClock = 42, micData = 41;
 constexpr int sdCS = 21, sdSCK = 7, sdMISO = 8, sdMOSI = 9;
 constexpr int bclk = 1, ws = 2, dout = 4;
 constexpr int button = 3, battery = 5, light = 43, haptic = 44;
+constexpr int cameraButton = 6; // Board label D5, not GPIO5.
 constexpr uint32_t sampleRate = 16000;
 constexpr uint32_t recordSeconds = IP_RECORD_SECONDS;
 constexpr uint32_t wifiTimeoutMs = 15000, httpTimeoutMs = 10000;

@@ -1,0 +1,119 @@
+﻿STATE RECORDING
+Microphone recording started
+WAV saved: /inspectpin/d5e0d139_0004f30c.wav bytes=160044 peak=12314 RMS=451.3 complete=yes
+STATE SAVING
+STATE UPLOADING
+HTTP upload started bytes=160044
+Job ID received: 9be5935249a64460901ccd3f3908aea0
+STATE WAITING_FOR_AI
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+STATE RECORDING
+
+Microphone recording started
+
+WAV saved: /inspectpin/7c286aea_00064685.wav bytes=160044 peak=12331 RMS=876.7 complete=yes
+STATE SAVING
+
+STATE UPLOADING
+HTTP upload started bytes=160044
+
+Job ID received: 9085898fb5c846c4b7cebf43b11e7dbb
+STATE WAITING_FOR_AI
+
+Speech recognized: What is the purpose of a resistor?
+AI processing completed: A resistor is used to control the flow of current in an electrical circuit. It helps to limit the amount of current that can flow through a circuit, which can be useful for protecting other components or devices from damage caused by excessive current.
+STATE DOWNLOADING
+
+Answer audio downloaded: 400172 bytes
+STATE PLAYING
+Speaker playback started
+
+Playback finished
+STATE READY
+Free heap=257424 PSRAM=8345284
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+STATE RECORDING
+Microphone recording started
+
+WAV saved: /inspectpin/6cfdfd4b_0006e97d.wav bytes=160044 peak=12352 RMS=495.9 complete=yes
+STATE SAVING
+
+STATE UPLOADING
+HTTP upload started bytes=160044
+
+Job ID received: 2a3185a0ec2643e8be5d0affd2de8c08
+
+STATE WAITING_FOR_AI
+
+Speech recognized: What is the purpose of a resistive?
+AI processing completed: A resistive component is used to control the flow of current in an electrical circuit. It helps to limit the amount of current that can flow through a circuit, which can be useful for protecting other components or devices from damage caused by excessive current.
+STATE DOWNLOADING
+
+Answer audio downloaded: 420976 bytes
+STATE PLAYING
+Speaker playback started
+
+Playback finished
+STATE READY
+Free heap=257424 PSRAM=8345284
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
+Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+
