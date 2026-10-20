@@ -176,7 +176,7 @@ $env:HF_HOME = Join-Path (Get-Location) 'models\huggingface'
 - **Wiring:** Laptop audio only. **Preparation:** Both voice files downloaded; no need for cloud keys.
 - **Commands:** Set workspace HF_HOME and run `..\.venv\Scripts\python.exe -m scripts.local_audio_check`; inspect `data/local-check.wav`.
 - **Procedure:** 1. Generate known sentence. 2. Inspect byte count/rate/channels/width. 3. Listen on laptop. 4. Record generation time and peak.
-- **Expected/pass:** Intelligible speech, mono PCM16/16000 Hz canonical WAV, peak <=8192, no clipping. **Fail:** Synthetic tone mistaken for speech, missing voice, malformed/truncated output.
+- **Expected/pass:** Intelligible speech, mono PCM16/16000 Hz canonical WAV, peak <=16384, no clipping. **Fail:** Synthetic tone mistaken for speech, missing voice, malformed/truncated output.
 - **Troubleshooting:** Piper Windows wheel, voice JSON/model match, subprocess timeout, supported native PCM format.
 - **Evidence:** Actual speech WAV, metrics, generation log and listening assessment.
 

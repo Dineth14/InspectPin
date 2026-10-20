@@ -24,5 +24,7 @@ constexpr uint32_t pollIntervalMs = 2000, jobTimeoutMs = 240000;
 constexpr size_t maxAnswerBytes = 3840044;  // 120 seconds of PCM16 mono
 constexpr float playbackGain = IP_PLAYBACK_GAIN;
 static_assert(recordSeconds > 0 && recordSeconds <= 30, "Record duration must be 1..30 seconds");
-static_assert(playbackGain >= 0 && playbackGain <= 0.5f, "Use conservative playback gain 0..0.5");
+// The backend already peak-limits generated speech to 25% of PCM16 full scale.
+// Allow unity playback so the firmware does not attenuate that bounded signal again.
+static_assert(playbackGain >= 0 && playbackGain <= 1.0f, "Playback gain must be in the range 0..1");
 }

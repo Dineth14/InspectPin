@@ -1,8 +1,10 @@
 # Actual-model bench session — 2026-10-19
 
+**2026-10-20 volume correction:** Raising firmware playback gain from 0.40 to 1.00 made the output only slightly better. The backend TTS gain is therefore raised from 0.35 to 0.70 and its peak limit from 8191 to 16383, providing another controlled increase of up to 6 dB. Physical listening validation is pending.
+
 ## Latest observed results after wiring confirmation
 
-- User reports playback remains very quiet after the proposed GAIN-to-GND change and requested moving on to camera/voice integration. Volume remains unresolved; no further gain changes made.
+- User reported playback remained very quiet. Firmware playback attenuation has now been removed (gain 0.40 to 1.00); physical listening validation is pending.
 - D5 capture registered a real 44,812-byte, 640x480 JPEG, image d6352580e9c346c889f76c74f4b6f0e8. Camera emitted two FB-OVF warnings but produced a decodable complete JPEG. Visual inspection shows a small battery with tilted, blurry label text.
 - D2 question transcribed exactly as "What is this and what does the label tell me?" and explicitly used that image. Job f136041d82114bd3a81551a93929351e completed in 11.8709 s and delivered a 1,424,822-byte speech WAV to the board. **Recognition accuracy failed:** Qwen called it a computer PSU and gave unsupported 24 V, 4 A and 96 W ratings. These must not be treated as real equipment ratings. The user was told this result is unreliable and asked to recapture a clearer upright label. Ground truth and a successful same-image follow-up remain pending. Evidence: [first camera result](evidence/physical-camera-first-result.json), [camera serial log](evidence/physical-camera-conversation.txt).
 

@@ -9,6 +9,8 @@ from scipy.signal import resample_poly
 
 from .errors import ServiceError
 
+TTS_PEAK_LIMIT = 16383  # 50% of signed PCM16 full scale
+
 
 def parse_wav(data):
     """Strict canonical device WAV: exactly one 16-byte fmt and data chunk."""
@@ -62,8 +64,8 @@ def normalize_wav(source, destination, gain=0.35):
         x *= gain
         # Attenuate peaks only; never amplify quiet audio automatically.
         peak = float(np.max(np.abs(x)))
-        if peak > 8191:
-            x *= 8191/peak
+        if peak > TTS_PEAK_LIMIT:
+            x *= TTS_PEAK_LIMIT/peak
         Path(destination).write_bytes(wav_bytes(np.clip(np.rint(x), -32768, 32767)))
     except (ValueError, wave.Error, EOFError, OSError) as exc:
         raise ServiceError("TTS_FORMAT", "Could not normalize TTS WAV") from exc

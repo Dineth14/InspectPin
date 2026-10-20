@@ -25,7 +25,7 @@ class Settings:
     deepseek_api_key: str = ""
     tts_provider: str = "piper"
     piper_model: Path = Path("models/en_US-lessac-medium.onnx")
-    tts_gain: float = 0.35
+    tts_gain: float = 0.70
     vision_provider: str = "none"
     vision_model: str = ""
     vision_max_image_bytes: int = 2097152
