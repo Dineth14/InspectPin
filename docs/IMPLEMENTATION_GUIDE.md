@@ -48,7 +48,7 @@
 | `audio_player.h/.cpp` | Validate then stream PCM blocks, gain and duplicate mono into stereo slots, release I²S |
 | `wifi_manager.h/.cpp` | Bounded hotspot connect and diagnostic scan |
 | `api_client.h/.cpp` | SD stream POST, bounded JSON response, job polling, incremental verified audio download |
-| `camera_manager.h/.cpp` | Official Sense pin map, JPEG capture, optional light, frame return and deinit |
+| `camera_profile.h`, `camera_manager.h/.cpp` | Typed OV3660 profiles, setter/readback diagnostics, official Sense pins, SVGA JPEG validation, optional light, SD verification, frame return and reinitialization |
 | `button_manager.h/.cpp` | 40 ms debounce and short/long release actions |
 | `battery_monitor.h/.cpp` | Averaged calibrated ADC voltage and low-voltage threshold |
 | `status_feedback.h/.cpp` | Serial-coordinated optional bounded motor pulse and illumination control |
@@ -71,7 +71,7 @@ The built-in PDM microphone emits a high-rate pulse-density stream. ESP32 I²S P
 
 ## Streaming and memory
 
-The recorder uses a 1024-byte buffer; the player uses 512 bytes mono plus 1024 bytes stereo; the downloader uses 1024 bytes. Drivers also allocate DMA/internal buffers. File size is independent of these application buffer sizes. The ESP32 POST uses `http.sendRequest("POST", &file, file.size())`; it never allocates a complete voice WAV in PSRAM. The camera driver does require a frame buffer; QVGA DRAM fallback is attempted if PSRAM is absent.
+The recorder uses a 1024-byte buffer; the player uses 512 bytes mono plus 1024 bytes stereo; the downloader uses 1024 bytes. Drivers also allocate DMA/internal buffers. File size is independent of these application buffer sizes. The ESP32 POST uses `http.sendRequest("POST", &file, file.size())`; it never allocates a complete voice WAV or JPEG in a second application buffer. The camera driver requires PSRAM for the approved SVGA profile. Capture fails explicitly when PSRAM is absent; it never changes the sensor to QVGA. See [CAMERA_OPTIMIZATION](CAMERA_OPTIMIZATION.md).
 
 The laptop can afford bounded in-memory validation of its small uploads. It records SHA-256 over the exact received bytes for binary comparison. TTS is written to an intermediate answer filename and published only after normalization and deadline checks. Firmware downloads to `.part`, checks byte count and every canonical WAV field, then renames it before playback. Missing or truncated files cannot enter the player path.
 

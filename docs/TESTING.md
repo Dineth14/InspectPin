@@ -257,3 +257,47 @@ $env:HF_HOME = Join-Path (Get-Location) 'models\huggingface'
 - **Expected/pass:** No unexplained reset, memory decline or overheating within verified component limits; recoverable errors and intact earlier recordings; measured reliability meets documented project target. **Fail:** Repeated corruption, stuck state, unsafe temperature/power, lost prior evidence.
 - **Troubleshooting:** Correlate last state, supply droop, SD errors, worker timeout, I²S transitions, enclosure microphone/speaker coupling.
 - **Evidence:** Run-by-run results, failure rate, memory/current/temperature plots, enclosure photos and complete recovery video. Never substitute theoretical estimates for these measurements.
+
+## OV3660 profile acceptance tests
+
+These tests use the committed optimized profile. Save the complete 115200-baud serial log and original SD JPEGs. Do not mark a physical test passed from a successful compile.
+
+### CAM01 — Initialization
+
+Send `k`. Pass only if PSRAM is present, the sensor reports OV3660 PID `0x3660`, XCLK is 20 MHz, and the command ends with `Camera profile diagnostic PASS`. A different sensor or initialization error is a failure.
+
+### CAM02 — Optimized profile
+
+Inspect every line printed by `k`. Pass when every required setter reports `APPLIED`, the readbacks match, the summary says `APPLIED AND VERIFIED`, and gain ceiling is clearly shown as preserved or as an explicitly configured enum. Record unsupported optional lens correction separately. Inject an invalid supported setting in a temporary test build to confirm a setter/readback error cannot print a pass; restore the approved build afterward.
+
+### CAM03 — Resolution
+
+Send `c`, copy the named JPEG from SD, and inspect its dimensions with file properties, Pillow, or ImageMagick. Both serial and the independent decoder must report exactly 800 x 600. Any QVGA, VGA, UXGA, non-JPEG, missing EOI, or over-2-MiB frame is a failure.
+
+### CAM04 — Image storage
+
+Capture two different scenes. Confirm two different `/inspectpin/*.jpg` names, nonzero sizes equal to the serial values, valid JPEG decoding, and retention of the first file. Remove or lock the card in a controlled test and confirm a write failure does not damage an earlier good image.
+
+### CAM05 — Image upload
+
+Record SHA-256 of the SD JPEG and the backend image metadata/input file. Pass only if byte count and digest match. Existing automated backend tests exercise exact JPEG preservation; the physical test establishes that the board streamed the selected SD file.
+
+### CAM06 — LLM analysis
+
+Use a stationary, de-energized component/nameplate with recorded ground truth. Send `c`, wait for image registration, then use `v` and ask one visible question. Compare each claimed character/value to the original JPEG. Unreadable text must produce uncertainty, not an invented rating.
+
+### CAM07 — Repeated captures
+
+Capture at least 10 images consecutively. Record free heap/PSRAM before and after, every profile summary, filename, dimensions, and result. Pass with 10 valid unique images, no declining-memory trend, no leaked frame buffer, no reset, and the same profile readbacks each time.
+
+### CAM08 — Camera reinitialization
+
+Run `k`, then `c`, reset the board, and run `c` again. Where practical, force one recoverable frame failure. Pass when each initialization reapplies and verifies the profile and the retry log shows a complete second initialization rather than continuing with unknown settings.
+
+### CAM09 — Low-light behavior
+
+From a fixed tripod and target, capture the optimized profile under recorded controlled light. Explicitly compile the low-light test profile and repeat without moving anything. Record exposure appearance, motion blur, noise, readability, file size, and model result. The optimized image remains the reference. Restore the optimized build; no automatic switching is allowed.
+
+### CAM10 — Full multimodal workflow
+
+With `VISION_PROVIDER=ollama` and `VISION_MODEL=qwen2.5vl:3b`, capture a nameplate using `c` or D5. After “Image registered,” press D2, ask “What is this?” and wait for MAX98357A playback. Ask a second question such as “What model number is visible?” without recapturing. Pass only when both transcripts are correct, both answers are grounded in the same original JPEG, conversation context is retained, and audible WAV playback completes. Record low speaker volume as a separate audio limitation rather than a camera pass/fail substitution.

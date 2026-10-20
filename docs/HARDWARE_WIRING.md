@@ -16,7 +16,7 @@ Use a **XIAO ESP32-S3 Sense**, including its Sense expansion board and external 
 | Haptic driver gate | D7 GPIO44 | Proposed; UART0 RX alternate function |
 | Common ground | XIAO, amplifier, external drivers | Required |
 
-Camera: XCLK 10, SIOD 40, SIOC 39, D0/Y2 15, D1/Y3 17, D2/Y4 18, D3/Y5 16, D4/Y6 14, D5/Y7 12, D6/Y8 11, D7/Y9 48, VSYNC 38, HREF 47, PCLK 13; reset/power-down are -1 in the driver configuration. Camera module revision (e.g. OV2640/OV3660) must be recorded from the actual hardware; JPEG capture support still needs testing on it.
+Camera: XCLK 10, SIOD 40, SIOC 39, D0/Y2 15, D1/Y3 17, D2/Y4 18, D3/Y5 16, D4/Y6 14, D5/Y7 12, D6/Y8 11, D7/Y9 48, VSYNC 38, HREF 47, PCLK 13; reset/power-down are -1 in the driver configuration. The optimized firmware requires and reports an OV3660, 20 MHz XCLK, PSRAM frame buffer, JPEG, and SVGA 800 x 600. Send serial `k` to verify the installed sensor before capture. See [CAMERA_OPTIMIZATION](CAMERA_OPTIMIZATION.md).
 
 SD uses `SPI.begin(7,8,9,21)` followed by the previously working `SD.begin(21)`. The explicit pins match the board definition; this prevents accidental use of another board's SPI defaults. **GPIO21 is also the onboard LED connection: do not use it for status blinking while SD is active.** Serial and optional external haptics provide status instead.
 
@@ -48,7 +48,7 @@ GPIO3 is an ESP32-S3 strapping pin. Connect a normally open button to ground and
 
 Use USB CDC for diagnostics. GPIO43/44 must not also be used by UART0 peripherals or debug output when driving light/haptics. Leave both features disabled until confirmed with the selected board settings and boot behavior.
 
-Use a suitable logic-level MOSFET/transistor, gate/base resistor, pull-down, and external rated supply for illumination/motor loads. Fit a flyback diode across an inductive motor where appropriate. Use LED current regulation/resistance appropriate to the LED. Never drive a bare motor or high-current LED directly from the GPIO. Confirm startup-off behavior with power cycling. The firmware's haptic pulse is bounded to 60 ms; illumination is enabled only for capture.
+Use a suitable logic-level MOSFET/transistor, gate/base resistor, pull-down, and external rated supply for illumination/motor loads. Fit a flyback diode across an inductive motor where appropriate. Use LED current regulation/resistance appropriate to the LED. Never drive a bare motor or high-current LED directly from the GPIO. Confirm startup-off behavior with power cycling. The firmware's haptic pulse is bounded to 60 ms; illumination is disabled by default. When explicitly enabled, it turns on before camera settling and turns off on every success/error cleanup path. GPIO43 remains subject to the documented UART conflict check.
 
 No BMI270, MAX17048 or MAX4466 is used. All proposed circuits, battery-only power and integrated audio/camera operation remain subject to the physical tests in TESTING.md.
 

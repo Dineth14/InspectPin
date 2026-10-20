@@ -46,7 +46,7 @@ sequenceDiagram
   E->>E: Remove pending marker; READY
 ```
 
-A long press/release selects JPEG capture. The camera is initialized only during capture, first frame discarded, then its JPEG is saved and the camera deinitialized. The SD file streams to `POST /images`, which validates it and returns an image ID without running inference. A later short press records the user's question and sends its explicit image/context IDs with the WAV. The separate Qwen vision adapter receives JPEG pixels, the transcript and recent history; its answer goes through existing Piper synthesis. Optional OCR supplements the pixels. The legacy `/jobs/image` endpoint remains a separate one-shot compatibility path.
+A long press/release selects JPEG capture. The camera is initialized only during capture with the official XIAO pins, OV3660 identity is checked, and the centralized optimized profile is applied and read back. A 500 ms settling interval and two discarded frames precede the required 800 x 600 JPEG. The verified SD file then streams to `POST /images`, which validates it and returns an image ID without running inference. A later short press records the user's question and sends its explicit image/context IDs with the WAV. The separate Qwen vision adapter receives the original JPEG pixels, the transcript and recent history; its answer goes through existing Piper synthesis. Optional OCR supplements the pixels. The legacy `/jobs/image` endpoint remains a separate one-shot compatibility path. See [CAMERA_OPTIMIZATION](CAMERA_OPTIMIZATION.md).
 
 ```mermaid
 sequenceDiagram

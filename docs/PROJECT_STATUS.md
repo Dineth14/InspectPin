@@ -1,4 +1,8 @@
-# Project status — 2026-10-19
+# Project status — 2026-10-20
+
+**OV3660 profile update:** the firmware now has a centralized, compile-time optimized profile and strict runtime readback. The approved default is 20 MHz XCLK, JPEG, SVGA 800 x 600, quality 12, brightness +1, contrast 0, saturation -2, sharpness +1, de-noise 5, AE level 0, AWB/AEC/AGC/gamma/lens correction enabled, night mode disabled, and official OV3660 vertical flip enabled. The connected sensor passed all 20 configured setter/readback checks and reported raw initialized gain-ceiling status 248; this value is preserved and is not presented as an enum or as the lost manually tuned value. The original CameraWebServer `/status` JSON is still needed to convert provisional slider values into authoritative values.
+
+ESP32 core 3.3.12 compilation passed after this change: 1,082,602 bytes flash and 58,064 bytes static RAM. The firmware was uploaded to COM7 with verified flash hashes. Physical CAM01/CAM02 passed, and one CAM03/CAM04 capture was saved and reopened at 21,276 bytes and 800 x 600. Network receipt was blocked because the laptop was not on the board's configured hotspot, so CAM05–CAM10 remain pending rather than inferred. See [bench evidence](evidence/camera-profile-hardware.txt), [CAMERA_OPTIMIZATION](CAMERA_OPTIMIZATION.md), and [TESTING](TESTING.md#ov3660-profile-acceptance-tests).
 
 **Later bench update:** the models are now installed, two-button firmware has been uploaded to COM7, SD/network checks passed, and actual microphone → Qwen → Piper → board playback completed. The user confirmed audible speech but reported low volume; a local gain adjustment is in progress. Clear real-camera label recognition remains unverified. See [the current bench record](ACTUAL_MODEL_TEST.md) for results, failures and timings. The delivery snapshot below records the earlier state before these hardware tests.
 

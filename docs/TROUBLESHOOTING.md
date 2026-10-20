@@ -30,7 +30,10 @@ Start with `/healthz`, then authenticated `/api/v1/status`, then a job's `error.
 | TTS model missing | Both `.onnx` and matching `.onnx.json` required; paths relative to backend; rerun download script or use browser fallback |
 | Piper Windows import/DLL failure | Use Python 3.12 x64, pinned Windows wheel, supported VC++ runtime; verify `python -m piper --help`; see captured stable TTS error without exposing secrets |
 | I²S init failure | Correct XIAO board and ESP32 3.x core; avoid legacy I²S driver libraries; confirm prior mode called end; disconnect unrelated peripherals; test mic and speaker independently |
-| Camera failure | Verify Sense module seating, PSRAM and official pins, sensor revision and supply; no AI Thinker mapping; test `c` while other acquisition is idle |
+| Camera initialization/profile failure | Send `k`; require OV3660 PID, PSRAM, official XIAO pins and 20 MHz XCLK. Read the per-setting `FAILED`, `UNSUPPORTED`, or `VERIFY_FAILED` line. The firmware intentionally refuses OV2640 and never falls back to QVGA. |
+| Saved photo is not 800 x 600 | Treat the capture as failed; successful firmware output prints `resolution=800x600`. Check that the optimized build is flashed and no CameraWebServer code resets frame size. |
+| Label remains unreadable | Copy the original JPEG from SD and inspect at 100% zoom. Improve focus distance, camera stability, square alignment and diffuse lighting; fill more of the frame. Do not tune the model to repeat text that is not visible. |
+| Camera profile reports preserved gain ceiling | The original tuned `/status` gain-ceiling number was unavailable. Recover it with the procedure in CAMERA_OPTIMIZATION, then set the enum explicitly; do not infer it from a screenshot. |
 | `VISION_NOT_CONFIGURED` | Set `VISION_PROVIDER=ollama` and `VISION_MODEL=qwen2.5vl:3b`, download the model and restart. Text-only llama3.2:3b is insufficient |
 
 ## Visual conversations

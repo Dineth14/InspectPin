@@ -1,0 +1,33 @@
+InspectPin OV3660 optimized-profile bench evidence — 2026-10-20
+
+Firmware build (ESP32 Arduino core 3.3.12, XIAO ESP32-S3, OPI PSRAM):
+- 1,082,602 bytes program storage (32%)
+- 58,064 bytes static RAM (17%)
+- Upload to COM7 completed and flash hashes verified.
+
+CAM01/CAM02 observed with serial command k:
+- PSRAM total: 8,388,608 bytes
+- Camera detected: OV3660, PID 0x3660
+- XCLK: 20 MHz
+- Pixel format: JPEG
+- Resolution: SVGA 800x600
+- Quality 12; brightness 1; contrast 0; saturation -2
+- Sharpness 1; de-noise 5; exposure level 0
+- AWB 1; AWB gain 1; WB mode 0; advanced AWB/DCW 1
+- AEC 1; night mode/AEC2 0; AGC 1; raw gamma 1; lens correction 1
+- Vertical flip 1; special effect 0
+- Setter summary: applied=20, unsupported=0, failed=0, verify_mismatch=0
+- Raw initialized gain-ceiling status: 248. It was preserved; the original tuned reference is unavailable and no enum meaning is claimed.
+- Diagnostic result: PASS, with the gain-ceiling limitation printed explicitly.
+
+CAM03/CAM04 observed with serial command c:
+- Profile was reapplied and all configured controls verified.
+- JPEG was saved as a new collision-checked /inspectpin path.
+- Stored byte count was reopened and verified: 21,276 bytes.
+- Frame dimensions reported and enforced: 800x600.
+- The frame buffer was returned and the camera deinitialized.
+
+CAM05 and later:
+- Board upload attempted from the saved JPEG, proving the firmware used the SD streaming path.
+- The backend was unavailable from the board's configured hotspot network during this run (HTTP_-1), so byte-for-byte network receipt and model inference are not claimed.
+- CAM05 through CAM10 still require laptop and board on the configured hotspot, backend running, a known physical target, and for CAM10 a spoken question.

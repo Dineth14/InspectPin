@@ -1,6 +1,6 @@
 #include "camera_manager.h"
-#include "camera_profile.h"
 #include "config.h"
+#include "camera_profile.h"
 #include "status_feedback.h"
 #include <SD.h>
 
@@ -301,8 +301,11 @@ void printCameraSettings() {
   Serial.printf("JPEG quality: %u\n", s.quality);
   Serial.printf("Brightness: %d\nContrast: %d\nSaturation: %d\n", s.brightness, s.contrast, s.saturation);
   Serial.printf("Sharpness: %d\nDe-noise: %u\nExposure level: %d\n", s.sharpness, s.denoise, s.ae_level);
-  Serial.printf("Gain ceiling: %u (%s)%s\n", s.gainceiling, gainCeilingName(s.gainceiling),
-                activeProfile && activeProfile->gainCeiling < 0 ? " [initialized value preserved; tuned reference unavailable]" : "");
+  if (activeProfile && activeProfile->gainCeiling < 0)
+    Serial.printf("Gain ceiling status: %u [raw initialized driver value preserved; tuned reference unavailable]\n",
+                  s.gainceiling);
+  else
+    Serial.printf("Gain ceiling: %u (%s)\n", s.gainceiling, gainCeilingName(s.gainceiling));
   Serial.printf("AWB: %s\nAWB gain: %s\nAWB mode: %u (0=auto)\n",
                 s.awb ? "Enabled" : "Disabled", s.awb_gain ? "Enabled" : "Disabled", s.wb_mode);
   Serial.printf("Advanced AWB/DCW: %s\nAEC: %s\nAGC: %s\nGMA: %s\nLens correction: %s\n",
@@ -313,7 +316,11 @@ void printCameraSettings() {
                 s.aec2 ? "Enabled" : "Disabled", s.vflip ? "Enabled" : "Disabled");
   Serial.printf("Setter results: applied=%u unsupported=%u failed=%u verify_mismatch=%u\n",
                 lastApply.applied, lastApply.unsupported, lastApply.failed, lastApply.mismatched);
-  Serial.printf("Optimized profile: %s\n", profileApplied ? "APPLIED AND VERIFIED" : "FAILED OR UNVERIFIED");
+  Serial.printf("Optimized profile: %s\n", profileApplied
+                ? (activeProfile && activeProfile->gainCeiling < 0
+                   ? "APPLIED AND VERIFIED; GAIN CEILING PRESERVED, TUNED REFERENCE UNVERIFIED"
+                   : "APPLIED AND VERIFIED")
+                : "FAILED OR UNVERIFIED");
   Serial.println("===================================");
 }
 
@@ -352,4 +359,14 @@ bool captureJpeg(const String &path) {
   }
   Serial.println("Camera capture FAILED after reinitialization retry");
   return false;
+}
+
+bool diagnoseCamera() {
+  if (!IP_CAMERA_ENABLED) {
+    Serial.println("Camera disabled");
+    return false;
+  }
+  bool ok = initializeCamera();
+  if (ok) shutDownCamera();
+  return ok;
 }
