@@ -17,6 +17,7 @@ DeviceCommand Commands::fromSerial(char value) {
     case 'u': c.type=CommandType::VIDEO_START; break;
     case 'o': c.type=CommandType::VIDEO_STOP; break;
     case 'm': c.type=CommandType::MEDIA_LIST; break;
+    case 'g': c.type=CommandType::MEDIA_DOWNLOAD; break;
     case '?': c.type=CommandType::STATUS_GET; break;
     default: c.type=CommandType::NONE; break;
   }
@@ -27,11 +28,11 @@ const char *Commands::name(CommandType v) {
   static const char *names[]={"NONE","STATUS_GET","VOICE_START","CANCEL","PHOTO_CAPTURE",
     "VIDEO_START","VIDEO_STOP","LIGHT_SET","VOLUME_SET","HAPTIC_SET","BATTERY_GET",
     "MEDIA_LIST","MEDIA_DELETE","SLEEP","RESTART","SETTINGS_GET","SETTINGS_PATCH",
-    "RETRY","CONTEXT_GET","CONTEXT_CLEAR","SD_TEST","WIFI_CONNECT","CAMERA_DIAGNOSTIC","TONE_PLAY"};
+    "RETRY","CONTEXT_GET","CONTEXT_CLEAR","SD_TEST","WIFI_CONNECT","CAMERA_DIAGNOSTIC","TONE_PLAY","MEDIA_DOWNLOAD"};
   unsigned index=unsigned(v); return index<sizeof(names)/sizeof(names[0])?names[index]:"UNKNOWN";
 }
 CommandType Commands::fromName(const String &value) {
-  for(unsigned i=1;i<=unsigned(CommandType::TONE_PLAY);i++)
+  for(unsigned i=1;i<=unsigned(CommandType::MEDIA_DOWNLOAD);i++)
     if(value==name(CommandType(i))) return CommandType(i);
   return CommandType::NONE;
 }

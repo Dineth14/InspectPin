@@ -1,5 +1,22 @@
 # InspectPin pin and electrical conflict matrix — Phase 0
 
+> **Superseded allocation notice (2026-11-03):** The Phase 0 proposed-final
+> column below is historical. The authoritative candidate is now
+> [REV_E_RECONCILIATION_REPORT.md](REV_E_RECONCILIATION_REPORT.md): GPIO6 is
+> BAT_SENSE, GPIO5 is PCF8574 INT/wake, GPIO43/44 are PCF I²C, ASK remains
+> GPIO3, and PHOTO is PCF P3. There is no dedicated power button.
+
+| Resource | Reconciled use | Conflict disposition |
+|---|---|---|
+| GPIO1/2/4 | MAX98357A | Frozen |
+| GPIO3 | ASK/VOICE and possible wake | Strap/released-at-reset test |
+| GPIO5 | PCF8574 active-low INT and possible wake | Replaces old battery allocation |
+| GPIO6 | 100k/100k battery ADC only | Direct PHOTO/power prohibited |
+| GPIO43/44 | PCF8574 SDA/SCL | Flash/vibration move to PCF outputs through inverters |
+| PCF P0/P1 | Flash/vibration control | Default-high requires fail-safe inversion |
+| PCF P3 | PHOTO button | Final requirement |
+| PCF P4/P5/P6 | Decoded charger state | Open-drain, 3.3V pull-ups only |
+
 This is a design decision record, not proof of assembled hardware.
 
 | Board label | GPIO | Current source use | Proposed final use | RTC/deep wake | Conflicts and decision |

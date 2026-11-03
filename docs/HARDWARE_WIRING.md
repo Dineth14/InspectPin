@@ -1,5 +1,24 @@
 # Hardware and wiring
 
+> The earlier direct D5 camera-button bench diagram is historical only. The
+> reconciled Rev E specification is [here](../hardware/REV_E_RECONCILIATION_REPORT.md)
+> with a [connection diagram](../hardware/REV_E_CONNECTION_DIAGRAM.md). Do not
+> combine D5 PHOTO wiring with the new battery divider.
+
+## Reconciled two-button controls
+
+- ASK/VOICE: D2/GPIO3 to GND, normally open; keep released during reset.
+- PHOTO: PCF8574 P3 to GND, normally open, with a 10 kΩ pull-up to 3.3 V.
+- No dedicated power/wake button. Automatic inactivity selects light sleep
+  first. ASK and PCF8574 INT on D4/GPIO5 are the only candidate wake sources.
+- D5/GPIO6 is analog BAT_SENSE only: 100 kΩ from VBAT, 100 kΩ to GND, and
+  100 nF to GND at the ADC node.
+
+The PCF8574 candidate bus is SDA D6/GPIO43, SCL D7/GPIO44, address 0x20,
+and active-low INT D4/GPIO5. P0/P1 reach the flashlight driver and vibration
+module IN only through a fail-safe inverter so power-up HIGH leaves both loads
+off. Verify every net against the missing Rev E KiCad source before assembly.
+
 ## Button layout migration flag
 
 The uploaded bench default remains `IP_BUTTON_LAYOUT_FINAL=false` with

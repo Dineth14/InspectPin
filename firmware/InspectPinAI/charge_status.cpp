@@ -1,5 +1,7 @@
 #include "charge_status.h"
 #include "config.h"
+#include "pcf8574_manager.h"
+#include "hardware_profile.h"
 
 namespace { ChargeStatus::Reading reading; }
 
@@ -18,6 +20,15 @@ void ChargeStatus::begin() {
   reading={false,State::UNKNOWN,"unavailable",millis(),0,false};
 }
 void ChargeStatus::tick() {
+  if(IP_CHARGE_DECODER_ENABLED&&Expander::available()){
+    const bool usb=Expander::inputLow(HardwareProfile::pcfUsbPresentN);
+    const bool valid=Expander::inputLow(HardwareProfile::pcfChargeValidN);
+    const bool full=Expander::inputLow(HardwareProfile::pcfChargeFullN);
+    reading.usbPresent=usb;reading.valid=usb&&valid;
+    reading.source="hardware_decoder";
+    reading.state=!reading.valid?State::UNKNOWN:(full?State::FULL:State::CHARGING);
+    reading.sampledAt=millis();
+  }
   reading.ageMs=millis()-reading.sampledAt;
 }
 ChargeStatus::Reading ChargeStatus::latest() {

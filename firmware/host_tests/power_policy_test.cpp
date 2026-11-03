@@ -26,11 +26,9 @@ int main(){
   assert(full.state==ChargeDecoder::State::FULL&&full.ledOn);
   assert(decoder.update(true,false,7000).state==ChargeDecoder::State::FULL);
   assert(decoder.update(false,false,8000).state==ChargeDecoder::State::USB_ABSENT);
-  assert(ButtonPolicy::voiceRelease(100,false)==ButtonAction::VOICE);
-  assert(ButtonPolicy::voiceRelease(1300,true)==ButtonAction::CAMERA);
-  assert(ButtonPolicy::secondRelease(100,false)==ButtonAction::CAMERA);
-  assert(ButtonPolicy::secondRelease(100,true)==ButtonAction::NONE);
-  assert(ButtonPolicy::secondRelease(1900,true)==ButtonAction::SLEEP);
-  assert(ButtonPolicy::resolve(ButtonAction::VOICE,ButtonAction::SLEEP)==ButtonAction::SLEEP);
+  assert(ButtonPolicy::voiceRelease(100)==ButtonAction::VOICE);
+  assert(ButtonPolicy::voiceRelease(3000)==ButtonAction::VOICE);
+  assert(ButtonPolicy::photoRelease(100)==ButtonAction::CAMERA);
+  assert(ButtonPolicy::resolve(ButtonAction::VOICE,ButtonAction::CAMERA)==ButtonAction::CAMERA);
   return 0;
 }

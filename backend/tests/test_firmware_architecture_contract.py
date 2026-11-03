@@ -97,13 +97,35 @@ def test_charge_and_haptic_truthfulness_contracts():
     assert "IP_HAPTIC_ENABLED" in feedback
 
 
-def test_button_migration_and_illumination_are_safe_by_default():
+def test_reconciled_two_button_expander_and_illumination_contract():
     button = source("button_manager.cpp")
     light = source("illumination_controller.cpp")
-    assert "IP_BUTTON_LAYOUT_FINAL" in button
+    profile = source("hardware_profile.h")
+    assert "IP_PCF8574_ENABLED" in button
+    assert "Expander::photoPressed" in button
     assert "ButtonPolicy::resolve" in button
-    assert "IP_BUTTON_LAYOUT_FINAL false" in source("config.h")
+    assert "batteryAdcGpio = 6" in profile
+    assert "askButtonGpio = 3" in profile
+    assert "pcfInterruptGpio = 5" in profile
+    assert "pcfPhotoButton = 3" in profile
+    assert "MAX17043" not in "".join(source(name) for name in (
+        "battery_monitor.h", "battery_monitor.cpp", "power_manager.cpp"))
     assert "LOW_BATTERY" in light
     assert "IP_LIGHT_ENABLED" in light
     assert "forceOff" in light
+
+
+def test_battery_adc_filter_and_automatic_sleep_contract():
+    battery = source("battery_monitor.cpp")
+    power = source("power_manager.cpp")
+    config = source("config.h")
+    assert "analogReadMilliVolts(Config::battery)" in battery
+    assert "ADC_11db" in battery
+    assert "trimmedMean" in battery
+    assert "BatteryPolicy::percentFromVoltage" in battery
+    assert "IP_BATTERY_DIVIDER_RATIO 2.0f" in config
+    assert "enterAutomaticSleep" in power
+    assert "IP_DEEP_SLEEP_ENABLED" in power
+    assert "HardwareProfile::askButtonGpio" in power
+    assert "HardwareProfile::pcfInterruptGpio" in power
 

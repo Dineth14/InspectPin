@@ -8,17 +8,18 @@ is idle. The app closes SD and NVS handles before deep sleep, disables Wi-Fi,
 configures the selected wake input, flushes serial, and logs the next wake
 cause. `IP_POWER_MANAGEMENT_ENABLED` is false by default.
 
-GPIO6 is only a proposed active-low deep-sleep wake input. It is also the
-current D5 camera button, so enabling power management changes product behavior
-and requires rewiring plus a 50-cycle reset/wake test. GPIO3 must be released
-during reset because it is a strap pin. Camera, I2S and Wi-Fi lifecycle must be
-measured with an ammeter before power acceptance.
+There is no dedicated power button. Automatic inactivity uses configurable
+light sleep first. Existing ASK on GPIO3 and PCF8574 active-low INT on GPIO5 are
+the only candidate wake sources; both are ESP32-S3 RTC GPIOs. PHOTO on PCF P3
+causes INT low. The PCF8574 must remain powered and its port must be read before
+sleep to clear stale INT. GPIO3 must be released during reset because it is a
+strap pin. Deep sleep remains disabled until 50-cycle ASK/PHOTO wake tests and
+current measurements pass.
 
 ## Physical-off option
 
-True off requires a reviewed latching load switch/power controller between the
-battery supply and system rail, with momentary-button set, MCU hold, and safe
-shutdown control. The present PCB/firmware does not contain or claim this.
+True physical off is outside the final two-button requirement. The present
+PCB/firmware does not contain or claim a latching load switch.
 
 ## Physical tests still required
 

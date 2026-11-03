@@ -1,5 +1,6 @@
 #include "status_feedback.h"
 #include "config.h"
+#include "pcf8574_manager.h"
 namespace {
 struct Pattern { uint8_t count,onMs,offMs; };
 Pattern active{0,0,0}; uint8_t step=0; bool motorOn=false; uint32_t nextAt=0;
@@ -20,22 +21,24 @@ Pattern pattern(Feedback::Event e) {
 void driveMotor(bool enabled) {
   motorOn=enabled;
   if(!IP_HAPTIC_ENABLED) return;
+  if(IP_PCF8574_ENABLED){Expander::setVibration(enabled&&hapticAllowed);return;}
   if(IP_HAPTIC_PWM_ENABLED) ledcWrite(Config::haptic,enabled&&hapticAllowed?hapticLevel:0);
   else digitalWrite(Config::haptic,enabled&&hapticAllowed?HIGH:LOW);
 }
 void driveLight() {
   if(!IP_LIGHT_ENABLED) return;
+  if(IP_PCF8574_ENABLED){Expander::setFlashlight(lamp&&lampBrightness);return;}
   if(IP_LIGHT_PWM_ENABLED) ledcWrite(Config::light,lamp?lampBrightness:0);
   else digitalWrite(Config::light,lamp&&lampBrightness?HIGH:LOW);
 }
 }
 void Feedback::begin() {
   if (IP_LIGHT_ENABLED) {
-    if(IP_LIGHT_PWM_ENABLED) ledcAttach(Config::light,5000,8); else pinMode(Config::light,OUTPUT);
+    if(!IP_PCF8574_ENABLED){if(IP_LIGHT_PWM_ENABLED) ledcAttach(Config::light,5000,8); else pinMode(Config::light,OUTPUT);}
     lamp=false; lampBrightness=0; driveLight();
   }
   if (IP_HAPTIC_ENABLED) {
-    if(IP_HAPTIC_PWM_ENABLED) ledcAttach(Config::haptic,200,8); else pinMode(Config::haptic,OUTPUT);
+    if(!IP_PCF8574_ENABLED){if(IP_HAPTIC_PWM_ENABLED) ledcAttach(Config::haptic,200,8); else pinMode(Config::haptic,OUTPUT);}
     driveMotor(false);
   }
 }

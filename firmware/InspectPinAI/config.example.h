@@ -10,12 +10,11 @@
 #define IP_PLAYBACK_GAIN 0.20f
 #define IP_DEBUG true
 #define IP_CAMERA_ENABLED true
-// Enable for a second momentary camera button: D5/GPIO6 to GND.
-// Otherwise D2/GPIO3 retains short=voice, long=camera behavior.
+// Legacy bench-only direct D5 camera button. Must be false for reconciled PCB,
+// because D5/GPIO6 is exclusively the battery ADC.
 #define IP_CAMERA_BUTTON_ENABLED false
-// false preserves bench D2=voice/D5=camera. true requires rewiring/boot tests:
-// D2 short=voice, D2 long=photo, D5 hold=manual sleep/wake.
-#define IP_BUTTON_LAYOUT_FINAL false
+#define IP_PCF8574_ENABLED false
+#define IP_CHARGE_DECODER_ENABLED false
 #define IP_BATTERY_ENABLED false
 #define IP_LIGHT_ENABLED false
 #define IP_HAPTIC_ENABLED false
@@ -27,7 +26,8 @@
 #define IP_CRITICAL_BATTERY_VOLTS 3.25f
 // Keep disabled until GPIO6 wake wiring and measured sleep current pass acceptance.
 #define IP_POWER_MANAGEMENT_ENABLED false
-#define IP_POWER_BUTTON_PIN 6
+#define IP_DEEP_SLEEP_ENABLED false
+#define IP_POWER_BUTTON_PIN 5
 #define IP_IDLE_TIMEOUT_MS 0UL
 #define IP_LIGHT_PWM_ENABLED false
 #define IP_LIGHT_DEFAULT_BRIGHTNESS 255

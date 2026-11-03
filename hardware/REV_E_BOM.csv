@@ -1,0 +1,25 @@
+Reference,Quantity,Description,Provisional part/value,Status/verification
+U_XIAO,1,XIAO ESP32-S3 Sense with onboard charger,Exact installed revision,Retain; identify revision
+U_IO,1,8-bit I2C expander,PCF8574T 3.3V address 0x20,Retain; verify footprint/address
+U_INV,1,Dual fail-safe inverter,74LVC2G04 or reviewed equivalent,Add; verify package/truth table
+R_BAT_TOP,1,Battery divider upper,100k 1% 0603,Final
+R_BAT_BOTTOM,1,Battery divider lower,100k 1% 0603,Final
+C_BAT,1,Battery ADC filter,100nF X7R 0603,Final
+R_SDA_R_SCL,2,I2C pull-ups,4.7k 1% 0603,Verify bus capacitance
+R_INT,1,PCF INT pull-up,10k 1% 0603,Final candidate
+R_PHOTO_R_ASK,2,Button pull-ups,10k 1% 0603,Final candidate
+SW_PHOTO,1,Momentary normally-open button,PCB-rated tactile,PCF P3
+SW_ASK,1,Momentary normally-open button,PCB-rated tactile,D2/GPIO3 strap test
+U_AMP,1,I2S class-D amplifier,Existing MAX98357A module/circuit,Retain verified GPIO wiring
+SPK,1,Speaker,8 ohm 0.5W existing,Retain; acoustic/power check
+MOD_VIB,1,Vibration module with VCC GND IN,Exact module TBD,Retain; verify voltage/current/input
+D_FLASH,1,White flashlight LED,20mA exact part TBD,Retain; verify Vf/current
+Q_FLASH,1,Existing suitable LED transistor driver,Exact part/value from Rev E required,Retain only after rating review
+U_CHGSTAT,1,VBUS-powered nCHG decoder,ATtiny202/402-class or reviewed equivalent,Add
+D_CHG,1,Single low-current red SMD LED,0603 exact part TBD,Add
+R_CHG_LED,1,Charge LED resistor,6.8k 1% 0603 initial,Confirm brightness/current
+R_CHG_IN,1,nCHG isolation,10k 0603,Add
+R_CHG_PULL,1,nCHG sense pull-up,1M 0603,Add
+C_CHG,1,Decoder decoupling,100nF X7R 0603,Add
+BAT1,1,Protected single-cell Li-Po,3.7V nominal 900mAh 4.2V max,Verify connector/polarity/datasheet
+U_GAUGE,0,Dedicated fuel gauge,MAX17043/MAX17048,REMOVE/DNP prohibited

@@ -16,6 +16,7 @@
 #include "illumination_controller.h"
 #include "video_recorder.h"
 #include "media_catalog.h"
+#include "pcf8574_manager.h"
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","VIDEO_RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 void App::updateRuntimeState(AppState value) {
   TopLevelState top=TopLevelState::ACTIVE;
@@ -72,14 +73,16 @@ void App::fail(const String &error,bool offline) {
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
   EventLog::begin();
-  state(AppState::INITIALIZING); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); ChargeStatus::begin(); Power::begin();
+  state(AppState::INITIALIZING); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
+  Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
   Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Buttons: D2/GPIO3=voice, D5/GPIO6=camera (press and release)" : "Button D2/GPIO3: short=voice, long=camera");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
+  Video::recoverIncomplete();
   Video::recoverIncomplete();
   if (Wifi::connect()) syncContext();
   else state(AppState::OFFLINE);
@@ -157,6 +160,7 @@ void App::handleCommand(const DeviceCommand &command) {
     case CommandType::CONTEXT_CLEAR: syncContext(true); break;
     case CommandType::SD_TEST: Serial.println(Store::selfTest()?"SD test PASS":"SD test FAIL"); break;
     case CommandType::MEDIA_LIST: MediaCatalog::print(); break;
+    case CommandType::MEDIA_DOWNLOAD: MediaCatalog::sendFile(Video::stats().path); break;
     case CommandType::WIFI_CONNECT: Wifi::scan(); Wifi::connect(); break;
     case CommandType::BATTERY_GET: { auto reading=Battery::sample(); auto charge=ChargeStatus::latest(); Serial.printf("Battery voltage=%.3f V estimate=%.1f%% valid=%s uncertainty=%.2f V low=%s critical=%s calibration=%.4f charge=%s charge_valid=%s source=%s age_ms=%lu\n",reading.volts,reading.percent,reading.valid?"yes":"no",reading.uncertaintyVolts,reading.low?"yes":"no",reading.critical?"yes":"no",Battery::calibration(),ChargeStatus::name(charge.state),charge.valid?"yes":"no",charge.source,(unsigned long)charge.ageMs); break; }
     case CommandType::CAMERA_DIAGNOSTIC: Serial.println(diagnoseCamera()?"Camera profile diagnostic PASS":"Camera profile diagnostic FAIL"); break;
@@ -184,11 +188,11 @@ void App::handleCommand(const DeviceCommand &command) {
       if(!operation_.sleepSafe()) { Serial.println("Sleep deferred: operation active"); EventLog::record(EventCode::SLEEP_DEFERRED,command.requestId); }
       else {
         SettingsStore::end(); Store::end();
-        if(!Power::enterDeepSleep("manual command")) {
+        if(!Power::enterAutomaticSleep("manual/idle command")) {
           Serial.printf("COMMAND_FAILED request=%s error=POWER_FEATURE_DISABLED actual=%s\n",command.requestId.c_str(),names[int(state_)]);
           EventLog::record(EventCode::OPERATION_FAILED,"POWER_FEATURE_DISABLED");
         }
-        sdReady_=Store::begin(); SettingsStore::begin();
+        sdReady_=Store::begin(); SettingsStore::begin();Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
       }
       break;
     case CommandType::STATUS_GET: {auto video=Video::stats();Serial.printf("STATE %s heap=%u psram=%u connected=%s light=%s brightness=%u haptic=%s volume=%u video=%s frames=%lu dropped=%lu bytes=%lu\n",names[int(state_)],ESP.getFreeHeap(),ESP.getFreePsram(),runtime_.current().flags.connected?"yes":"no",Illumination::state().actual?"on":"off",Illumination::state().brightness,Feedback::hapticEnabled()?"on":"off",playbackVolume(),video.active?"recording":"idle",(unsigned long)video.frames,(unsigned long)video.dropped,(unsigned long)video.bytes);break;}
@@ -197,6 +201,7 @@ void App::handleCommand(const DeviceCommand &command) {
 }
 void App::tick() {
   Feedback::tick();
+  Expander::tick();
   ChargeStatus::tick();
   Illumination::tick(Battery::latest().low);
   runtime_.flags().lightOn=Illumination::state().actual;
@@ -213,7 +218,6 @@ void App::tick() {
   if (idle()) {
     if (action==ButtonAction::VOICE) handleCommand({CommandType::VOICE_START,CommandSource::BUTTON,String("button-")+millis()});
     else if (action==ButtonAction::CAMERA) handleCommand({CommandType::PHOTO_CAPTURE,CommandSource::BUTTON,String("button-")+millis()});
-    else if (action==ButtonAction::SLEEP) handleCommand({CommandType::SLEEP,CommandSource::BUTTON,String("button-")+millis()});
     if (idle() && Serial.available()) {
       char cmd=Serial.read();
       if(cmd=='d') Serial.printf("Buttons: D2/GPIO3=%s D5/GPIO6=%s two-button=%s (pressed=LOW)\n",
