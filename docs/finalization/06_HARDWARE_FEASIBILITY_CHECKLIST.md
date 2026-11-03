@@ -1,0 +1,46 @@
+# Hardware feasibility checklist
+
+| Item | Purpose / electrical requirement | Proposed connection | Need |
+|---|---|---|---|
+| XIAO ESP32-S3 Sense + OV3660/Sense board | Controller, PSRAM, mic, camera, SD | Existing official camera/mic/SD nets | Mandatory, present |
+| Momentary power/wake switch | Deep-sleep wake/manual sleep | D5/GPIO6 to GND, pull-up; verify RTC wake | Mandatory final UI; rewire/validate |
+| Momentary speech switch | Voice/photo gesture | D2/GPIO3 to GND; release during reset because strap pin | Mandatory, present but strap risk |
+| Li-Po with protection | Portable power | BAT pads, correct polarity, suitable protected cell | Mandatory product; validate capacity/current |
+| 47 kΩ + 47 kΩ divider, 100 nF | Battery voltage estimate | BAT→47k→GPIO5→47k→GND; capacitor midpoint→GND | Mandatory for estimate; unverified |
+| Optional divider disconnect FET | Reduce leakage/back-power | High-side/low-side topology reviewed for ADC safety | Optional |
+| Power latch/load switch | True physical off and button-on | Selected IC/circuit between cell and loads; hold/kill signals | Optional for prototype, mandatory if “off” means disconnected |
+| MAX98357A | I²S speaker amplifier | BCLK GPIO1, LRC GPIO2, DIN GPIO4, common GND, verified supply | Present; battery supply unresolved |
+| 8 Ω speaker with adequate rating | Spoken output | Across SPK+ and SPK− only | Present; 0.5 W unit needs power/distortion test |
+| White LED + current control | Illumination | External supply/current resistor or driver; MOSFET gate from GPIO43 with pull-down | Optional until built; never direct GPIO |
+| ERM motor + MOSFET/transistor | Haptic feedback | Rated supply, gate/base network from GPIO44, pull-down, flyback diode | Optional until built; bare motor forbidden |
+| LRA + haptic driver | Higher-quality haptics | Dedicated driver over available bus/pins after conflict audit | Alternative to ERM |
+| VBUS/charger-status sensing | Firmware charging indication | Additional protected VBUS divider and/or buffered/tapped CHG net after schematic/revision review | Optional; required for firmware-readable charging |
+| Logic-level translator/protection | Protect status inputs if rail exceeds GPIO | Divider/buffer/clamps calculated for worst case | As required |
+| Bulk/local decoupling | Prevent audio/motor/LED resets and mic noise | At amp/drivers; values based on load/transients | Mandatory final hardware |
+| External antenna | Reliable Wi-Fi/BLE | XIAO U.FL antenna fitted correctly | Present/mandatory for intended RF setup |
+| High-endurance microSD | Media/video writes | Sense slot; FAT compatibility and speed tested | Mandatory video |
+
+## Pin conflict decision
+
+| Function | GPIO | Finding |
+|---|---:|---|
+| MAX98357 BCLK/LRC/DIN | 1/2/4 | Existing tested allocation; RTC-capable pins consumed. |
+| Speech button | 3 | D2/ADC1_CH2/RTC; **strapping pin**. Must be released at reset and tested. |
+| Battery ADC | 5 | D4/ADC1_CH4/RTC; suitable ADC input, conflicts with using D4 elsewhere. |
+| Power/wake button | 6 | D5/ADC1_CH5/RTC; preferred wake source, replacing current second camera-button role. |
+| SD | 7/8/9/21 | Existing official Sense allocation; GPIO21 also board LED. |
+| Camera | 10–18,38–40,47,48 | Reserved by Sense camera. |
+| PDM mic | 41/42 | Reserved by Sense microphone; not ADC-capable on this board use. |
+| Illumination control | 43 | D6/UART0 TX alternate; use USB CDC, driver only, no deep-sleep wake. |
+| Haptic control | 44 | D7/UART0 RX alternate; driver only, no deep-sleep wake. |
+
+## Power and charging findings
+
+Seeed documents onboard single-cell charging and a red hardware charge indicator. The v1.3 schematic identifies SGM40567 and a nominal charge-current network around 110 mA. Confirm the actual board revision and resistor before relying on that value. The standard exposed pinout has no confirmed MCU-readable charge output. The 5 V pin is USB-derived and has no voltage during battery-only operation, so a 5 V MAX98357 supply requires a verified boost/power architecture or operation at a supported lower amplifier rail.
+
+Required measurements: USB/battery rail voltage at idle and peak playback; total active/record/photo/video/sleep current; charger current and temperature; battery polarity/protection; brownout margin; LED/motor inrush; amplifier/speaker RMS using safe differential measurement; RF and microphone noise with loads switching.
+
+## Driver acceptance
+
+No light or haptic feature may be enabled until schematic, part numbers, load ratings, GPIO-off behavior, gate/base current, flyback/current limiting, thermal test, and power-cycle test are recorded. Charging UI must show `unknown` unless the optional sensing circuit has a tested truth table for USB absent, charging, full, battery absent, and fault where detectable.
+

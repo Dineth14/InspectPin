@@ -46,6 +46,7 @@ Short press and release records voice; hold at least 1.2 seconds and release cap
 
 | Document | Purpose |
 |---|---|
+| [FINALIZATION PACKAGE](docs/finalization/README.md) | Audited requirements, copy-ready master/phase prompts, Flutter specification, hardware checklist and verification matrix |
 | [INSTALLATION](docs/INSTALLATION.md) | Windows dependencies, models, network, providers, board upload |
 | [HARDWARE_WIRING](docs/HARDWARE_WIRING.md) | Pin map, power, verified baseline vs proposed circuits |
 | [ARCHITECTURE](docs/ARCHITECTURE.md) | Data flow, state diagrams, concurrency and recovery |
