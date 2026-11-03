@@ -8,6 +8,9 @@ from .errors import ServiceError
 from .job_manager import JobManager
 from .pipeline import Services
 from .routes import api
+from .product_routes import product
+from .product_store import ProductStore
+from .product_jobs import ProductJobManager
 from .storage import Storage
 
 
@@ -19,7 +22,10 @@ def create_app(settings=None, services=None):
     services = services or Services.create(settings)
     app.extensions["services"] = services
     app.extensions["jobs"] = JobManager(settings, Storage(settings.data_dir), services)
+    app.extensions["product_store"] = ProductStore(settings.data_dir, settings.user_session_seconds)
+    app.extensions["product_jobs"] = ProductJobManager(app.extensions["product_store"], services, settings)
     app.register_blueprint(api)
+    app.register_blueprint(product)
 
     @app.errorhandler(ServiceError)
     def service_error(exc):

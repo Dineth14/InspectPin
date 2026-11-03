@@ -41,6 +41,8 @@ class Settings:
     max_voice_bytes: int = 1000000
     max_image_bytes: int = 2000000
     min_rms: float = 5.0
+    user_session_seconds: int = 86400
+    cors_origin: str = "http://127.0.0.1:5173"
 
     @classmethod
     def from_env(cls):
@@ -73,6 +75,8 @@ class Settings:
                      "vision_max_image_bytes", "vision_context_seconds", "conversation_max_turns"):
             if not 0 < getattr(self, name) < 1e9:
                 raise ValueError(f"{name} must be finite and positive")
+        if not 300 <= self.user_session_seconds <= 2592000:
+            raise ValueError("USER_SESSION_SECONDS must be between 5 minutes and 30 days")
         if not 1 <= self.port <= 65535 or not 0 < self.tts_gain <= 1 or not 0 <= self.min_rms <= 32767:
             raise ValueError("Invalid port, gain or silence threshold")
         if self.host not in ("127.0.0.1", "localhost", "::1") and len(self.device_token) < 16:

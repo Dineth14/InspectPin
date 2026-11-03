@@ -159,3 +159,25 @@ Network provider calls have 5 s connect and configurable read timeouts; Piper/OC
 Local mode uses Whisper, Ollama and Piper without paid keys. Cloud text mode sends only the transcript to the selected provider; cloud vision sends the JPEG and question. This data movement is intentional when those modes are configured. Keys stay in environment/ignored `.env` and are never sent to firmware. The API token guards every `/api/*` endpoint and all job data; `/healthz` contains liveness only. One shared token means one trust domain, not individual device accounts.
 
 Production improvements include TLS/device identities, process supervision, durable external queues, storage quotas, upload idempotency, and model capability checks. Current error strings deliberately omit external response bodies and exception details that may contain credentials.
+
+## Product platform extension
+
+The inference API above remains unchanged. A separate product plane now adds
+account sessions, one-time per-device credentials, device ownership, heartbeat
+telemetry, command polling/acknowledgement, resumable SHA-256 uploads,
+inspections, media, background analysis, reports and audit events. SQLite and
+local files are the single-process development persistence layer.
+
+```text
+ESP32 or simulator ── device credential ──► heartbeat / commands / uploads
+                                             │
+React web / Flutter ── user session ────────► product API ─► SQLite + media
+                                             │
+                                             └─► bounded vision worker
+```
+
+The React and Flutter clients consume versioned contracts and never synthesize
+telemetry. The simulator calls the same API and labels all its records. SSE
+currently supplies an authenticated snapshot; it is not a durable event bus.
+Production scale requires PostgreSQL/object storage and an external supervised
+worker, documented in [DEPLOYMENT](DEPLOYMENT.md).

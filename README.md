@@ -1,63 +1,102 @@
 # InspectPin AI
 
-**Current bench session:** real models are installed and firmware is uploaded. Physical voice capture, backend processing and audible playback have worked; volume tuning and clear-label camera acceptance are still in progress. The private config uses **D2 = voice, D5 = camera**, with vibration disabled. See [latest measured results](docs/ACTUAL_MODEL_TEST.md) and [bench wiring](docs/BENCH_PIN_DIAGRAM.md). Earlier delivery notes below are historical.
+InspectPin is a wearable electronics-inspection assistant built around the XIAO
+ESP32-S3 Sense. This repository contains the embedded firmware, local AI
+backend, persistent product API, React dashboard, Flutter companion app and a
+Windows virtual device.
 
-Wearable inspection assistant for **Seeed Studio XIAO ESP32-S3 Sense**. The board records raw 16 kHz PCM WAV or captures JPEG to microSD, streams it to a laptop, polls a job, downloads a validated spoken WAV and plays it through a MAX98357A. Inference runs on the laptop (or a deliberately selected cloud provider), not on the ESP32.
+The simulator demonstrates the complete mock PHOTO and ASK transport path; mock
+output is labelled and is not camera recognition, speech recognition or
+physical validation. See the [current audit](docs/CURRENT_STATE_AUDIT.md),
+[acceptance report](docs/ACCEPTANCE_REPORT.md) and
+[known limitations](docs/KNOWN_LIMITATIONS.md).
 
-This workspace was empty when implementation began. No existing working sketches or virtual environment were replaced. The prior hardware successes in the project brief are user-reported baseline evidence, not validation of this integrated firmware. See [current evidence and limitations](docs/PROJECT_STATUS.md).
+## System flow
 
-The multimodal extension is implemented: capture/register a JPEG, ask a spoken question, and ask follow-ups about the same image. Each device has a bounded conversation; actual image pixels accompany every visual question. **104 tests passed**, the updated firmware compiled on ESP32 core 3.3.12, and actual HTTP tests passed with mocked inference. Ollama is running but the requested Qwen2.5-VL model is not downloaded; real visual recognition and physical acceptance remain pending.
+```text
+PHOTO → OV3660 JPEG → SD/offline queue → authenticated backend → vision result
+ASK   → PDM WAV → SD/offline queue → STT → grounded answer → TTS → MAX98357A
+                                ↓
+                    web dashboard / Flutter app / report
+```
 
-**To make your pin functional, follow [the step-by-step multimodal setup](docs/MULTIMODAL_GUIDE.md)**: download Qwen and llama, select real providers, run the laptop image check, start Flask, configure/upload firmware, then use `c` followed by `v`. See [V01–V10](docs/VISION_TESTING.md) for physical acceptance and [changed files](docs/MULTIMODAL_CHANGES.md) for implementation details.
+Each visual question binds an explicit image/context ID. Provider prompts require
+visible evidence and uncertainty and prohibit invented electrical measurements
+or safety certification.
 
-## Quick start — Windows PowerShell
+## Quick mock demonstration — Windows PowerShell
 
-From this repository root, with Python 3.12 installed:
+From the repository root:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
-.\.venv\Scripts\python.exe -m pytest -v
-if (-not (Test-Path backend\.env)) { Copy-Item backend\.env.mock.example backend\.env }
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt -r backend\requirements-dev.txt
+Copy-Item backend\.env.mock.example backend\.env
 .\.venv\Scripts\python.exe backend\receiver.py
 ```
 
-If `.venv` already exists and works, use it; do not recreate it. The environment created during this implementation is already populated. `python` on this laptop currently resolves to an unusable Windows Store alias; use `.\.venv\Scripts\python.exe` directly.
-
-The mock configuration is an explicitly labelled transport demonstration: it returns a mock transcript, mock answer and synthetic tone, **not recognized speech or spoken AI output**. The backend defaults without an `.env` are real Whisper + Ollama + Piper. To enable that configuration, follow [installation](docs/INSTALLATION.md), including model downloads.
-
-In another PowerShell window:
+In a second terminal:
 
 ```powershell
-Set-Location backend
-..\.venv\Scripts\python.exe -m scripts.audio_tool generate tone.wav --seconds 5
-..\.venv\Scripts\python.exe -m scripts.device_smoke tone.wav
+.\.venv\Scripts\python.exe simulator\inspectpin_simulator.py bootstrap
+.\.venv\Scripts\python.exe simulator\inspectpin_simulator.py scenario backend\tests\fixtures\synthetic_nameplate_a.jpg
 ```
 
-Supported: bounded asynchronous jobs, raw input retention, validated upload/download, restart journals, device token, Whisper STT, Ollama/OpenAI/DeepSeek text providers, Piper speech with resampling, configurable vision adapters, optional Tesseract OCR, debounced short/long button actions, SD retry markers, voltage monitoring and optional driver-controlled illumination/haptics. No BMI270, MAX17048 or external microphone is required.
+Dashboard:
 
-## Firmware
+```powershell
+Set-Location web
+npm install
+npm run dev
+```
 
-Open `firmware/InspectPinAI/InspectPinAI.ino` in Arduino IDE. Copy `config.example.h` to ignored `config.local.h`, configure Wi-Fi, laptop LAN URL and token. Select **XIAO_ESP32S3**, OPI PSRAM, 8 MB flash, USB CDC enabled; install ArduinoJson 7.4.2. See [exact build/upload instructions](docs/INSTALLATION.md#arduino-firmware).
+Open `http://127.0.0.1:5173`. For one-command container demonstration, run
+`docker compose up --build` and open `http://127.0.0.1:8080`.
 
-Short press and release records voice; hold at least 1.2 seconds and release captures and registers an image. Wait for “Image registered”, then short press to ask about it. Further questions reuse that image for up to five minutes. Serial commands at 115200 baud: `v` voice, `c` camera/register, `i` synchronize session, `x` clear context, `r` retry a pending capture, `s` SD test, `w` Wi-Fi scan/connect, `b` voltage, `p` play `/tone.wav`.
+## Real models and physical device
+
+Follow [INSTALLATION](docs/INSTALLATION.md) and
+[MULTIMODAL_GUIDE](docs/MULTIMODAL_GUIDE.md) to install Whisper, Ollama/Qwen and
+Piper, configure the laptop LAN address/token and upload the XIAO firmware.
+Hardware-only acceptance is in [HARDWARE_VALIDATION](docs/HARDWARE_VALIDATION.md)
+and [TESTING](docs/TESTING.md).
+
+Historical bench evidence shows physical voice capture, backend processing and
+audible playback have worked. Volume, clear-label camera recognition and the
+reconciled Rev E electronics still require controlled acceptance. The final
+hardware decision uses ASK on D2/GPIO3, PHOTO on PCF8574 P3 and the calibrated
+battery divider on D5/GPIO6; MAX17043/MAX17048 are removed.
+
+## Development checks
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+.\.venv\Scripts\python.exe -m ruff check backend simulator
+.\.venv\Scripts\python.exe -m compileall -q backend simulator
+.\.venv\Scripts\python.exe -m pip check
+Set-Location web
+npm run test
+npm run build
+```
+
+The established mobile project is Flutter. See [MOBILE_APP](docs/MOBILE_APP.md).
+The current machine does not have Flutter, so mobile build verification is
+explicitly pending.
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
-| [FINALIZATION PACKAGE](docs/finalization/README.md) | Audited requirements, copy-ready master/phase prompts, Flutter specification, hardware checklist and verification matrix |
-| [INSTALLATION](docs/INSTALLATION.md) | Windows dependencies, models, network, providers, board upload |
-| [HARDWARE_WIRING](docs/HARDWARE_WIRING.md) | Pin map, power, verified baseline vs proposed circuits |
-| [ARCHITECTURE](docs/ARCHITECTURE.md) | Data flow, state diagrams, concurrency and recovery |
-| [IMPLEMENTATION_GUIDE](docs/IMPLEMENTATION_GUIDE.md) | Source map and engineering explanation |
-| [API_REFERENCE](docs/API_REFERENCE.md) | HTTP contract, authentication, errors and examples |
-| [TESTING](docs/TESTING.md) | Automated checks and T01–T20 hardware acceptance procedures |
-| [TROUBLESHOOTING](docs/TROUBLESHOOTING.md) | Diagnose each stage and known historical problems |
-| [PERFORMANCE_TESTS](docs/PERFORMANCE_TESTS.md) | Measurement procedures and blank evidence table |
-| [DEMO_GUIDE](docs/DEMO_GUIDE.md) | Viva walkthrough and recovery |
-| [PROJECT_STATUS](docs/PROJECT_STATUS.md) | Executed checks, limitations and pending hardware validation |
-| [DIRECTORY_TREE](docs/DIRECTORY_TREE.txt) | Complete deliverable tree; generated environments excluded |
-| [SOURCES](docs/SOURCES.md) | Official hardware and API references |
+| [CURRENT_STATE_AUDIT](docs/CURRENT_STATE_AUDIT.md) | Verified, unverified and missing functionality |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | Firmware/inference design and recovery |
+| [API](docs/API.md) / [API_REFERENCE](docs/API_REFERENCE.md) | Product and embedded inference contracts |
+| [DATABASE](docs/DATABASE.md) | Persistence model and production boundary |
+| [AI_PIPELINE](docs/AI_PIPELINE.md) | Providers, grounding and failure handling |
+| [DEVICE_PROTOCOL](docs/DEVICE_PROTOCOL.md) | Pairing, heartbeat, commands and uploads |
+| [HARDWARE_PROFILES](docs/HARDWARE_PROFILES.md) | Development and Rev E candidate profiles |
+| [LOCAL_SETUP_WINDOWS](docs/LOCAL_SETUP_WINDOWS.md) | Backend, web, simulator and mobile setup |
+| [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Controls and remaining trust limitations |
+| [PROJECT_STATUS](docs/PROJECT_STATUS.md) | Historical implementation/bench evidence |
 
-Bind the prototype to its configured trusted LAN address and use the shared device token. Cloud keys remain on the laptop. Image/history/job ownership is checked against `X-Device-ID`, but anyone with the shared token can impersonate an ID; independent device authentication and public deployment hardening remain future work.
+Do not commit `.env`, firmware `config.local.h`, device/Wi-Fi credentials,
+provider keys, generated media or `.build/simulator-state.json`.

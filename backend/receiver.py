@@ -23,6 +23,8 @@ def main():
               max_request_body_size=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes),
               channel_timeout=30)
     finally:
+        app.extensions["product_jobs"].close()
+        app.extensions["product_store"].close()
         app.extensions["jobs"].close()
 
 

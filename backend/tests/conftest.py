@@ -24,6 +24,8 @@ def factory(settings):
 
     yield make
     for app in apps:
+        app.extensions["product_jobs"].close()
+        app.extensions["product_store"].close()
         app.extensions["jobs"].close()
 
 

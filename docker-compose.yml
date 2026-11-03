@@ -1,0 +1,18 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      STT_PROVIDER: mock
+      LLM_PROVIDER: mock
+      TTS_PROVIDER: mock
+      VISION_PROVIDER: mock
+      USER_SESSION_SECONDS: 86400
+    volumes:
+      - inspectpin_data:/data
+    expose: ["5000"]
+  web:
+    build: ./web
+    depends_on: [backend]
+    ports: ["8080:80"]
+volumes:
+  inspectpin_data:

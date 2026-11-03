@@ -25,6 +25,9 @@ class BatteryCard extends StatelessWidget {
         ? switch (status.chargeState) {
             ChargeState.charging => 'USB charging',
             ChargeState.full => 'Charge complete',
+            ChargeState.battery => 'Running on battery',
+            ChargeState.usbIdle => 'USB connected, not charging',
+            ChargeState.fault => 'Charging fault reported',
             ChargeState.faultUnsupported => 'Charger fault detection unsupported',
             ChargeState.unknown => 'Charger state unknown',
           }

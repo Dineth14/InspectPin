@@ -46,8 +46,17 @@ def authenticate():
     if request.path.startswith("/api/"):
         token = current_app.config["SETTINGS"].device_token
         provided = request.headers.get("X-Device-Token", "")
-        if token and not hmac.compare_digest(provided.encode(), token.encode()):
-            raise ServiceError("UNAUTHORIZED", "Valid X-Device-Token required", 401)
+        if token and hmac.compare_digest(provided.encode(), token.encode()):
+            return
+        ident = request.headers.get("X-Device-ID", "")
+        if ident and provided:
+            try:
+                current_app.extensions["product_store"].authenticate_device(ident, provided)
+                return
+            except ServiceError:
+                pass
+        if token:
+            raise ServiceError("UNAUTHORIZED", "Valid shared or per-device token required", 401)
 
 
 @api.get("/healthz")

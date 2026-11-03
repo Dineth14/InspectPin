@@ -1,5 +1,18 @@
 # Project status — 2026-11-03
 
+## Integrated software platform — implemented and simulator-verified
+
+The repository now includes a persistent product API, responsive React
+dashboard, expanded Flutter client and Windows simulator. The final live mock
+scenario passed pairing, heartbeat, PHOTO/JPEG, inspection analysis, contextual
+assistant and ASK/WAV through mock STT/LLM/TTS. Mock results were labelled.
+
+Current checks: **146 Python tests passed**, Ruff/compileall/pip consistency
+passed, **3 web tests passed**, the web production build passed and npm audit
+reported zero vulnerabilities. Flutter/Dart and Arduino CLI are not installed,
+so no new mobile or firmware build is claimed. See the
+[software acceptance report](ACCEPTANCE_REPORT.md).
+
 ## Final Rev E power/battery reconciliation — source implemented, fabrication blocked
 
 The final design has exactly two buttons: ASK on D2/GPIO3 and PHOTO on PCF8574

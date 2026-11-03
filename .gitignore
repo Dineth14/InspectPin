@@ -12,6 +12,11 @@ backend/data/*
 !backend/data/.gitkeep
 backend/models/
 *.log
+node_modules/
+web/dist/
+*.tsbuildinfo
+.dart_tool/
+mobile_app/build/
 *.wav
 *.jpg
 !backend/tests/fixtures/*.jpg
