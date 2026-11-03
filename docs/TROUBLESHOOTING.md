@@ -20,6 +20,7 @@ Start with `/healthz`, then authenticated `/api/v1/status`, then a job's `error.
 | Microphone too quiet | Inspect raw peak/RMS, listen on laptop, compare silence/voice distance/orientation, check microphone opening and I²S pins; don't assume digital gain improves SNR |
 | Amplified audio noisy | Disable gain experiments; preserve raw file and measure noise vs speech; reduce acoustic/electrical coupling, check supply and enclosure |
 | MAX98357A low volume | First play known tone at low amplitude; inspect VIN/common ground/BCLK/LRC/DIN and module gain/channel straps; validate power supply and speaker rating before increasing gain |
+| Speaker says “hash” or reads symbols literally | Restart the updated backend so technical speech normalization is active. It removes Markdown and expands common units, component designators and symbols. If the text answer itself contains the wrong value, improve image focus, distance and lighting; speech normalization cannot correct a vision/OCR error. |
 | Distorted playback | Verify PCM format, duplication to two I²S slots, gain/peak levels, power stability and speaker load; never ground speaker minus |
 | API 429 | Can mean quota/credits or rate limit; check provider account privately, lower rate or switch to local Ollama; no assumption of free credits |
 | API 401/403 or model unavailable | Check provider-specific key, model name and access; configuration is only read at server start; don't expose response bodies/keys in evidence |

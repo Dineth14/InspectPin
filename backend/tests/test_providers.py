@@ -8,6 +8,7 @@ from inspectpin.config import Settings
 from inspectpin.errors import ServiceError
 from inspectpin.llm_providers import CloudProvider, OllamaProvider, post_json
 from inspectpin.stt import WhisperSTT
+from inspectpin.speech_text import normalize_for_speech
 from inspectpin.tts import PiperTTS
 from inspectpin.vision import Vision
 from test_api import jpeg
@@ -67,6 +68,16 @@ def test_missing_piper_model(settings, tmp_path):
     with pytest.raises(ServiceError) as exc:
         PiperTTS(replace(settings, piper_model=tmp_path / "missing.onnx")).synthesize("hello", tmp_path / "out.wav")
     assert exc.value.code == "TTS_MODEL_MISSING"
+
+
+@pytest.mark.parametrize("source,spoken", [
+    ("## Rating\n- R1 is 4.7 kΩ ±5%.", "Rating. resistor 1 is 4.7 kiloohms plus or minus 5 percent."),
+    ("C2: 100 µF, 25 VDC", "capacitor 2: 100 microfarads, 25 volts D C."),
+    ("Fuse #3 is 2 A at 250 VAC.", "Fuse number 3 is 2 amperes at 250 volts A C."),
+    ("50/60 Hz; temperature ≤ 40 °C", "50 or 60 hertz; temperature less than or equal to 40 degrees Celsius."),
+])
+def test_technical_text_is_spoken_plainly(source, spoken):
+    assert normalize_for_speech(source) == spoken
 
 
 def test_vision_sends_pixels(monkeypatch, settings, tmp_path):

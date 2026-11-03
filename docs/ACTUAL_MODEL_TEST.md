@@ -1,6 +1,6 @@
 # Actual-model bench session — 2026-10-19
 
-**2026-10-20 volume correction:** Raising firmware playback gain from 0.40 to 1.00 made the output only slightly better. The backend TTS gain is therefore raised from 0.35 to 0.70 and its peak limit from 8191 to 16383, providing another controlled increase of up to 6 dB. Physical listening validation is pending.
+**2026-10-26 maximum-volume configuration:** Firmware playback remains at unity. Backend TTS gain is now 1.00 and its peak limit is 32700, providing approximately 6 dB above the prior 50% setting while retaining a small PCM overflow margin. Physical listening, distortion and temperature validation remain required.
 
 ## Latest observed results after wiring confirmation
 

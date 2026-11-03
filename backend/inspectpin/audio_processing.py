@@ -9,7 +9,7 @@ from scipy.signal import resample_poly
 
 from .errors import ServiceError
 
-TTS_PEAK_LIMIT = 16383  # 50% of signed PCM16 full scale
+TTS_PEAK_LIMIT = 32700  # Practical PCM16 maximum with a small overflow margin
 
 
 def parse_wav(data):

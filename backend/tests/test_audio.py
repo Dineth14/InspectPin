@@ -45,7 +45,7 @@ def test_resample_stereo_and_limit(tmp_path, rate):
     normalize_wav(source, dest, gain=0.9)
     result = parse_wav(dest.read_bytes())
     assert result["bytes"] == 32044
-    assert result["peak"] <= 16384
+    assert result["peak"] <= 32700
     spectrum = np.abs(np.fft.rfft(result["samples"]))
     assert abs(np.argmax(spectrum) - 1000) <= 1
 
