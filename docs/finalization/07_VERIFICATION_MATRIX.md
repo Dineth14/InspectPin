@@ -18,6 +18,9 @@ Statuses begin as `planned` unless current source/evidence proves otherwise. Fut
 | CHG-001 | hardware docs | document/source check | USB charge/current/temp | safe behavior; measurement/photos |
 | CHG-002 | status model | unknown-state tests | voltage-only scenario | never false charging claim; API capture |
 | CHG-003 | optional sensor | truth-table tests | absent/charge/full/fault | matches verified circuit; schematic/log |
+| CHG-004 | VBUS status decoder/one LED | decoder timing/state tests | charge/full/USB-off timing and current | 500/500 ms, steady ≥10 min, off; scope/video/current |
+| CHG-005 | decoder link/charge status model | protocol/stale-state tests | deep sleep/off and mobile comparison | LED independent; app actual/stale truthful; traces |
+| CHG-006 | capability/fault model | unsupported-state tests | inject fault only if hardware exists | no fabricated fault; rapid blink evidence if supported |
 | CAM-001 | camera profile/manager | firmware contract tests | profile readback + 10 JPEGs | 800×600/profile verified; images/log |
 | CAM-002 | storage/capture | unique-name/error tests | 10 captures/full SD | no overwrite; hashes/free-space |
 | LGT-001 | LightController | safe-default/policy tests | power cycles/error/sleep | off in all safe states; measurements |

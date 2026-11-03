@@ -31,7 +31,7 @@ Splash resolves migrations and stored trust. New users enter Welcome → permiss
 
 - **Welcome/onboarding:** product boundary, required hardware/backend, privacy/data flow, permission rationale, no claim of automatic hotspot control.
 - **Connection:** BLE scan with stable device identifier, proof-of-possession/pairing, provision SSID/password, progress, retry, trust reset, saved devices, explicit offline state.
-- **Dashboard:** acknowledged firmware/backend versions, connection, operating state, voltage, estimated percent/validity, charging state or `unknown`, RSSI, SD capacity, light, video, AI service.
+- **Dashboard:** acknowledged firmware/backend versions, connection, operating state, voltage, estimated percent/validity, decoded charging state and sample age, RSSI, SD capacity, light, video, AI service. Show stale/disconnected rather than a live charging claim while the ESP32 is asleep/off.
 - **Controls:** typed commands with request ID and pending/accepted/completed/failed UI. Disable incompatible controls using advertised capabilities and current state, while still handling server rejection.
 - **Media:** paged metadata; thumbnails where feasible; ranged streaming/download; file progress; cancel/retry; image view; AVI playback; share; confirmed delete. Never request the ESP32 to buffer the complete file.
 - **Conversation:** text and phone-microphone questions, selected/active image, job state, history, follow-up context, answer text/audio, retry, copy/share, visible model/provider and uncertainty.

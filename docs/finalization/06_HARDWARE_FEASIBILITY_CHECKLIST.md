@@ -15,6 +15,8 @@
 | ERM motor + MOSFET/transistor | Haptic feedback | Rated supply, gate/base network from GPIO44, pull-down, flyback diode | Optional until built; bare motor forbidden |
 | LRA + haptic driver | Higher-quality haptics | Dedicated driver over available bus/pins after conflict audit | Alternative to ERM |
 | VBUS/charger-status sensing | Firmware charging indication | Additional protected VBUS divider and/or buffered/tapped CHG net after schematic/revision review | Optional; required for firmware-readable charging |
+| VBUS-powered charge-status decoder | Convert SGM40567 native pulses/EOC interval into exact requested LED states without waking ESP32 | High-impedance `nCHG` tap, VBUS supply, protected one-wire/digital link to ESP32 | Mandatory for CHG-004/005 |
+| One low-current red SMD LED + 6.8 kΩ initial resistor | 1 Hz charge blink, steady full, off without USB | VBUS→resistor→LED→decoder sink output | Mandatory; calculate again for selected LED |
 | Logic-level translator/protection | Protect status inputs if rail exceeds GPIO | Divider/buffer/clamps calculated for worst case | As required |
 | Bulk/local decoupling | Prevent audio/motor/LED resets and mic noise | At amp/drivers; values based on load/transients | Mandatory final hardware |
 | External antenna | Reliable Wi-Fi/BLE | XIAO U.FL antenna fitted correctly | Present/mandatory for intended RF setup |
@@ -36,7 +38,7 @@
 
 ## Power and charging findings
 
-Seeed documents onboard single-cell charging and a red hardware charge indicator. The v1.3 schematic identifies SGM40567 and a nominal charge-current network around 110 mA. Confirm the actual board revision and resistor before relying on that value. The standard exposed pinout has no confirmed MCU-readable charge output. The 5 V pin is USB-derived and has no voltage during battery-only operation, so a 5 V MAX98357 supply requires a verified boost/power architecture or operation at a supported lower amplifier rail.
+Seeed documents onboard single-cell charging and a red hardware charge indicator. The v1.3 schematic identifies SGM40567 and a nominal charge-current network around 110 mA. Confirm the actual board revision and resistor before relying on that value. Its `nCHG` node is observable at the onboard LED network, but it provides pulsed charging and only a 51.2-second continuous completion indication before high impedance. The separate decoder in `09_SINGLE_LED_CHARGE_INDICATOR.md` is required for the exact external LED behavior and mobile-readable state. The 5 V pin is USB-derived and has no voltage during battery-only operation, so a 5 V MAX98357 supply requires a verified boost/power architecture or operation at a supported lower amplifier rail.
 
 Required measurements: USB/battery rail voltage at idle and peak playback; total active/record/photo/video/sleep current; charger current and temperature; battery polarity/protection; brownout margin; LED/motor inrush; amplifier/speaker RMS using safe differential measurement; RF and microphone noise with loads switching.
 

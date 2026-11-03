@@ -24,6 +24,7 @@ Engineering decisions:
 2. Prefer D5/GPIO6 for power/deep-sleep wake and D2/GPIO3 for speech/command. GPIO3 is a strapping pin; it must be released during reset and its electrical behavior must be tested. The final mapping requires explicit user wiring and cannot silently replace the current bench mapping.
 3. Keep battery ADC on GPIO5 with 47 kΩ/47 kΩ and 100 nF only after physical verification/calibration. Percentage is an estimate, not a fuel gauge.
 4. Do not claim firmware charging status from voltage. The onboard charger/LED is hardware; report `unknown` unless a verified VBUS/CHG sensing circuit is added.
+4a. Implement the exact single-LED requirement in docs/finalization/09_SINGLE_LED_CHARGE_INDICATOR.md. The SGM40567 native `nCHG` pattern is not the requested pattern: decode it with a VBUS-powered low-power hardware controller, drive one external SMD LED through a calculated resistor, latch FULL after the documented EOC signal, and expose actual decoded state to firmware. Do not invent a fault state.
 5. Use GPIO43 and GPIO44 only as driver-control signals for illumination and haptic hardware. Never power LED/motor loads from GPIO. Document UART0 conflicts.
 6. Preserve the current optimized OV3660 photo profile. Create a separate video profile.
 7. Implement silent MJPEG/AVI to SD before synchronized audio/video. Do not promise H.264 hardware encoding. Establish actual sustainable resolution/fps with evidence.

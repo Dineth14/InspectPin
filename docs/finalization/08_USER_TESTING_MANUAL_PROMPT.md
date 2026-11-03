@@ -17,7 +17,7 @@ Give exact procedures and expected serial/app/API observations for:
 7. Photo capture, image registration, visual question, nameplate reading, follow-ups, context clear/expiry, and uncertainty.
 8. Starting/stopping silent video by button/app, checking recording status, safe finalization, browsing/downloading/playing/sharing/deleting media, and recovering incomplete/full-SD cases.
 9. Flashlight/haptic controls, timeouts, low-battery restrictions, and actual-state acknowledgments.
-10. Battery voltage/estimated percentage calibration with a multimeter, uncertainty, low/critical behavior, charging LED versus firmware-readable status.
+10. Battery voltage/estimated percentage calibration with a multimeter, uncertainty, low/critical behavior, and the single external SMD charge LED: measure 500 ms ON/OFF while charging, continuous full indication after the SGM40567 native 51.2-second EOC interval, OFF without USB, operation during ESP32 deep sleep/off, LED current, and matching mobile hardware-decoder status. Do not test or claim rapid fault blink unless separate fault hardware exists.
 11. Light/deep sleep, manual/idle sleep, physical wake, busy-operation deferral, and the distinction from true power-off.
 12. Mobile AI text/voice/image conversation, provider selection, model capability, audio controls, and secure backend configuration.
 

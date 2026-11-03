@@ -25,6 +25,9 @@ Every requirement is testable. “Pass” requires linked evidence; source creat
 | CHG-001 | Preserve onboard physical charging and document charger limits. | Board revision, charger, nominal charge current, battery polarity, and validation procedure are documented. |
 | CHG-002 | Never infer charging/full/fault from cell voltage alone. | API uses `unknown` unless a separately verified VBUS/CHG signal exists. |
 | CHG-003 | Support optional added charge-status sensing. | Hardware option has input protection, truth table, tests, and feature flag; absence is handled explicitly. |
+| CHG-004 | Provide one low-power SMD charge LED: exact 500 ms ON/OFF while charging, steady ON when full, and OFF without USB. | Hardware decoder tests verify timing/current and steady full for ≥10 minutes after native `nCHG` releases; battery-only current is zero within measurement resolution. |
+| CHG-005 | Derive LED/app state from the charger status signal, not battery voltage, and operate independently of ESP32 sleep/off. | VBUS-powered decoder continues in deep sleep/load-switched off; firmware/app show actual decoded state when connected and stale/unknown when unavailable. |
+| CHG-006 | Do not claim charge fault unless separately detectable. | Stock SGM40567 configuration reports fault as unsupported/unknown; rapid blink is enabled only with an injected, verified fault signal. |
 
 ## Camera, illumination, video, and storage
 
