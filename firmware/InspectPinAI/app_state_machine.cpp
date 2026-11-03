@@ -12,6 +12,7 @@
 #include "command_dispatcher.h"
 #include "event_log.h"
 #include "settings_store.h"
+#include "charge_status.h"
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 void App::updateRuntimeState(AppState value) {
   TopLevelState top=TopLevelState::ACTIVE;
@@ -66,7 +67,7 @@ void App::fail(const String &error,bool offline) {
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
   EventLog::begin();
-  state(AppState::INITIALIZING); Feedback::begin(); button_.begin(); Battery::begin(); Power::begin();
+  state(AppState::INITIALIZING); Feedback::begin(); button_.begin(); Battery::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
@@ -138,7 +139,7 @@ void App::handleCommand(const DeviceCommand &command) {
     case CommandType::CONTEXT_CLEAR: syncContext(true); break;
     case CommandType::SD_TEST: Serial.println(Store::selfTest()?"SD test PASS":"SD test FAIL"); break;
     case CommandType::WIFI_CONNECT: Wifi::scan(); Wifi::connect(); break;
-    case CommandType::BATTERY_GET: { auto reading=Battery::sample(); Serial.printf("Battery voltage=%.3f V estimate=%.1f%% valid=%s uncertainty=%.2f V\n",reading.volts,reading.percent,reading.valid?"yes":"no",reading.uncertaintyVolts); break; }
+    case CommandType::BATTERY_GET: { auto reading=Battery::sample(); auto charge=ChargeStatus::latest(); Serial.printf("Battery voltage=%.3f V estimate=%.1f%% valid=%s uncertainty=%.2f V low=%s critical=%s calibration=%.4f charge=%s charge_valid=%s source=%s age_ms=%lu\n",reading.volts,reading.percent,reading.valid?"yes":"no",reading.uncertaintyVolts,reading.low?"yes":"no",reading.critical?"yes":"no",Battery::calibration(),ChargeStatus::name(charge.state),charge.valid?"yes":"no",charge.source,(unsigned long)charge.ageMs); break; }
     case CommandType::CAMERA_DIAGNOSTIC: Serial.println(diagnoseCamera()?"Camera profile diagnostic PASS":"Camera profile diagnostic FAIL"); break;
     case CommandType::TONE_PLAY: state(AppState::PLAYING); if(playWav("/tone.wav")) state(AppState::READY); else fail("TONE_PLAYBACK_FAILED"); break;
     case CommandType::SLEEP:
@@ -151,6 +152,7 @@ void App::handleCommand(const DeviceCommand &command) {
 }
 void App::tick() {
   Feedback::tick();
+  ChargeStatus::tick();
   ButtonAction action=button_.update();
   if (idle()) {
     if (action==ButtonAction::VOICE) handleCommand({CommandType::VOICE_START,CommandSource::BUTTON,String("button-")+millis()});

@@ -10,4 +10,7 @@ void illuminate(bool enabled);
 void setLight(bool enabled,uint8_t brightness=255,uint32_t timeoutMs=0);
 bool lightOn();
 uint8_t lightBrightness();
+void setHaptic(bool enabled,uint8_t intensity=255);
+bool hapticEnabled();
+uint8_t hapticIntensity();
 }

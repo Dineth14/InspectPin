@@ -1,5 +1,19 @@
 # Test plan and acceptance evidence
 
+## Phase 1 architecture checks
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest backend\tests\test_firmware_architecture_contract.py -q
+g++ -std=c++14 -Wall -Wextra -Werror firmware\host_tests\state_contract_test.cpp -o .build\state_contract.exe
+.\.build\state_contract.exe
+```
+
+These cover illegal transitions, media-write sleep rejection, the required
+command taxonomy, dispatcher, settings/event interfaces, and disabled-by-default
+power. On hardware, send `?` at 115200 baud and require `COMMAND STATUS_GET`,
+`COMMAND_ACCEPTED`, and actual state/heap/PSRAM. Send `b`; while the unverified
+battery feature is disabled it must report `valid=no`, not an invented level.
+
 This document is a procedure, not a record of passes. Actual executed results are in PROJECT_STATUS. Prior successes in the project brief are user-reported baseline tests. The new integrated firmware requires the physical acceptance tests below.
 
 The multimodal extension adds **[V01–V10 detailed acceptance procedures](VISION_TESTING.md)**. Run the independent Qwen image check in [MULTIMODAL_GUIDE](MULTIMODAL_GUIDE.md) before combining camera, voice and playback. The current automated suite has **104 passing tests**, including exact image/question pairing, expiry/reset during inference, device separation, bounded history, real HTTP transport with mocked AI, and the existing voice regression suite. Mock results establish integration behavior, not visual recognition accuracy. See `evidence/multimodal-backend-tests.txt` and `evidence/multimodal-http-check.txt`.

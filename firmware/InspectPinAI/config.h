@@ -32,6 +32,21 @@
 #ifndef IP_LIGHT_TIMEOUT_MS
 #define IP_LIGHT_TIMEOUT_MS 60000UL
 #endif
+#ifndef IP_BATTERY_DIVIDER_RATIO
+#define IP_BATTERY_DIVIDER_RATIO 2.0f
+#endif
+#ifndef IP_BATTERY_UNCERTAINTY_VOLTS
+#define IP_BATTERY_UNCERTAINTY_VOLTS 0.08f
+#endif
+#ifndef IP_BATTERY_HYSTERESIS_VOLTS
+#define IP_BATTERY_HYSTERESIS_VOLTS 0.10f
+#endif
+#ifndef IP_HAPTIC_PWM_ENABLED
+#define IP_HAPTIC_PWM_ENABLED false
+#endif
+#ifndef IP_HAPTIC_DEFAULT_INTENSITY
+#define IP_HAPTIC_DEFAULT_INTENSITY 180
+#endif
 namespace Config {
 constexpr int micClock = 42, micData = 41;
 constexpr int sdCS = 21, sdSCK = 7, sdMISO = 8, sdMOSI = 9;
@@ -50,4 +65,6 @@ static_assert(recordSeconds > 0 && recordSeconds <= 30, "Record duration must be
 static_assert(playbackGain >= 0 && playbackGain <= 1.0f, "Playback gain must be in the range 0..1");
 static_assert(IP_POWER_BUTTON_PIN>=0 && IP_POWER_BUTTON_PIN<=48, "Invalid wake button pin");
 static_assert(IP_LIGHT_DEFAULT_BRIGHTNESS>=0 && IP_LIGHT_DEFAULT_BRIGHTNESS<=255, "Brightness must be 0..255");
+static_assert(IP_BATTERY_DIVIDER_RATIO>1.0f && IP_BATTERY_DIVIDER_RATIO<10.0f, "Invalid battery divider ratio");
+static_assert(IP_HAPTIC_DEFAULT_INTENSITY>=0 && IP_HAPTIC_DEFAULT_INTENSITY<=255, "Haptic intensity must be 0..255");
 }

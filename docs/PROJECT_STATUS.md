@@ -1,5 +1,30 @@
 # Project status — 2026-11-03
 
+## Phase 1 — firmware architecture (implemented; physical regression partial)
+
+Phase 1 now has a typed command/result taxonomy, centralized dispatcher,
+hierarchical top-level/ACTIVE state contract, operation arbiter, NVS settings
+interface, and numbered event interface. Serial and current bench buttons use
+the same dispatch path. Sleep is rejected unless the active operation is idle;
+power management remains disabled by default pending GPIO6 and current tests.
+
+Executed results on 2026-11-03:
+
+- Host architecture contracts: **4 passed in 0.92 s**.
+- Exact XIAO ESP32-S3 build: **1,088,610 bytes flash**, **58,128 bytes static
+  RAM**, build passed with ESP32 core 3.3.12.
+- Upload to the connected ESP32-S3 on COM7 passed; esptool verified every hash.
+- Physical serial `STATUS_GET` was accepted through the dispatcher and reported
+  `OFFLINE`, heap 258,944 and PSRAM 8,346,312 bytes at that instant.
+- Battery query truthfully returned `valid=no` because the unverified battery
+  feature is disabled.
+- The configured Wi-Fi connection failed during this run, so network voice/photo
+  regression is still pending and is not claimed from the successful upload.
+
+Evidence: [Phase 1 board/build record](evidence/phase1-2026-11-03.txt).
+Phase 2 must not be called physically complete until wake, current, ADC/divider,
+and external driver circuits are measured.
+
 ## Phase 0 final-product audit
 
 Phase 0 is complete as a documentation and software-baseline phase. It did not implement Phase 1–10 product features. The repository started clean at commit `8ce2796d47d9af6deec23653b3fe3891787ced8a`. The audit confirms the existing firmware/backend core and the absence of the Flutter app, video writer, provisioning, full power manager, device/media API, single-LED decoder circuit, and final PCB design.

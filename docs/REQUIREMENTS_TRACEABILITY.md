@@ -4,11 +4,11 @@ Status meanings: **implemented** = source and current software evidence exist; *
 
 | ID | Baseline status | Current evidence or gap | Delivery phase |
 |---|---|---|---:|
-| PWR-001 | planned | No light/deep sleep or physical-off model. | 1–2 |
+| PWR-001 | partial | Hierarchical sleep model and feature-gated PowerManager exist; runtime power/current acceptance pending. | 1–2 |
 | PWR-002 | blocked | GPIO6 eligible by documentation; no wake implementation/board connected. | 2 |
 | PWR-003 | planned | No idle timeout/manual sleep. | 2 |
 | PWR-004 | planned | Camera/I²S lifecycle exists per operation, no power policy/current data. | 2,9 |
-| PWR-005 | partial | SD pending journals/retries exist; no sleep/critical finalization guard. | 1–2 |
+| PWR-005 | partial | OperationGuard rejects sleep during active work and SD journals persist; critical-battery finalization remains Phase 2. | 1–2 |
 | BTN-001 | partial | 40 ms debounce and short/long/two-button logic exist; no power policy/conflict suite. | 1,3 |
 | BTN-002 | blocked | Current D2 voice/D5 camera differs from final mapping; strap/wake tests absent. | 2–3 |
 | BAT-001 | blocked | GPIO5 16-sample voltage prototype exists; divider/calibration unverified. | 2 |
@@ -36,8 +36,8 @@ Status meanings: **implemented** = source and current software evidence exist; *
 | HAP-001 | blocked | Disabled direct-control prototype; bare motor disconnected; driver absent. | 2 |
 | HAP-002 | planned | Current pulse blocks 60 ms; no scheduler/pattern/intensity. | 2–3 |
 | VOC-001 | planned | No deterministic intent classifier. | 3,8 |
-| VOC-002 | planned | No confirmation/parameter dispatcher. | 1,3 |
-| VOC-003 | planned | No command taxonomy implementation. | 3,8 |
+| VOC-002 | partial | Dispatcher validates request IDs and power/busy/sleep/video-stop state; disruptive confirmation remains Phase 3. | 1,3 |
+| VOC-003 | partial | Required typed taxonomy exists; spoken alias router remains Phase 3. | 3,8 |
 | AI-001 | implemented | 110 tests, real Qwen fixture, existing Whisper/Ollama/Piper backend and prior bench flow. | regression 8–10 |
 | AI-002 | implemented | Explicit image/context IDs, ownership, expiry, stale suppression and tests exist. | regression 8–10 |
 | AI-003 | partial | Provider keys remain backend-side and tests redact status; final management/security absent. | 5,8 |
@@ -45,7 +45,7 @@ Status meanings: **implemented** = source and current software evidence exist; *
 | NET-002 | planned | No protected provisioning/NVS lifecycle or factory reset. | 5 |
 | API-001 | partial | Versioned AI API exists; device-control/media APIs absent. | 5 |
 | API-002 | partial | Shared-token AI auth exists; per-device pairing/replay protection absent. | 5 |
-| API-003 | planned | No typed device request/operation/idempotency contract. | 1,5 |
+| API-003 | partial | Firmware typed request/result and actual-state logging exist; HTTP idempotency/terminal store remains Phase 5. | 1,5 |
 | API-004 | partial | Firmware streams AI WAV/JPEG and downloads to SD; media/control stress absent. | 4–5,9 |
 | SEC-001 | partial | Trusted-LAN limitations documented; no full threat model/trust reset/TLS migration implementation. | 5 |
 | APP-001 | planned | Flutter unavailable; `mobile_app/` absent. | 6 |

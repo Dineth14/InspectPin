@@ -12,4 +12,6 @@ Reading latest();
 float volts();
 bool low();
 bool critical();
+float calibration();
+bool setCalibration(float value);
 }

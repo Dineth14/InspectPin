@@ -1,5 +1,23 @@
 # Implementation and source guide
 
+## Phase 1 firmware foundation
+
+| File | Responsibility |
+|---|---|
+| `state_model.h` | Host-testable top-level/ACTIVE hierarchy, flags, transition and sleep rules |
+| `command_types.*` | Typed source-neutral commands/results and serial mapping |
+| `command_dispatcher.*` | Request, busy, power, stop and sleep validation |
+| `operation_guard.h` | Single active operation and sleep/cancel safety |
+| `settings_store.*` | Typed NVS-backed settings interface |
+| `event_log.*` | Numbered state/command/failure output without credentials |
+| `power_manager.*` | Feature-gated sleep lifecycle; disabled until Phase 2 validation |
+| `firmware/host_tests/state_contract_test.cpp` | Native transition/critical-work contract test |
+
+Serial and the current bench buttons enter `App::handleCommand()` and then
+`CommandDispatcher::validate()`. The established voice/photo workflow is
+mirrored into the hierarchy during migration. Do not enable deep sleep merely
+because it compiles: GPIO6 wake and current still require Phase 2 tests.
+
 ## Backend modules
 
 | File | Responsibility / main entry points |

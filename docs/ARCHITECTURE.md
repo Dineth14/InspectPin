@@ -75,6 +75,47 @@ The next visual turn repeats JPEG attachment. Without image context, the worker 
 
 ## Firmware states and recovery
 
+The firmware now has a source-neutral `DeviceCommand` contract, a centralized
+`CommandDispatcher`, an `OperationGuard`, and a pure hierarchical state model.
+The hierarchy is authoritative for command validation and sleep safety; the
+older execution enum remains as a temporary adapter around the established
+voice/photo workflow.
+
+```mermaid
+stateDiagram-v2
+  [*] --> BOOTING
+  BOOTING --> INITIALIZING
+  INITIALIZING --> ACTIVE
+  INITIALIZING --> ERROR
+  ACTIVE --> ERROR
+  ACTIVE --> RECOVERY
+  ERROR --> RECOVERY
+  RECOVERY --> ACTIVE
+  ACTIVE --> LIGHT_SLEEP
+  ACTIVE --> DEEP_SLEEP
+  LIGHT_SLEEP --> ACTIVE
+  DEEP_SLEEP --> BOOTING: reset / verified wake
+  state ACTIVE {
+    [*] --> READY
+    READY --> AUDIO_RECORDING
+    READY --> IMAGE_CAPTURE
+    AUDIO_RECORDING --> MEDIA_SAVING
+    IMAGE_CAPTURE --> MEDIA_SAVING
+    MEDIA_SAVING --> UPLOADING
+    UPLOADING --> AI_PROCESSING
+    AI_PROCESSING --> DOWNLOADING
+    DOWNLOADING --> AUDIO_PLAYBACK
+    AUDIO_PLAYBACK --> READY
+  }
+```
+
+Connectivity, low/critical battery, charging validity, light, and haptic are
+orthogonal flags. `MEDIA_WRITE`, playback, and video are critical operations;
+sleep is rejected/deferred while any operation is active. Invalid top-level
+transitions fail deterministically and are emitted to `EventLog`.
+
+### Established workflow adapter
+
 ```mermaid
 stateDiagram-v2
   [*] --> BOOT

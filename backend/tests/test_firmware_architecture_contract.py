@@ -70,3 +70,29 @@ def test_power_features_remain_safe_by_default():
     assert "#define IP_POWER_MANAGEMENT_ENABLED false" in config
     assert "#define IP_POWER_MANAGEMENT_ENABLED false" in example
 
+
+def test_power_battery_and_decoder_pure_contract(tmp_path: Path):
+    executable = tmp_path / "power_policy.exe"
+    result = subprocess.run(
+        [
+            "g++", "-std=c++14", "-Wall", "-Wextra", "-Werror",
+            str(ROOT / "firmware/host_tests/power_policy_test.cpp"),
+            "-o", str(executable),
+        ],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 0, result.stderr
+    run = subprocess.run([str(executable)], capture_output=True, text=True, check=False)
+    assert run.returncode == 0, run.stderr
+
+
+def test_charge_and_haptic_truthfulness_contracts():
+    charge = source("charge_status.cpp")
+    feedback = source("status_feedback.cpp")
+    assert '"unavailable"' in charge
+    assert "State::UNKNOWN" in charge
+    assert "FAULT_UNSUPPORTED" in source("charge_status.h")
+    assert "queue[8]" in feedback
+    assert "delay(" not in feedback
+    assert "IP_HAPTIC_ENABLED" in feedback
+

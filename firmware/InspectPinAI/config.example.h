@@ -17,6 +17,9 @@
 #define IP_LIGHT_ENABLED false
 #define IP_HAPTIC_ENABLED false
 #define IP_BATTERY_CALIBRATION 1.0f
+#define IP_BATTERY_DIVIDER_RATIO 2.0f
+#define IP_BATTERY_UNCERTAINTY_VOLTS 0.08f
+#define IP_BATTERY_HYSTERESIS_VOLTS 0.10f
 #define IP_LOW_BATTERY_VOLTS 3.4f
 #define IP_CRITICAL_BATTERY_VOLTS 3.25f
 // Keep disabled until GPIO6 wake wiring and measured sleep current pass acceptance.
@@ -26,3 +29,5 @@
 #define IP_LIGHT_PWM_ENABLED false
 #define IP_LIGHT_DEFAULT_BRIGHTNESS 255
 #define IP_LIGHT_TIMEOUT_MS 60000UL
+#define IP_HAPTIC_PWM_ENABLED false
+#define IP_HAPTIC_DEFAULT_INTENSITY 180

@@ -1,0 +1,31 @@
+InspectPin Phase 1 evidence - 2026-11-03 Asia/Colombo
+
+Host contract:
+  4 passed in 0.92s
+
+Firmware target:
+  esp32:esp32:XIAO_ESP32S3; PSRAM=opi; USBMode=hwcdc; FlashSize=8M
+Result:
+  Sketch uses 1088610 bytes (32%) of program storage space.
+  Global variables use 58128 bytes (17%) of dynamic memory.
+  Compile exit code 0.
+
+Upload:
+  ESP32-S3 revision v0.2 with 8 MB PSRAM detected on COM7.
+  Upload exit code 0; all written hashes verified.
+
+Physical serial queries:
+  COMMAND STATUS_GET source=1 request=serial-32586
+  EVENT 3 COMMAND_ACCEPTED STATUS_GET serial-32586
+  STATE OFFLINE heap=258944 psram=8346312
+  COMMAND BATTERY_GET source=1 request=serial-33396
+  EVENT 4 COMMAND_ACCEPTED BATTERY_GET serial-33396
+  Battery voltage=-1.000 V estimate=-1.0% valid=no uncertainty=0.08 V
+
+Network result:
+  Configured Wi-Fi was unavailable. No network voice/photo regression is
+  claimed. Existing captures remain on SD.
+
+Pending physical acceptance:
+  D2/D5 voice/photo regression after Wi-Fi restoration; GPIO6 wake; idle/light/
+  deep current; battery-divider calibration; external light/haptic drivers.

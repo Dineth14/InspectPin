@@ -1,5 +1,23 @@
 # HTTP API v1
 
+## Firmware command contract (Phase 1)
+
+All local sources use one typed contract before execution. `source` is one of
+`BUTTON`, `SERIAL_CONSOLE`, `VOICE`, `BLE`, `HTTP`, or `INTERNAL`; every valid
+command must carry a non-empty `request_id`. Required types include
+`STATUS_GET`, `VOICE_START`, `CANCEL`, `PHOTO_CAPTURE`, `VIDEO_START`,
+`VIDEO_STOP`, `LIGHT_SET`, `VOLUME_SET`, `HAPTIC_SET`, `BATTERY_GET`,
+`MEDIA_LIST`, `MEDIA_DELETE`, `SLEEP`, `RESTART`, `SETTINGS_GET`, and
+`SETTINGS_PATCH`.
+
+The result schema contains `request_id`, `status`, `error_code`, and
+`actual_state`. Current deterministic rejections include
+`REQUEST_ID_REQUIRED`, `INITIALIZING`, `CRITICAL_BATTERY`, `DEVICE_BUSY`,
+`SLEEP_DEFERRED`, and `VIDEO_NOT_RECORDING`. The future authenticated HTTP
+endpoint must use this same contract; Phase 1 does not claim that endpoint or
+mutating-command idempotency exists yet. Free-form AI output never enters the
+dispatcher.
+
 Base URL is configurable, e.g. `http://172.20.10.3:5000`. Every `/api/*` request uses `X-Device-Token: <shared token>` when configured. Conversation endpoints also require `X-Device-ID` (1–64 ASCII letters/digits/underscore/hyphen). Image, job and audio ownership is checked against this ID. All devices still share one token trust domain: an ID is not an independently authenticated account. Responses include `Cache-Control: no-store`.
 
 | Method | Path | Success | Purpose |
