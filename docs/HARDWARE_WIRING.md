@@ -1,5 +1,15 @@
 # Hardware and wiring
 
+## Button layout migration flag
+
+The uploaded bench default remains `IP_BUTTON_LAYOUT_FINAL=false` with
+D2/GPIO3 as voice and D5/GPIO6 as camera, each wired to GND with the internal
+pull-up. The proposed final layout uses D2 short for voice, D2 long for photo,
+and D5 long for sleep/wake. GPIO3 is a strap pin and must be released during
+reset. Do not enable final mode until rewired and tested for 50 boot/wake cycles.
+GPIO43 light and GPIO44 haptic are logic signals to MOSFET/driver circuits only;
+never connect the LED or motor load directly.
+
 Use a **XIAO ESP32-S3 Sense**, including its Sense expansion board and external antenna. Do not substitute the XIAO Plus pin map or an AI Thinker ESP32-CAM map. Official mappings are linked in [SOURCES](SOURCES.md).
 
 ## Pin allocation

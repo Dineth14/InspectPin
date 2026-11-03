@@ -6,25 +6,25 @@ Status meanings: **implemented** = source and current software evidence exist; *
 |---|---|---|---:|
 | PWR-001 | partial | Hierarchical sleep model and feature-gated PowerManager exist; runtime power/current acceptance pending. | 1–2 |
 | PWR-002 | blocked | GPIO6 eligible by documentation; no wake implementation/board connected. | 2 |
-| PWR-003 | planned | No idle timeout/manual sleep. | 2 |
-| PWR-004 | planned | Camera/I²S lifecycle exists per operation, no power policy/current data. | 2,9 |
+| PWR-003 | partial | Feature-gated idle/manual light/deep sleep implemented; wake and current validation pending. | 2 |
+| PWR-004 | partial | SD/Wi-Fi quiesce and existing short-lived camera/I²S lifecycle exist; measured current table pending. | 2,9 |
 | PWR-005 | partial | OperationGuard rejects sleep during active work and SD journals persist; critical-battery finalization remains Phase 2. | 1–2 |
-| BTN-001 | partial | 40 ms debounce and short/long/two-button logic exist; no power policy/conflict suite. | 1,3 |
+| BTN-001 | partial | Debounce, held-boot suppression, deterministic gesture/priority policy and host tests exist; 50-cycle physical suite pending. | 1,3 |
 | BTN-002 | blocked | Current D2 voice/D5 camera differs from final mapping; strap/wake tests absent. | 2–3 |
 | BAT-001 | blocked | GPIO5 16-sample voltage prototype exists; divider/calibration unverified. | 2 |
-| BAT-002 | planned | No robust filter, lookup, smoothing, hysteresis or uncertainty. | 2 |
-| BAT-003 | planned | No percentage/status API/app. | 2,5,7 |
-| BAT-004 | partial | One low-voltage capture inhibit exists; no critical safe-sleep policy. | 2 |
+| BAT-002 | partial | Trimmed filter, smoothing, chemistry lookup, hysteresis, persisted calibration and uncertainty implemented; physical calibration pending. | 2 |
+| BAT-003 | partial | API-ready typed reading and truthful serial status exist; device API/app remain Phase 5/7. | 2,5,7 |
+| BAT-004 | partial | Low capture inhibit and critical flag/dispatcher restriction exist; measured critical finalization/sleep remains pending. | 2 |
 | CHG-001 | partial | Onboard SGM40567/docs identified; actual board/current/thermal test absent. | 2,9 |
-| CHG-002 | partial | Firmware makes no false charging claim, but has no explicit unknown status model. | 2 |
+| CHG-002 | partial | Explicit unknown/valid/source/age model exists and never uses voltage; physical decoder absent. | 2 |
 | CHG-003 | blocked | No VBUS/charge-status interface circuit. | 2 |
-| CHG-004 | blocked | Exact LED decoder specification exists; no schematic/PCB/firmware/hardware. | 2 |
+| CHG-004 | blocked | Exact circuit/BOM and host-tested decoder state policy exist; schematic/PCB/physical circuit absent. | 2 |
 | CHG-005 | blocked | Decoder-to-ESP pin conflict unresolved; no mobile app. | 2,5,7 |
-| CHG-006 | planned | SGM40567 has no documented fault signal; must remain unsupported. | 2 |
+| CHG-006 | partial | Firmware exposes fault_unsupported and decoder has no fabricated fault path; physical optional monitor absent. | 2 |
 | CAM-001 | implemented | Centralized verified 800×600 profile; software contract tests pass; some profile values remain provisional. | regression 4,9 |
 | CAM-002 | partial | Unique JPEG/save validation and bench capture evidence exist; extended ten-capture acceptance pending. | 4,9 |
 | LGT-001 | blocked | Disabled binary GPIO43 prototype; no verified driver. | 2–3 |
-| LGT-002 | planned | No PWM, timeout, acknowledged state, or app. | 3,5,7 |
+| LGT-002 | partial | PWM-capable controller, clamp, timeout, low-battery/photo policy and actual state exist; driver/app tests pending. | 3,5,7 |
 | VID-001 | planned | No AVI/MJPEG writer. | 4 |
 | VID-002 | blocked | No measured resolution/fps matrix; no connected board. | 4,9 |
 | VID-003 | planned | No video controls/finalizer. | 4–5 |
@@ -34,8 +34,8 @@ Status meanings: **implemented** = source and current software evidence exist; *
 | AUD-001 | implemented | Canonical recorder/player, tests and prior physical playback evidence exist. | regression all |
 | AUD-002 | partial | Unity volume/PCM bound and technical speech normalization tested; electrical/acoustic max not measured. | 2,8,9 |
 | HAP-001 | blocked | Disabled direct-control prototype; bare motor disconnected; driver absent. | 2 |
-| HAP-002 | planned | Current pulse blocks 60 ms; no scheduler/pattern/intensity. | 2–3 |
-| VOC-001 | planned | No deterministic intent classifier. | 3,8 |
+| HAP-002 | partial | Eight-entry non-blocking pattern queue and optional PWM intensity implemented; driver/measurements pending. | 2–3 |
+| VOC-001 | partial | Allow-listed classifier and alias/general-question tests pass; physical voice round trip pending. | 3,8 |
 | VOC-002 | partial | Dispatcher validates request IDs and power/busy/sleep/video-stop state; disruptive confirmation remains Phase 3. | 1,3 |
 | VOC-003 | partial | Required typed taxonomy exists; spoken alias router remains Phase 3. | 3,8 |
 | AI-001 | implemented | 110 tests, real Qwen fixture, existing Whisper/Ollama/Piper backend and prior bench flow. | regression 8–10 |

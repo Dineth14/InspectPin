@@ -14,6 +14,9 @@
 #ifndef IP_POWER_MANAGEMENT_ENABLED
 #define IP_POWER_MANAGEMENT_ENABLED false
 #endif
+#ifndef IP_BUTTON_LAYOUT_FINAL
+#define IP_BUTTON_LAYOUT_FINAL false
+#endif
 #ifndef IP_IDLE_TIMEOUT_MS
 #define IP_IDLE_TIMEOUT_MS 0UL
 #endif

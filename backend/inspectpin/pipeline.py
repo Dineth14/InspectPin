@@ -7,6 +7,7 @@ from .llm_providers import make_llm
 from .stt import MockSTT, WhisperSTT
 from .tts import MockTTS, PiperTTS
 from .vision import Vision
+from .command_router import classify
 
 
 @dataclass
@@ -44,7 +45,14 @@ def process(job, folder, services, settings, check_deadline):
             raise ServiceError("NO_SPEECH", "No detectable speech")
     elif job["kind"] == "question":
         transcript = job["question"]
-    if job["kind"] == "image":
+    routed = None
+    if job["kind"] == "voice" and not job.get("image_id"):
+        # Pure in-process allow-list routing is intentionally outside provider
+        # timings so the existing API timing contract remains backward compatible.
+        routed = classify(transcript)
+    if routed is not None:
+        answer = routed.response
+    elif job["kind"] == "image":
         answer = stage("vision", lambda: services.vision.analyze(folder / "input.jpg", job["question"]))
     elif job.get("image_id"):
         answer = stage("vision", lambda: services.vision.answer(
@@ -58,4 +66,9 @@ def process(job, folder, services, settings, check_deadline):
     pending = folder / "answer.pending.wav"
     stage("tts", lambda: services.tts.synthesize(answer, pending))
     parse_wav(pending.read_bytes())
-    return {"transcript": transcript, "answer": answer, "timings_seconds": timing}
+    result = {"transcript": transcript, "answer": answer, "timings_seconds": timing}
+    if routed is not None:
+        result["device_command"] = routed.as_dict()
+        result["confirmation_required"] = routed.confirmation_required
+    return result
+

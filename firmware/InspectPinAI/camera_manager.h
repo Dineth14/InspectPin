@@ -8,3 +8,7 @@ bool ensureCameraProfileActive(sensor_t *sensor);
 void printCameraSettings();
 bool diagnoseCamera();
 bool captureJpeg(const String &path);
+bool beginVideoCamera();
+camera_fb_t *getVideoFrame();
+void returnVideoFrame(camera_fb_t *frame);
+void endVideoCamera();

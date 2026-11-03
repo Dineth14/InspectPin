@@ -1,0 +1,19 @@
+InspectPin Phase 3 evidence - 2026-11-03 Asia/Colombo
+
+Automated:
+  134 passed in 7.11s; Ruff passed.
+  Alias, ambiguity, confirmation, bounds, button and safe-default light tests included.
+
+Firmware:
+  1094534 bytes flash; 58304 bytes static RAM; compile exit code 0.
+  COM7 upload exit code 0; hashes verified.
+
+Board diagnostics:
+  Buttons: D2/GPIO3=HIGH D5/GPIO6=HIGH two-button=yes (pressed=LOW)
+  COMMAND STATUS_GET source=1 request=serial-31274
+  EVENT 3 COMMAND_ACCEPTED STATUS_GET serial-31274
+  STATE OFFLINE heap=258660 psram=8346312 connected=no light=off brightness=0
+  haptic=off volume=100
+
+Pending: Wi-Fi/spoken command round trip; final-layout rewiring/50 boots; GPIO43
+light MOSFET; GPIO44 haptic MOSFET/motor; light exposure/current measurements.

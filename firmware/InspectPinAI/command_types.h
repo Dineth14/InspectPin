@@ -29,4 +29,5 @@ struct CommandResult {
 namespace Commands {
 DeviceCommand fromSerial(char value);
 const char *name(CommandType value);
+CommandType fromName(const String &value);
 }

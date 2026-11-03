@@ -96,3 +96,14 @@ def test_charge_and_haptic_truthfulness_contracts():
     assert "delay(" not in feedback
     assert "IP_HAPTIC_ENABLED" in feedback
 
+
+def test_button_migration_and_illumination_are_safe_by_default():
+    button = source("button_manager.cpp")
+    light = source("illumination_controller.cpp")
+    assert "IP_BUTTON_LAYOUT_FINAL" in button
+    assert "ButtonPolicy::resolve" in button
+    assert "IP_BUTTON_LAYOUT_FINAL false" in source("config.h")
+    assert "LOW_BATTERY" in light
+    assert "IP_LIGHT_ENABLED" in light
+    assert "forceOff" in light
+

@@ -115,6 +115,23 @@ bool Api::poll(const String &job, JobResult &result, String &error) {
     result.status=doc["status"].as<String>(); result.transcript=doc["transcript"].as<String>();
     result.answer=doc["answer"].as<String>(); result.audio=doc["audio_available"] | false;
     result.error=doc["error"]["code"].as<String>();
+    result.hasCommand=false;
+    if(doc["device_command"].is<JsonObject>()) {
+      JsonObject command=doc["device_command"].as<JsonObject>();
+      result.command.type=Commands::fromName(command["type"].as<String>());
+      result.command.source=CommandSource::VOICE;
+      result.command.requestId=String("voice-")+job;
+      JsonObject parameters=command["parameters"].as<JsonObject>();
+      if(result.command.type==CommandType::LIGHT_SET) {
+        result.command.boolValue=parameters["enabled"] | false;
+        result.command.intValue=parameters["brightness"] | 0;
+      } else if(result.command.type==CommandType::VOLUME_SET) result.command.intValue=parameters["percent"] | -1;
+      else if(result.command.type==CommandType::HAPTIC_SET) {
+        result.command.boolValue=parameters["enabled"] | false;
+        result.command.intValue=parameters["intensity"] | 0;
+      }
+      result.hasCommand=result.command.type!=CommandType::NONE;
+    }
     ok=result.status=="queued" || result.status=="processing" || result.status=="completed" || result.status=="failed";
   }
   if (!ok) error=code==200?"INVALID_JOB_RESPONSE":responseError(http,code);

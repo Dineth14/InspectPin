@@ -1,0 +1,24 @@
+InspectPin Phase 2 evidence - 2026-11-03 Asia/Colombo
+
+Host contract result:
+  6 passed in 0.49s
+  Includes battery curve/filter/hysteresis and charge-decoder pulse/full/USB-off.
+
+Firmware compile:
+  ESP32 core 3.3.12, XIAO ESP32-S3, PSRAM OPI, 8 MB partition profile.
+  1089606 bytes flash; 58160 bytes static RAM; exit code 0.
+
+Upload:
+  COM7 ESP32-S3 revision v0.2; exit code 0; hashes verified.
+
+Board output:
+  Battery voltage=-1.000 V estimate=-1.0% valid=no uncertainty=0.08 V
+  low=no critical=no calibration=1.0000 charge=unknown charge_valid=no
+  source=unavailable
+  Deep sleep disabled until wake hardware is validated
+  SD card initialized: 30000 MB
+
+Interpretation:
+  Safe/truthful behavior passed. Battery divider, VBUS decoder, haptic MOSFET and
+  GPIO6 wake are not physically present/validated, so no ADC accuracy, charging,
+  current, vibration or sleep-current acceptance is claimed.

@@ -26,6 +26,7 @@ String Store::newPath(bool image) {
   while (SD.exists(path));
   return String(path);
 }
+String Store::newVideoPath(){char path[80];do{snprintf(path,sizeof(path),"/inspectpin/%08lx_%08lx.avi",(unsigned long)esp_random(),(unsigned long)millis());}while(SD.exists(path)||SD.exists(String(path)+".part"));return String(path);}
 bool Store::markPending(const String &path, const String &job, const String &imageId, const String &contextId) {
   // Save the original association: retry must never silently use a newer image.
   String temporary=path+".pending.tmp", finalPath=path+".pending";

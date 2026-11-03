@@ -2,6 +2,7 @@
 #include "config.h"
 #include "camera_profile.h"
 #include "status_feedback.h"
+#include "video_profile.h"
 #include <SD.h>
 
 namespace {
@@ -17,9 +18,10 @@ struct ApplyResult {
 
 ApplyResult lastApply;
 bool profileApplied = false;
+bool videoCameraActive = false;
 const CameraProfile::Settings *activeProfile = nullptr;
 
-camera_config_t cameraConfiguration() {
+camera_config_t cameraConfiguration(framesize_t frameSize=FRAMESIZE_SVGA,uint8_t quality=CameraProfile::selected().jpegQuality,uint8_t frameBuffers=1) {
   camera_config_t c = {};
   // Official CAMERA_MODEL_XIAO_ESP32S3 mapping, not AI Thinker ESP32-CAM.
   c.pin_pwdn = -1;
@@ -42,9 +44,9 @@ camera_config_t cameraConfiguration() {
   c.ledc_timer = LEDC_TIMER_0;
   c.ledc_channel = LEDC_CHANNEL_0;
   c.pixel_format = PIXFORMAT_JPEG;
-  c.frame_size = FRAMESIZE_SVGA;
-  c.jpeg_quality = CameraProfile::selected().jpegQuality;
-  c.fb_count = 1;
+  c.frame_size = frameSize;
+  c.jpeg_quality = quality;
+  c.fb_count = frameBuffers;
   c.fb_location = CAMERA_FB_IN_PSRAM;
   c.grab_mode = CAMERA_GRAB_WHEN_EMPTY;
   return c;
@@ -199,6 +201,7 @@ void shutDownCamera() {
   esp_camera_deinit();
   profileApplied = false;
   activeProfile = nullptr;
+  videoCameraActive = false;
 }
 
 bool initializeCamera() {
@@ -370,3 +373,24 @@ bool diagnoseCamera() {
   if (ok) shutDownCamera();
   return ok;
 }
+
+bool beginVideoCamera() {
+  if(!IP_CAMERA_ENABLED||!psramFound())return false;
+  camera_config_t c=cameraConfiguration(VideoProfile::frameSize,VideoProfile::jpegQuality,2);
+  c.grab_mode=CAMERA_GRAB_LATEST;
+  esp_err_t err=esp_camera_init(&c);
+  if(err!=ESP_OK){Serial.printf("Video camera init failed: 0x%x\n",err);return false;}
+  sensor_t *sensor=esp_camera_sensor_get();
+  if(!sensor||sensor->id.PID!=OV3660_PID||!applyConfiguredCameraProfile(sensor)) {shutDownCamera();return false;}
+  int frameRc=sensor->set_framesize(sensor,VideoProfile::frameSize);
+  int qualityRc=sensor->set_quality(sensor,VideoProfile::jpegQuality);
+  if(frameRc||qualityRc||sensor->status.framesize!=VideoProfile::frameSize||sensor->status.quality!=VideoProfile::jpegQuality){
+    Serial.printf("Video profile failed frame_rc=%d quality_rc=%d frame=%d quality=%u\n",frameRc,qualityRc,int(sensor->status.framesize),sensor->status.quality);shutDownCamera();return false;
+  }
+  profileApplied=false;activeProfile=nullptr;videoCameraActive=true;Feedback::illuminate(false);
+  delay(250);for(int i=0;i<2;i++){camera_fb_t *frame=esp_camera_fb_get();if(!frame){shutDownCamera();return false;}esp_camera_fb_return(frame);delay(30);}
+  Serial.printf("Video camera profile applied: %s QVGA 320x240 JPEG quality=%u\n",VideoProfile::name,VideoProfile::jpegQuality);return true;
+}
+camera_fb_t *getVideoFrame(){return videoCameraActive?esp_camera_fb_get():nullptr;}
+void returnVideoFrame(camera_fb_t *frame){if(frame)esp_camera_fb_return(frame);}
+void endVideoCamera(){if(videoCameraActive)shutDownCamera();}

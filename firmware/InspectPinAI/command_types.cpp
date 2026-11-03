@@ -14,6 +14,9 @@ DeviceCommand Commands::fromSerial(char value) {
     case 'k': c.type=CommandType::CAMERA_DIAGNOSTIC; break;
     case 'p': c.type=CommandType::TONE_PLAY; break;
     case 'z': c.type=CommandType::SLEEP; break;
+    case 'u': c.type=CommandType::VIDEO_START; break;
+    case 'o': c.type=CommandType::VIDEO_STOP; break;
+    case 'm': c.type=CommandType::MEDIA_LIST; break;
     case '?': c.type=CommandType::STATUS_GET; break;
     default: c.type=CommandType::NONE; break;
   }
@@ -26,4 +29,9 @@ const char *Commands::name(CommandType v) {
     "MEDIA_LIST","MEDIA_DELETE","SLEEP","RESTART","SETTINGS_GET","SETTINGS_PATCH",
     "RETRY","CONTEXT_GET","CONTEXT_CLEAR","SD_TEST","WIFI_CONNECT","CAMERA_DIAGNOSTIC","TONE_PLAY"};
   unsigned index=unsigned(v); return index<sizeof(names)/sizeof(names[0])?names[index]:"UNKNOWN";
+}
+CommandType Commands::fromName(const String &value) {
+  for(unsigned i=1;i<=unsigned(CommandType::TONE_PLAY);i++)
+    if(value==name(CommandType(i))) return CommandType(i);
+  return CommandType::NONE;
 }

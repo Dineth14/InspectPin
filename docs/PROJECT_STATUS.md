@@ -1,5 +1,53 @@
 # Project status — 2026-11-03
 
+## Phase 3 — buttons, illumination and command dispatch (software complete; drivers gated)
+
+The current bench mapping is preserved by default: D2/GPIO3 voice and D5/GPIO6
+photo. `IP_BUTTON_LAYOUT_FINAL=true` explicitly selects the proposed product
+mapping: D2 short voice, D2 long photo, D5 long deliberate sleep. Held-at-boot
+buttons remain disarmed, debounce is 40 ms, and simultaneous actions have a
+deterministic power/camera/voice priority.
+
+The illumination controller clamps brightness, enforces timeout/low-battery
+restrictions, turns off after photo, and reports requested versus actual state.
+It remains disabled until a GPIO43 MOSFET driver is verified. Runtime volume
+and haptic commands validate bounds. The backend voice router recognizes only
+explicit aliases, requires confirmation for sleep/restart, and emits an
+allow-listed command; unmatched questions continue to AI.
+
+Actual checks: **134 tests passed in 7.11 s**, Ruff passed, exact XIAO build
+passed at **1,094,534 bytes flash / 58,304 bytes static RAM**, and COM7 upload
+hashes verified. Board diagnostics showed both released buttons HIGH, legacy
+two-button mode active, light/haptic off, volume 100, and truthful offline state.
+Wi-Fi prevented a physical spoken-command round trip; driver tests remain pending.
+Evidence: [Phase 3 record](evidence/phase3-2026-11-03.txt).
+
+## Phase 2 — power, battery, charging and haptics (software complete; hardware gated)
+
+The safe-default implementation now includes wake-reason/idle/deep/light sleep
+logic, peripheral shutdown hooks in the app, a filtered Li-ion estimate with
+persisted calibration and hysteresis, explicit charging validity, a host-tested
+VBUS decoder policy, and a queued non-blocking haptic scheduler. Power, battery,
+decoder, light and haptic hardware remain disabled unless explicitly configured.
+
+Executed results:
+
+- Six host architecture/power contracts passed, including the chemistry curve,
+  trimmed filter, hysteresis, charger pulse/full latch, and USB-off reset.
+- Exact XIAO build passed at **1,089,606 bytes flash** and **58,160 bytes static RAM**.
+- COM7 upload passed with verified hashes.
+- The board reported battery invalid and charge `unknown`, `charge_valid=no`,
+  `source=unavailable`, exactly matching the absent divider/decoder hardware.
+- A manual sleep request was safely refused because wake hardware is not
+  validated; the SD card was reinitialized. No deep-sleep/current pass is claimed.
+
+Design records: [power](../hardware/POWER_ARCHITECTURE.md),
+[battery divider](../hardware/BATTERY_DIVIDER.md),
+[single LED decoder](../hardware/CHARGING_STATUS_DECODER.md), and
+[haptic driver](../hardware/HAPTIC_DRIVER.md). Physical current, ADC calibration,
+wake cycling, LED timing, charger loading and haptic-driver tests remain pending.
+Evidence: [Phase 2 record](evidence/phase2-2026-11-03.txt).
+
 ## Phase 1 — firmware architecture (implemented; physical regression partial)
 
 Phase 1 now has a typed command/result taxonomy, centralized dispatcher,

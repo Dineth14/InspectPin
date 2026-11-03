@@ -1,0 +1,3 @@
+#include "media_catalog.h"
+#include <SD.h>
+void MediaCatalog::print(){File dir=SD.open("/inspectpin");if(!dir){Serial.println("Media catalogue unavailable");return;}unsigned count=0;for(File entry=dir.openNextFile();entry;entry=dir.openNextFile()){String name=entry.name();if(!entry.isDirectory()&&(name.endsWith(".jpg")||name.endsWith(".wav")||name.endsWith(".avi")||name.endsWith(".incomplete"))){Serial.printf("MEDIA name=%s bytes=%lu\n",name.c_str(),(unsigned long)entry.size());count++;}entry.close();}dir.close();Serial.printf("Media count=%u free_bytes=%llu\n",count,SD.totalBytes()-SD.usedBytes());}

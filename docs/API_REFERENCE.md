@@ -18,6 +18,16 @@ endpoint must use this same contract; Phase 1 does not claim that endpoint or
 mutating-command idempotency exists yet. Free-form AI output never enters the
 dispatcher.
 
+### Deterministic voice routing
+
+After Whisper, explicit allow-listed phrases such as “take a photo,” “battery
+status,” “turn off light,” “set volume to 70 percent,” and “stop video” produce
+a `device_command` object in the completed job. The firmware validates it again
+after speaking the acknowledgment. Sleep and restart require `confirm sleep`
+or `confirm restart`. Unmatched speech has no command object and continues to
+the normal AI path. Delete is not voice-routed without a future authenticated
+media ID and confirmation contract.
+
 Base URL is configurable, e.g. `http://172.20.10.3:5000`. Every `/api/*` request uses `X-Device-Token: <shared token>` when configured. Conversation endpoints also require `X-Device-ID` (1–64 ASCII letters/digits/underscore/hyphen). Image, job and audio ownership is checked against this ID. All devices still share one token trust domain: an ID is not an independently authenticated account. Responses include `Cache-Control: no-store`.
 
 | Method | Path | Success | Purpose |

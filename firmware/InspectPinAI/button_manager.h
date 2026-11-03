@@ -1,6 +1,6 @@
 #pragma once
 #include <Arduino.h>
-enum class ButtonAction { NONE, VOICE, CAMERA };
+#include "button_policy.h"
 class ButtonManager {
  public: void begin(); ButtonAction update();
  private:
@@ -9,5 +9,5 @@ class ButtonManager {
     uint32_t changed=0,pressed=0;
   } voice_,camera_;
   static void initialize(Input &input,int pin);
-  static bool released(Input &input,int pin,uint32_t now);
+  static bool released(Input &input,int pin,uint32_t now,uint32_t &heldMs);
 };

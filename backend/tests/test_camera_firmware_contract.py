@@ -23,9 +23,12 @@ def test_approved_camera_profile_and_capture_invariants():
     assert macro("IP_CAMERA_SHARPNESS") == 1
     assert macro("IP_CAMERA_DENOISE") == 5
     assert macro("IP_CAMERA_AE_LEVEL") == 0
-    assert "c.frame_size = FRAMESIZE_SVGA" in CAMERA
+    assert "frameSize=FRAMESIZE_SVGA" in CAMERA
+    assert "c.frame_size = frameSize" in CAMERA
     assert "fb->width == 800 && fb->height == 600" in CAMERA
-    assert "FRAMESIZE_QVGA" not in CAMERA
+    photo_capture = CAMERA.split("bool captureJpeg(const String &path)", 1)[1].split("bool diagnoseCamera", 1)[0]
+    assert "FRAMESIZE_QVGA" not in photo_capture
+    assert "VideoProfile::frameSize" in CAMERA
     assert "CAMERA_FB_IN_PSRAM" in CAMERA
     capture = CAMERA.split("bool captureJpeg(const String &path)", 1)[1]
     assert "ensureCameraProfileActive(sensor)" in capture

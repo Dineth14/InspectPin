@@ -1,6 +1,7 @@
 #pragma once
 #include <Arduino.h>
-struct JobResult { String status, transcript, answer, error; bool audio=false; };
+#include "command_types.h"
+struct JobResult { String status, transcript, answer, error; bool audio=false, hasCommand=false; DeviceCommand command; };
 struct SessionContext {
   String imageId, contextId;
   uint32_t remainingMs=0;

@@ -3,6 +3,9 @@
 #include "wav_utils.h"
 #include <ESP_I2S.h>
 #include <SD.h>
+namespace { uint8_t volumePercent=100; }
+void setPlaybackVolume(uint8_t percent){volumePercent=percent>100?100:percent;}
+uint8_t playbackVolume(){return volumePercent;}
 bool playWav(const String &path) {
   File f=SD.open(path,FILE_READ); uint32_t remaining=0;
   if (!Wav::validate(f,remaining) || f.size()>Config::maxAnswerBytes) { f.close(); Serial.println("Invalid playback WAV"); return false; }
@@ -15,7 +18,8 @@ bool playWav(const String &path) {
   while (remaining && millis()-started<deadline) {
     size_t want=min(size_t(remaining),sizeof(mono)),got=f.read((uint8_t*)mono,want);
     if (got!=want) { ok=false; break; }
-    for (size_t i=0;i<got/2;i++) stereo[2*i]=stereo[2*i+1]=int16_t(mono[i]*Config::playbackGain);
+    const float gain=Config::playbackGain*(volumePercent/100.0f);
+    for (size_t i=0;i<got/2;i++) stereo[2*i]=stereo[2*i+1]=int16_t(mono[i]*gain);
     size_t sent=0;
     if (i2s_channel_write(speaker.txChan(),stereo,got*2,&sent,1000)!=ESP_OK || sent!=got*2) { ok=false; break; }
     remaining-=got; delay(1);

@@ -10,7 +10,7 @@ void ButtonManager::begin() {
   initialize(voice_,Config::button);
   if (IP_CAMERA_BUTTON_ENABLED) initialize(camera_,Config::cameraButton);
 }
-bool ButtonManager::released(Input &input,int pin,uint32_t now) {
+bool ButtonManager::released(Input &input,int pin,uint32_t now,uint32_t &heldMs) {
   bool raw=digitalRead(pin);
   if (raw!=input.raw) { input.raw=raw; input.changed=now; }
   if (now-input.changed>=40 && input.stable!=input.raw) {
@@ -18,6 +18,7 @@ bool ButtonManager::released(Input &input,int pin,uint32_t now) {
     if (!input.stable) { input.pressed=now; input.armed=true; }
     else {
       bool event=input.armed;
+      heldMs=now-input.pressed;
       input.armed=false;
       return event;
     }
@@ -26,11 +27,10 @@ bool ButtonManager::released(Input &input,int pin,uint32_t now) {
 }
 ButtonAction ButtonManager::update() {
   uint32_t now=millis();
-  bool voice=released(voice_,Config::button,now);
-  bool camera=IP_CAMERA_BUTTON_ENABLED && released(camera_,Config::cameraButton,now);
-  // Sample both inputs every tick; simultaneous release causes only one action.
-  if (camera) return ButtonAction::CAMERA;
-  if (voice) return !IP_CAMERA_BUTTON_ENABLED && now-voice_.pressed>=1200
-                      ?ButtonAction::CAMERA:ButtonAction::VOICE;
-  return ButtonAction::NONE;
+  uint32_t voiceHeld=0,secondHeld=0;
+  bool voice=released(voice_,Config::button,now,voiceHeld);
+  bool second=IP_CAMERA_BUTTON_ENABLED && released(camera_,Config::cameraButton,now,secondHeld);
+  ButtonAction voiceAction=voice?ButtonPolicy::voiceRelease(voiceHeld,IP_BUTTON_LAYOUT_FINAL):ButtonAction::NONE;
+  ButtonAction secondAction=second?ButtonPolicy::secondRelease(secondHeld,IP_BUTTON_LAYOUT_FINAL):ButtonAction::NONE;
+  return ButtonPolicy::resolve(voiceAction,secondAction);
 }
