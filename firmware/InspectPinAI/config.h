@@ -1,6 +1,8 @@
 #pragma once
 #include <Arduino.h>
-#if __has_include("config.local.h")
+#if defined(IP_USE_REV_E_CANDIDATE_CONFIG)
+#include "config.rev_e.example.h"
+#elif __has_include("config.local.h")
 #include "config.local.h"
 #else
 #include "config.example.h"

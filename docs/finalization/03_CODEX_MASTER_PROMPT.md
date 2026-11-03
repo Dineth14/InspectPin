@@ -1,5 +1,9 @@
 # Copy-ready Codex master prompt
 
+> Hardware pin/power clauses in this historical prompt are superseded by the
+> 2026-11-03 Rev E reconciliation: no third power button; ASK GPIO3; PHOTO PCF
+> P3; BAT_SENSE 100k/100k/100nF on GPIO6; PCF INT GPIO5 wake candidate.
+
 Copy everything inside the following block into a new Codex task.
 
 ```text

@@ -24,7 +24,7 @@
 #define IP_BATTERY_HYSTERESIS_VOLTS 0.10f
 #define IP_LOW_BATTERY_VOLTS 3.4f
 #define IP_CRITICAL_BATTERY_VOLTS 3.25f
-// Keep disabled until GPIO6 wake wiring and measured sleep current pass acceptance.
+// Keep disabled until ASK/PCF-INT wake wiring and measured sleep current pass.
 #define IP_POWER_MANAGEMENT_ENABLED false
 #define IP_DEEP_SLEEP_ENABLED false
 #define IP_POWER_BUTTON_PIN 5

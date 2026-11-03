@@ -5,15 +5,15 @@ Status meanings: **implemented** = source and current software evidence exist; *
 | ID | Baseline status | Current evidence or gap | Delivery phase |
 |---|---|---|---:|
 | PWR-001 | partial | Hierarchical sleep model and feature-gated PowerManager exist; runtime power/current acceptance pending. | 1–2 |
-| PWR-002 | blocked | GPIO6 eligible by documentation; no wake implementation/board connected. | 2 |
-| PWR-003 | partial | Feature-gated idle/manual light/deep sleep implemented; wake and current validation pending. | 2 |
+| PWR-002 | blocked | No third button. ASK GPIO3 and PHOTO via PCF INT GPIO5 wake code exists; schematic/50-cycle/current validation pending. | 2 |
+| PWR-003 | partial | Configurable automatic inactivity selects light sleep first; hardware wake/current validation pending. | 2 |
 | PWR-004 | partial | SD/Wi-Fi quiesce and existing short-lived camera/I²S lifecycle exist; measured current table pending. | 2,9 |
 | PWR-005 | partial | OperationGuard rejects sleep during active work and SD journals persist; critical-battery finalization remains Phase 2. | 1–2 |
 | BTN-001 | partial | Debounce, held-boot suppression, deterministic gesture/priority policy and host tests exist; 50-cycle physical suite pending. | 1,3 |
-| BTN-002 | blocked | Current D2 voice/D5 camera differs from final mapping; strap/wake tests absent. | 2–3 |
-| BAT-001 | blocked | GPIO5 16-sample voltage prototype exists; divider/calibration unverified. | 2 |
+| BTN-002 | blocked | Final ASK GPIO3/PHOTO PCF P3 profile and driver exist; Rev E source, continuity, strap/PCF wake tests absent. | 2–3 |
+| BAT-001 | blocked | GPIO6 21-sample firmware and 100k/100k/100nF spec exist; physical calibration/drain/back-power unverified. | 2 |
 | BAT-002 | partial | Trimmed filter, smoothing, chemistry lookup, hysteresis, persisted calibration and uncertainty implemented; physical calibration pending. | 2 |
-| BAT-003 | partial | API-ready typed reading and truthful serial status exist; device API/app remain Phase 5/7. | 2,5,7 |
+| BAT-003 | partial | API-ready reading plus Flutter model/card show volts/estimated SOC/validity/warnings; live device API remains Phase 5. | 2,5,7 |
 | BAT-004 | partial | Low capture inhibit and critical flag/dispatcher restriction exist; measured critical finalization/sleep remains pending. | 2 |
 | CHG-001 | partial | Onboard SGM40567/docs identified; actual board/current/thermal test absent. | 2,9 |
 | CHG-002 | partial | Explicit unknown/valid/source/age model exists and never uses voltage; physical decoder absent. | 2 |
@@ -50,7 +50,7 @@ Status meanings: **implemented** = source and current software evidence exist; *
 | SEC-001 | partial | Trusted-LAN limitations documented; no full threat model/trust reset/TLS migration implementation. | 5 |
 | APP-001 | planned | Flutter unavailable; `mobile_app/` absent. | 6 |
 | APP-002 | planned | No app. | 6 |
-| APP-003 | planned | No app/device status API. | 6–7 |
+| APP-003 | partial | Battery dashboard source/model/tests exist; Flutter toolchain/live device status API absent. | 6–7 |
 | APP-004 | planned | No app/device command API. | 7 |
 | APP-005 | planned | No app/media API. | 7 |
 | APP-006 | planned | No app AI interface. | 8 |

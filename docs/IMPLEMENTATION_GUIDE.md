@@ -1,5 +1,25 @@
 # Implementation and source guide
 
+## Rev E reconciled hardware configuration
+
+`hardware_profile.h` owns the candidate pin/PCF allocation. `pcf8574_manager.*`
+keeps P0/P1 high/off through external fail-safe inverters, reads PHOTO on P3,
+and provides decoded charge inputs P4–P6. `battery_monitor.*` now reads D5/GPIO6
+with calibrated `analogReadMilliVolts`, 21-sample trimmed averaging, smoothing,
+hysteresis, validity and a non-linear Li-Po lookup. `power_manager.*` has no
+dedicated button: configurable inactivity selects light sleep unless validated
+deep sleep is explicitly enabled, and ASK GPIO3 plus PCF INT GPIO5 are the wake
+candidates.
+
+The normal private configuration remains bench-safe. Compile the unflashed Rev E
+candidate explicitly with:
+
+```powershell
+arduino-cli compile --fqbn "esp32:esp32:XIAO_ESP32S3:PSRAM=opi,USBMode=hwcdc,FlashSize=8M,PartitionScheme=default_8MB" --build-property "compiler.cpp.extra_flags=-DIP_USE_REV_E_CANDIDATE_CONFIG" firmware\InspectPinAI
+```
+
+Do not copy the candidate into `config.local.h` until KiCad/continuity tests pass.
+
 ## Phase 1 firmware foundation
 
 | File | Responsibility |

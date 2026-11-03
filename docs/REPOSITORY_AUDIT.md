@@ -1,5 +1,9 @@
 # Repository audit — Phase 0
 
+> 2026-11-03 addendum: historical direct D5 PHOTO/GPIO5 battery assumptions are
+> superseded. Final candidate uses PHOTO on PCF8574 P3 and BAT_SENSE on
+> D5/GPIO6. The actual Rev E KiCad source remains absent.
+
 Date: 2026-11-03 (Asia/Colombo)  
 Baseline commit: `8ce2796d47d9af6deec23653b3fe3891787ced8a` on `main`  
 Working tree at audit start: clean  

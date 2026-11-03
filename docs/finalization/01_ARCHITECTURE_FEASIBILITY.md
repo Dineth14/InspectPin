@@ -15,15 +15,15 @@ The repository contains working-tree changes from prior volume and speech-normal
 | Requirement | Decision |
 |---|---|
 | Physical OFF with button wake | Requires a latching load switch/power controller. Software deep sleep is the first implementation and is not physical disconnection. |
-| Deep-sleep wake | Prefer D5/GPIO6 for the power/wake button. GPIO6 is RTC-capable and is not listed as a strapping pin. D2/GPIO3 is RTC-capable but is a strapping pin and must remain released during reset. |
-| Two final buttons | Proposed final mapping: D5/GPIO6 power/wake; D2/GPIO3 speech/command. Short D2 starts voice; long D2 captures a photo when idle. This requires rewiring the current D5 camera-button bench arrangement and validation. |
+| Sleep/wake | No dedicated power button. Automatic light sleep is first choice. Existing ASK/GPIO3 and PHOTO via PCF8574 INT/GPIO5 are wake candidates; deep sleep needs strap, PCF retention and 50-cycle validation. |
+| Two final buttons | ASK remains D2/GPIO3. PHOTO is PCF8574 P3. D5/GPIO6 is battery ADC only. |
 | Voice during deep sleep | Impossible without separate always-on audio hardware. Button wake must precede listening. |
 | Video | Implement silent JPEG-frame AVI/MJPEG first. Start with QVGA/VGA and a measured 5–10 fps target; make values configurable only inside tested limits. ESP32-S3 has no hardware H.264/H.265 encoder. |
 | Stop video by voice | A voice command may start video before camera recording. During recording, the guaranteed stop controls are the command button and authenticated mobile command. Continuous Whisper stop-word detection is an experimental later milestone. |
 | Photo profile | Preserve the current SVGA 800×600 optimized profile. Add a separate explicit video profile; never silently mutate the photo profile. |
 | Flashlight | GPIO43 can control only a MOSFET/driver input. It conflicts with UART0 TX use, so USB CDC must remain the diagnostic path. Default off after boot/sleep/error. |
 | Haptic | GPIO44 can control only a transistor/MOSFET or haptic driver. It conflicts with UART0 RX use. Use a timer-driven pattern queue; never block the state machine. |
-| Battery | GPIO5/ADC1_CH4 with 47 kΩ/47 kΩ gives 2.1 V at a 4.2 V cell and about 44.7 µA divider current. Treat percentage as an estimate with calibration, filtering, hysteresis, and chemistry profile. |
+| Battery | D5/GPIO6 with 100 kΩ/100 kΩ and 100 nF gives 2.1 V at 4.2 V and 21 µA theoretical drain. Estimated SOC needs calibration/filtering; it never indicates charge completion. |
 | Charging | The onboard SGM40567 `nCHG` node is electrically represented by the onboard LED network, but its native pattern is about 160 ms low every 1.28 s while charging and only 51.2 s continuous low after completion. Use the separate VBUS-powered decoder in `09_SINGLE_LED_CHARGE_INDICATOR.md` for exact 1 Hz blinking, latched full indication, and mobile-readable state. Fault remains unknown without another signal. |
 | Provisioning | BLE GATT provisioning is preferred for credentials and initial pairing; use Wi-Fi HTTP for control and large media. SoftAP is a documented fallback if BLE memory/reliability fails acceptance. |
 | Control transport | Add an authenticated device API distinct from the existing AI backend API. Use request IDs, acknowledgments, timeouts, and idempotent commands. Start with polling; add WebSocket events only after stable HTTP control. |

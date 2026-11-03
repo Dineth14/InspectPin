@@ -1,5 +1,31 @@
 # Project status — 2026-11-03
 
+## Final Rev E power/battery reconciliation — source implemented, fabrication blocked
+
+The final design has exactly two buttons: ASK on D2/GPIO3 and PHOTO on PCF8574
+P3. D5/GPIO6 is exclusively the 100 kΩ/100 kΩ/100 nF battery ADC. There is no
+dedicated power button. Automatic inactivity selects light sleep; optional deep
+sleep may wake from existing ASK or PCF8574 INT on D4/GPIO5 only after physical
+validation. MAX17043/MAX17048 are removed from the design.
+
+Implemented artifacts include the conflict report, corrected net-level
+schematic specification, connection diagram, BOM, PCB rules, blocked ERC report,
+electrical test procedure, PCF8574 manager, reconciled pin profile, automatic
+sleep policy, GPIO6 battery monitor, hardware charge-state input, and Flutter
+battery model/card with warnings.
+
+Actual software results: eight reconciliation/architecture host tests passed;
+the normal bench configuration compiled at **1,113,246 bytes flash / 59,904
+bytes static RAM**; the explicit Rev E candidate compiled at **1,135,538 bytes
+flash / 60,336 bytes static RAM**. Neither reconciled build was uploaded because
+the connected board still has historical bench wiring.
+
+Fabrication remains **blocked**: the actual Rev E KiCad source is absent, KiCad
+CLI is unavailable, and no revised ERC, continuity, ADC, standby/back-power,
+wake-current or charging-LED measurements exist. See the
+[reconciliation report](../hardware/REV_E_RECONCILIATION_REPORT.md) and
+[verification procedure](../hardware/REV_E_VERIFICATION_PROCEDURE.md).
+
 ## Phase 3 — buttons, illumination and command dispatch (software complete; drivers gated)
 
 The current bench mapping is preserved by default: D2/GPIO3 voice and D5/GPIO6

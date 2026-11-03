@@ -34,7 +34,7 @@ The CameraWebServer sketch begins with UXGA to allocate buffers, then changes th
 
 ## Firmware behavior
 
-`applyOptimizedCameraProfile(sensor_t *)` in `camera_manager.cpp` is the public optimized-profile entry point. `applyConfiguredCameraProfile()` selects the optimized profile by default and supports the explicit low-light experiment. Every image route calls `captureJpeg()`, including serial `c`, the D5 camera button, the single-button long gesture, and any future caller using the existing capture function.
+`applyOptimizedCameraProfile(sensor_t *)` in `camera_manager.cpp` is the public optimized-profile entry point. `applyConfiguredCameraProfile()` selects the optimized profile by default and supports the explicit low-light experiment. Every image route calls `captureJpeg()`, including serial `c`, PHOTO on PCF8574 P3, and any future caller using the existing capture function. Historical bench builds used D5 directly; final hardware must not.
 
 For every capture the firmware:
 

@@ -1,5 +1,8 @@
 # Copy-ready phased Codex prompts
 
+> Future phases must replace historical GPIO6 power-button and GPIO5 47k/47k
+> battery instructions with `hardware/REV_E_RECONCILIATION_REPORT.md`.
+
 Each block is standalone. Run them in order in the same repository. Each phase must preserve prior accepted work and update `docs/PROJECT_STATUS.md` plus requirement traceability.
 
 ## Phase 0 — audit and feasibility

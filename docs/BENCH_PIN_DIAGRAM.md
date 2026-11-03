@@ -1,5 +1,9 @@
 # InspectPin USB bench wiring — two buttons
 
+> **Historical bench record:** direct D5/GPIO6 PHOTO wiring must not be used on
+> reconciled Rev E. GPIO6 is now BAT_SENSE and PHOTO is PCF8574 P3. Use the
+> [new connection diagram](../hardware/REV_E_CONNECTION_DIAGRAM.md).
+
 This diagram is for the Seeed Studio XIAO ESP32-S3 Sense with its built-in camera, PDM microphone and microSD expansion board, plus a MAX98357A amplifier. Board labels D0, D1, etc. differ from GPIO numbers. The user's existing buttons on D2 and D5 can remain there: they are GPIO3 and GPIO6, not GPIO2 and GPIO5.
 
 Disconnect USB and any battery before changing wiring. Use USB power for the first test. A bare vibration motor must be disconnected from the GPIO until its driver is installed. The user confirmed disconnecting it. Two-button firmware has now been compiled and uploaded on COM7: D2 is voice, D5 is camera, both trigger on release. Haptics remain disabled. SD self-test and authenticated backend session synchronization passed on the board; microphone/speaker/button acceptance is a separate physical test.

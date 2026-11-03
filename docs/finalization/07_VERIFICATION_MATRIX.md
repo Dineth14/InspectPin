@@ -5,13 +5,13 @@ Statuses begin as `planned` unless current source/evidence proves otherwise. Fut
 | ID | Implementation module | Automated check | Manual hardware/app test | Pass criterion / evidence |
 |---|---|---|---|---|
 | PWR-001 | PowerManager/state machine | power-state tests | measure normal/light/deep | labels correct; transition log/current sheet |
-| PWR-002 | wake controller/GPIO6 | wake config contract | 50 wake/reset/held cycles | 50/50; serial video/current log |
+| PWR-002 | automatic sleep + ASK/PCF-INT wake | wake config contract | 50 ASK and PHOTO wake/reset/held cycles | no third button; 50/50 each; current/log |
 | PWR-003 | idle policy/settings | timeout/defer tests | timeout/manual sleep | persisted and safe; transition log |
 | PWR-004 | peripheral lifecycle | lifecycle mocks | rail/current by state | quiesce/resume; measurement table |
 | PWR-005 | operation guard/storage | interruption simulation | reset during each write | prior files valid; hashes/files/logs |
 | BTN-001 | ButtonManager/dispatcher | debounce/gesture tests | bounce/simultaneous/held | one intended command; serial/video |
-| BTN-002 | pin configuration | pin contract | strap boot and wake | no boot fault; 50-cycle record |
-| BAT-001 | BatteryMonitor | conversion tests | ≥5 multimeter points | documented error bounds; CSV |
+| BTN-002 | GPIO3 ASK + PCF P3 PHOTO | pin contract | strap boot, PCF INT and wake | no boot fault; 50-cycle record |
+| BAT-001 | GPIO6 BatteryMonitor 100k/100k | conversion tests | ≥5 DMM points plus drain/back-power | documented error bounds/current; CSV |
 | BAT-002 | filter/profile | noise/lookup/hysteresis tests | loaded/idle comparison | stable estimate; plots |
 | BAT-003 | status schema/app | serialization/UI tests | compare device/app | exact acknowledged sample; screenshots/JSON |
 | BAT-004 | power policy | threshold tests | controlled supply boundary | correct inhibit/finalize/sleep; video/log |

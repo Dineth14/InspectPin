@@ -1,5 +1,13 @@
 # Test plan and acceptance evidence
 
+## Final Rev E power/battery gate
+
+The authoritative schematic, ADC, standby/back-power, two-button wake, charger
+LED and preserved-function procedures are in
+[REV_E_VERIFICATION_PROCEDURE](../hardware/REV_E_VERIFICATION_PROCEDURE.md).
+Do not use the historical 47 kΩ/GPIO5 or direct D5 PHOTO procedures below for
+the revised PCB. Historical records remain for bench traceability only.
+
 ## Phase 1 architecture checks
 
 ```powershell

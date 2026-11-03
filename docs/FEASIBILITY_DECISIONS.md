@@ -1,5 +1,9 @@
 # Feasibility decisions and gates — Phase 0
 
+> Superseded hardware decision notice: final Rev E has no power button, ASK on
+> GPIO3, PHOTO on PCF P3, PCF INT on GPIO5, and battery ADC on GPIO6 through
+> 100 kΩ/100 kΩ/100 nF. See `hardware/REV_E_RECONCILIATION_REPORT.md`.
+
 ## Accepted decisions
 
 | Topic | Decision | Gate before product enablement |

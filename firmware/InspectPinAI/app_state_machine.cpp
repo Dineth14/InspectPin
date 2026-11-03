@@ -79,7 +79,8 @@ void App::begin() {
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
-  Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Buttons: D2/GPIO3=voice, D5/GPIO6=camera (press and release)" : "Button D2/GPIO3: short=voice, long=camera");
+  if(IP_PCF8574_ENABLED)Serial.println("Buttons: ASK=D2/GPIO3, PHOTO=PCF8574 P3; no dedicated power button");
+  else Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Legacy bench buttons: D2/GPIO3=voice, D5/GPIO6=camera" : "ASK button: D2/GPIO3; PHOTO unavailable until PCF8574 is verified");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
   Video::recoverIncomplete();
@@ -220,8 +221,10 @@ void App::tick() {
     else if (action==ButtonAction::CAMERA) handleCommand({CommandType::PHOTO_CAPTURE,CommandSource::BUTTON,String("button-")+millis()});
     if (idle() && Serial.available()) {
       char cmd=Serial.read();
-      if(cmd=='d') Serial.printf("Buttons: D2/GPIO3=%s D5/GPIO6=%s two-button=%s (pressed=LOW)\n",
-        digitalRead(Config::button)?"HIGH":"LOW",digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
+      if(cmd=='d') {
+        if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK D2/GPIO3=%s PHOTO PCF/P3=%s PCF_INT D4/GPIO5=%s (pressed=LOW)\n",digitalRead(Config::button)?"HIGH":"LOW",Expander::photoPressed()?"LOW":"HIGH",digitalRead(Config::pcfInterrupt)?"HIGH":"LOW");
+        else Serial.printf("Legacy buttons: D2/GPIO3=%s D5/GPIO6=%s direct-photo=%s (pressed=LOW)\n",digitalRead(Config::button)?"HIGH":"LOW",digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
+      }
       else handleCommand(Commands::fromSerial(cmd));
     }
     if (idle() && IP_BATTERY_ENABLED && millis()-lastBattery_>30000) {

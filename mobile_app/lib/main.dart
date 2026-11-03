@@ -12,9 +12,9 @@ class InspectPinApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         title: 'InspectPin',
         theme: ThemeData(colorSchemeSeed: Colors.indigo, useMaterial3: true),
-        home: const Scaffold(
-          appBar: AppBar(title: Text('InspectPin dashboard')),
-          body: BatteryCard(
+        home: Scaffold(
+          appBar: AppBar(title: const Text('InspectPin dashboard')),
+          body: const BatteryCard(
             status: BatteryStatus(
               voltage: null,
               estimatedPercent: null,

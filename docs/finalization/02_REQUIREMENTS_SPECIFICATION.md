@@ -7,18 +7,18 @@ Every requirement is testable. “Pass” requires linked evidence; source creat
 | ID | Requirement | Acceptance criteria |
 |---|---|---|
 | PWR-001 | Implement NORMAL, LIGHT_SLEEP, and DEEP_SLEEP; expose PHYSICAL_OFF only when latch hardware is detected/configured. | State and wake cause are logged; deep-sleep current is measured; UI never labels deep sleep as physical off. |
-| PWR-002 | Wake from the verified power button and optional timer. | 50 consecutive wake cycles pass; held-button boot and bounce do not loop or mis-trigger. |
+| PWR-002 | Use automatic inactivity power saving; wake only from a verified existing ASK or PHOTO/PCF-INT path. No third button. | Light sleep passes first; deep sleep is enabled only after 50 ASK/PHOTO wake cycles without boot/bounce failures. |
 | PWR-003 | Implement configurable idle timeout and manual sleep. | Timeout persists; manual/API requests acknowledge; active critical operations defer sleep. |
 | PWR-004 | Gate peripherals and Wi-Fi by state. | Camera, I2S, light, haptic, SD, and Wi-Fi have explicit quiesce/resume behavior; measured current table exists. |
 | PWR-005 | Protect media and journals across sleep/critical battery. | No sleep occurs during unfinalized writes; interruption tests retain previous good files and report recovery. |
 | BTN-001 | Use a debounced two-button state machine with source-neutral commands. | Short/long actions and priority are documented and pass bounce/simultaneous/held-at-boot tests. |
-| BTN-002 | Preferred final mapping is GPIO6 power/wake and GPIO3 speech/command, subject to hardware validation. | Pin audit and 50-cycle boot/wake test pass before enabling by default. |
+| BTN-002 | Final mapping is ASK on GPIO3 and PHOTO on PCF8574 P3; there is no dedicated power button. | Pin/strap/PCF-INT audit and 50-cycle boot/wake test pass before deep sleep. |
 
 ## Battery and charging
 
 | ID | Requirement | Acceptance criteria |
 |---|---|---|
-| BAT-001 | Measure cell voltage through a verified 47 kΩ/47 kΩ divider and 100 nF filter on GPIO5. | Multimeter comparison at ≥5 points is recorded; divider voltage never exceeds ADC constraints. |
+| BAT-001 | Measure the cell through verified 100 kΩ/100 kΩ 1% and 100 nF on D5/GPIO6. | Multimeter comparison at ≥5 points, standby drain and unpowered back-power tests are recorded. |
 | BAT-002 | Apply robust filtering, calibration, chemistry lookup, smoothing, and hysteresis. | Unit tests cover lookup boundaries/noise; voltage error and percentage uncertainty are reported. |
 | BAT-003 | Expose voltage, estimated percentage, low/critical flags, timestamp, and validity. | Firmware, device API, and app show the same acknowledged sample. |
 | BAT-004 | Enforce low/critical power policy. | Light/video are inhibited below configured thresholds; critical state finalizes work and sleeps. |
