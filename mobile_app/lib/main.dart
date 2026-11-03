@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'features/auth/login_screen.dart';
+import 'features/onboarding/onboarding_screen.dart';
 import 'features/shell/home_shell.dart';
 import 'services/api_client.dart';
+import 'design/app_theme.dart';
 
 void main() => runApp(const InspectPinApp());
 
@@ -19,13 +21,14 @@ class _InspectPinAppState extends State<InspectPinApp> {
     baseUrl: const String.fromEnvironment('INSPECTPIN_API_URL', defaultValue: 'http://10.0.2.2:5000'),
     storage: storage,
   );
-  bool loading = true, signedIn = false;
+  bool loading = true, signedIn = false, onboarded = false;
+  ThemeMode themeMode = ThemeMode.dark;
 
   @override
   void initState() {
     super.initState();
-    api.restore().then((value) {
-      if (mounted) setState(() { signedIn = value; loading = false; });
+    Future.wait([api.restore(), storage.read(key: 'inspectpin_onboarded'), Future<void>.delayed(const Duration(milliseconds: 650))]).then((values) {
+      if (mounted) setState(() { signedIn = values[0] == true; onboarded = values[1] == 'true'; loading = false; });
     });
   }
 
@@ -33,29 +36,16 @@ class _InspectPinAppState extends State<InspectPinApp> {
   Widget build(BuildContext context) => MaterialApp(
         title: 'InspectPin AI',
         debugShowCheckedModeBanner: false,
-        themeMode: ThemeMode.system,
-        theme: _theme(Brightness.light),
-        darkTheme: _theme(Brightness.dark),
+        themeMode: themeMode,
+        theme: InspectPinTheme.light(),
+        darkTheme: InspectPinTheme.dark(),
         home: loading
-            ? const Scaffold(body: Center(child: CircularProgressIndicator()))
-            : signedIn
-                ? HomeShell(api: api, onSignedOut: () => setState(() => signedIn = false))
+            ? const SplashScreen()
+            : !onboarded
+                ? OnboardingScreen(onComplete: () async { await storage.write(key: 'inspectpin_onboarded', value: 'true'); if (mounted) setState(() => onboarded = true); })
+                : signedIn
+                ? HomeShell(api: api, themeMode: themeMode, onThemeChanged: (value) => setState(() => themeMode = value), onSignedOut: () => setState(() => signedIn = false))
                 : LoginScreen(api: api, onSignedIn: () => setState(() => signedIn = true)),
       );
-
-  ThemeData _theme(Brightness brightness) {
-    const cyan = Color(0xFF22D3C5);
-    final dark = brightness == Brightness.dark;
-    return ThemeData(
-      brightness: brightness,
-      colorScheme: ColorScheme.fromSeed(seedColor: cyan, brightness: brightness),
-      scaffoldBackgroundColor: dark ? const Color(0xFF071018) : const Color(0xFFF3F7F8),
-      cardTheme: CardThemeData(
-        color: dark ? const Color(0xFF0D1923) : Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      useMaterial3: true,
-    );
-  }
 }
 

@@ -1,10 +1,12 @@
 # Flutter mobile app
 
-The existing Flutter project was retained. It supports Android-first/iOS-capable
-architecture, system light/dark theme, login/registration, encrypted platform
-token storage, session restore/expiry, paired device telemetry, battery voltage
-and estimated percentage, charge validity, inspection history/detail, simulator
-labels, PHOTO commands, pairing and sign-out.
+The existing Flutter project was retained and redesigned as a premium InspectPin
+instrument interface. It supports Android-first/iOS-capable architecture,
+explicit Midnight/Precision Light themes, branded onboarding, login/registration,
+encrypted platform token storage, session restore/expiry, paired device telemetry,
+battery voltage and estimated percentage, charge validity, searchable inspection
+history/detail, authenticated image zoom, contextual questions, simulator labels,
+PHOTO commands, pairing and sign-out.
 
 Configure the backend at build time:
 

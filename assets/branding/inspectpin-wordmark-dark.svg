@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="540" height="124" viewBox="0 0 540 124" role="img" aria-labelledby="title desc">
+  <title id="title">InspectPin AI</title><desc id="desc">Reconstructed InspectPin AI wordmark for dark backgrounds</desc>
+  <rect width="540" height="124" fill="none"/>
+  <text x="8" y="78" font-family="Inter,Manrope,Segoe UI,Arial,sans-serif" font-size="64" font-weight="800" letter-spacing="-3"><tspan fill="#F7FAFF">Inspect</tspan><tspan fill="#00DFE8">Pin</tspan><tspan dx="14" fill="#F7FAFF">AI</tspan></text>
+  <rect x="8" y="99" width="72" height="6" rx="3" fill="#00DFE8"/>
+</svg>

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="520" viewBox="0 0 760 520" role="img" aria-labelledby="title desc">
+  <title id="title">InspectPin device concept</title><desc id="desc">Conceptual, non-photorealistic wearable inspection device silhouette</desc>
+  <defs><linearGradient id="body" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1A334D"/><stop offset="1" stop-color="#0A1727"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="24" stdDeviation="24" flood-opacity=".35"/></filter></defs>
+  <ellipse cx="380" cy="438" rx="224" ry="30" fill="#020811" opacity=".55"/>
+  <g filter="url(#shadow)" transform="translate(182 48)">
+    <path d="M64 0h264c35 0 64 29 64 64v322c0 35-29 64-64 64H64c-35 0-64-29-64-64V64C0 29 29 0 64 0z" fill="url(#body)" stroke="#29415B" stroke-width="3"/>
+    <path d="M61 18h270c23 0 43 19 43 43v130H18V61c0-24 19-43 43-43z" fill="#0B1C30"/>
+    <circle cx="196" cy="111" r="68" fill="#050C15" stroke="#36536E" stroke-width="8"/><circle cx="196" cy="111" r="42" fill="#0C283B" stroke="#00DFE8" stroke-width="5"/><circle cx="196" cy="111" r="16" fill="#041018"/><circle cx="180" cy="94" r="7" fill="#B7FFFF" opacity=".85"/>
+    <rect x="58" y="231" width="276" height="74" rx="20" fill="#0A1727" stroke="#263E57" stroke-width="2"/>
+    <rect x="78" y="253" width="158" height="10" rx="5" fill="#1F3B50"/><rect x="78" y="275" width="96" height="8" rx="4" fill="#162C3E"/>
+    <circle cx="292" cy="268" r="18" fill="#00DFE8" opacity=".14"/><circle cx="292" cy="268" r="7" fill="#00DFE8"/>
+    <rect x="62" y="342" width="112" height="50" rx="18" fill="#112A3D" stroke="#33526C" stroke-width="2"/><text x="93" y="374" fill="#F7FAFF" font-family="Segoe UI,Arial" font-size="16" font-weight="700">ASK</text>
+    <rect x="218" y="342" width="112" height="50" rx="18" fill="#00B7C0"/><text x="244" y="374" fill="#04151C" font-family="Segoe UI,Arial" font-size="16" font-weight="800">PHOTO</text>
+    <path d="M112 421h168" stroke="#00DFE8" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+  </g>
+  <g fill="none" stroke="#31516A" stroke-width="2" opacity=".55"><path d="M71 151h93l38-38"/><path d="M588 117h93"/><path d="M596 347h105"/></g>
+  <g fill="#8196AE" font-family="Segoe UI,Arial" font-size="13"><text x="56" y="142">CAMERA</text><text x="624" y="108">WEARABLE</text><text x="622" y="338">VOICE + PHOTO</text></g>
+</svg>

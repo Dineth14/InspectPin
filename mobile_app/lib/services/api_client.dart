@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -66,6 +67,16 @@ class ApiClient {
 
   Future<Map<String, dynamic>> processingJob(String id) async =>
       _json('GET', '/api/v1/processing-jobs/$id');
+
+  Future<Uint8List> media(String id) async {
+    final response = await http.get(Uri.parse('$baseUrl/api/v1/media/$id'), headers: {
+      'Accept': 'image/jpeg', if (_token != null) 'Authorization': 'Bearer $_token',
+    }).timeout(const Duration(seconds: 20));
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException('MEDIA_FAILED', 'Inspection image is unavailable', response.statusCode);
+    }
+    return response.bodyBytes;
+  }
 
   Future<String> pair({
     required String id, required String name, required String model,

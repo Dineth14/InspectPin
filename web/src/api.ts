@@ -25,6 +25,10 @@ export class ApiClient {
   me() { return this.request<User>('/api/v1/auth/me') }
   logout() { return this.request<void>('/api/v1/auth/logout', { method: 'POST' }) }
   devices() { return this.request<{ items: Device[] }>('/api/v1/devices') }
+  pairDevice(input: { device_id: string; name: string; model: string; hardware_revision: string; firmware_version: string }) {
+    return this.request<Device & { device_token: string }>('/api/v1/devices/pair', { method: 'POST', body: JSON.stringify(input) })
+  }
+  unpairDevice(id: string) { return this.request<void>(`/api/v1/devices/${id}`, { method: 'DELETE' }) }
   inspections() { return this.request<{ items: Inspection[]; total: number }>('/api/v1/inspections?limit=50') }
   inspection(id: string) { return this.request<Inspection>(`/api/v1/inspections/${id}`) }
   command(device: string, type: string, payload: Record<string, unknown> = {}) {
@@ -42,6 +46,11 @@ export class ApiClient {
     const url = URL.createObjectURL(await response.blob())
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `inspectpin-${id}.pdf`; anchor.click()
     URL.revokeObjectURL(url)
+  }
+  async mediaObjectUrl(id: string) {
+    const response = await fetch(this.base + `/api/v1/media/${id}`, { headers: { Authorization: `Bearer ${this.token}` } })
+    if (!response.ok) throw new ApiError(response.status, 'MEDIA_FAILED', 'Media could not be loaded')
+    return URL.createObjectURL(await response.blob())
   }
 }
 

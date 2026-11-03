@@ -40,11 +40,14 @@ class InspectionSummary {
   const InspectionSummary({
     required this.id, required this.title, required this.status, required this.summary,
     required this.createdAt, required this.simulated, required this.findings,
+    required this.imageMediaId, required this.interactions,
   });
   final String id, title, status, summary;
   final DateTime createdAt;
   final bool simulated;
   final List<Finding> findings;
+  final String? imageMediaId;
+  final List<InspectionInteraction> interactions;
   factory InspectionSummary.fromJson(Map<String, dynamic> json) => InspectionSummary(
         id: json['id'] as String,
         title: json['title'] as String? ?? 'Inspection',
@@ -54,7 +57,18 @@ class InspectionSummary {
         simulated: json['simulated'] == true || json['simulated'] == 1,
         findings: (json['findings'] as List? ?? const [])
             .whereType<Map<String, dynamic>>().map(Finding.fromJson).toList(),
+        imageMediaId: json['image_media_id'] as String?,
+        interactions: (json['voice_interactions'] as List? ?? const [])
+            .whereType<Map<String, dynamic>>().map(InspectionInteraction.fromJson).toList(),
       );
+}
+
+class InspectionInteraction {
+  const InspectionInteraction({required this.id, required this.question, required this.answer, required this.status});
+  final String id, question, answer, status;
+  factory InspectionInteraction.fromJson(Map<String, dynamic> json) => InspectionInteraction(
+    id: json['id']?.toString() ?? '', question: json['question']?.toString() ?? json['transcript']?.toString() ?? '',
+    answer: json['ai_response']?.toString() ?? '', status: json['status']?.toString() ?? 'unknown');
 }
 
 class DashboardData {

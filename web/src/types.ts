@@ -10,7 +10,7 @@ export type Inspection = {
   id: string; device_id: string | null; created_at: number; title: string; status: string
   summary: string; findings: Finding[]; simulated: boolean; image_media_id?: string | null
   media?: { id: string; media_type: string; content_type: string; byte_size: number }[]
-  voice_interactions?: { id: string; transcript: string; ai_response: string; status: string }[]
+  voice_interactions?: { id: string; transcript: string; question: string; ai_response: string; status: string; created_at: number }[]
 }
 
 export type User = { id: string; name: string; email: string; preferences: Record<string, unknown> }

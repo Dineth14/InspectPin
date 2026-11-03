@@ -97,6 +97,11 @@ explicitly pending.
 | [LOCAL_SETUP_WINDOWS](docs/LOCAL_SETUP_WINDOWS.md) | Backend, web, simulator and mobile setup |
 | [SECURITY_REVIEW](docs/SECURITY_REVIEW.md) | Controls and remaining trust limitations |
 | [PROJECT_STATUS](docs/PROJECT_STATUS.md) | Historical implementation/bench evidence |
+| [BRAND_GUIDELINES](docs/BRAND_GUIDELINES.md) | Logo, colour, typography and product voice |
+| [DESIGN_SYSTEM](docs/DESIGN_SYSTEM.md) | Shared web/mobile tokens, components and states |
+| [UI_REDESIGN](docs/UI_REDESIGN.md) | Premium redesign implementation and before/after |
+| [ACCESSIBILITY_REVIEW](docs/ACCESSIBILITY_REVIEW.md) | Implemented accessibility and outstanding checks |
+| [VISUAL_QA](docs/VISUAL_QA.md) | QA environment, viewport matrix and current blocker |
 
 Do not commit `.env`, firmware `config.local.h`, device/Wi-Fi credentials,
 provider keys, generated media or `.build/simulator-state.json`.
