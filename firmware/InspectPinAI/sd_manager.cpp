@@ -19,6 +19,7 @@ bool Store::begin() {
   Serial.printf("SD card initialized: %llu MB\n",SD.cardSize()/1024/1024);
   return true;
 }
+void Store::end() { SD.end(); SPI.end(); }
 String Store::newPath(bool image) {
   char path[80];
   do { snprintf(path,sizeof(path),"/inspectpin/%08lx_%08lx.%s",(unsigned long)esp_random(),(unsigned long)millis(), image?"jpg":"wav"); }

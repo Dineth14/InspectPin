@@ -1,12 +1,15 @@
 #pragma once
 #include "button_manager.h"
 #include "api_client.h"
+#include "command_types.h"
+#include "operation_guard.h"
 enum class AppState { BOOT, INITIALIZING, READY, RECORDING, SAVING, UPLOADING, WAITING_FOR_AI, DOWNLOADING, PLAYING, OFFLINE, RETRYING, ERROR, LOW_BATTERY };
 class App {
  public: void begin(); void tick();
  private:
   AppState state_=AppState::BOOT;
   ButtonManager button_;
+  OperationGuard operation_;
   String path_,job_,answerPath_;
   SessionContext context_;
   String captureImage_,captureContext_;
@@ -22,4 +25,5 @@ class App {
   void syncContext(bool clear=false);
   void useContext(const SessionContext &context);
   bool idle() const;
+  void handleCommand(const DeviceCommand &command);
 };

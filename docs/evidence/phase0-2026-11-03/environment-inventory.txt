@@ -1,0 +1,17 @@
+Phase 0 environment inventory — 2026-11-03
+commit=8ce2796d47d9af6deec23653b3fe3891787ced8a
+branch=main
+working_tree_at_start=clean
+python=3.12.13
+pip=25.0.1
+pytest=8.4.2
+arduino-cli=1.2.0
+esp32-core=3.3.12
+ArduinoJson=7.4.2
+connected_board=none
+flutter=not installed or not on PATH
+mobile_app=absent
+hardware_directory_at_start=absent
+ollama_models=qwen2.5vl:3b; llama3.2:3b; qwen3.5:4b
+AGENTS.md=absent
+private_env_values=not recorded

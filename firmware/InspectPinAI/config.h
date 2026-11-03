@@ -11,6 +11,27 @@
 #ifndef IP_CAMERA_BUTTON_ENABLED
 #define IP_CAMERA_BUTTON_ENABLED false
 #endif
+#ifndef IP_POWER_MANAGEMENT_ENABLED
+#define IP_POWER_MANAGEMENT_ENABLED false
+#endif
+#ifndef IP_IDLE_TIMEOUT_MS
+#define IP_IDLE_TIMEOUT_MS 0UL
+#endif
+#ifndef IP_POWER_BUTTON_PIN
+#define IP_POWER_BUTTON_PIN 6
+#endif
+#ifndef IP_CRITICAL_BATTERY_VOLTS
+#define IP_CRITICAL_BATTERY_VOLTS 3.25f
+#endif
+#ifndef IP_LIGHT_PWM_ENABLED
+#define IP_LIGHT_PWM_ENABLED false
+#endif
+#ifndef IP_LIGHT_DEFAULT_BRIGHTNESS
+#define IP_LIGHT_DEFAULT_BRIGHTNESS 255
+#endif
+#ifndef IP_LIGHT_TIMEOUT_MS
+#define IP_LIGHT_TIMEOUT_MS 60000UL
+#endif
 namespace Config {
 constexpr int micClock = 42, micData = 41;
 constexpr int sdCS = 21, sdSCK = 7, sdMISO = 8, sdMOSI = 9;
@@ -27,4 +48,6 @@ static_assert(recordSeconds > 0 && recordSeconds <= 30, "Record duration must be
 // The backend already peak-limits generated speech to 25% of PCM16 full scale.
 // Allow unity playback so the firmware does not attenuate that bounded signal again.
 static_assert(playbackGain >= 0 && playbackGain <= 1.0f, "Playback gain must be in the range 0..1");
+static_assert(IP_POWER_BUTTON_PIN>=0 && IP_POWER_BUTTON_PIN<=48, "Invalid wake button pin");
+static_assert(IP_LIGHT_DEFAULT_BRIGHTNESS>=0 && IP_LIGHT_DEFAULT_BRIGHTNESS<=255, "Brightness must be 0..255");
 }

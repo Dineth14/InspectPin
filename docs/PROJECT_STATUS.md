@@ -1,4 +1,20 @@
-# Project status — 2026-10-20
+# Project status — 2026-11-03
+
+## Phase 0 final-product audit
+
+Phase 0 is complete as a documentation and software-baseline phase. It did not implement Phase 1–10 product features. The repository started clean at commit `8ce2796d47d9af6deec23653b3fe3891787ced8a`. The audit confirms the existing firmware/backend core and the absence of the Flutter app, video writer, provisioning, full power manager, device/media API, single-LED decoder circuit, and final PCB design.
+
+Current executed checks: **110 backend tests passed in 7.21 s**; Ruff, Python byte compilation and dependency consistency passed; mock Waitress voice/registered-image workflows passed; real `qwen2.5vl:3b` read the synthetic fixture's 230 V and 4.2 A values; the XIAO firmware compiled with ESP32 core 3.3.12 at **1,082,582 bytes flash** and **58,064 bytes static RAM**. No board was connected, so no new physical pass is claimed. Flutter was not installed/on PATH.
+
+Phase 0 artifacts:
+
+- [Repository audit](REPOSITORY_AUDIT.md)
+- [Feasibility decisions and gates](FEASIBILITY_DECISIONS.md)
+- [58-requirement traceability baseline](REQUIREMENTS_TRACEABILITY.md)
+- [Pin/electrical conflict matrix](../hardware/PIN_CONFLICT_MATRIX.md)
+- [Dated evidence](evidence/phase0-2026-11-03)
+
+The final pin budget remains open because the VBUS-powered charge decoder needs an ESP32 status interface while GPIO43/44 are proposed for illumination/haptics. Phase 1 may define abstractions but must not change physical defaults or enable unverified hardware. Hardware gates for wake, battery calibration, charge indication, drivers, battery-only power, AVI performance, BLE provisioning, and current/reliability remain pending.
 
 **OV3660 profile update:** the firmware now has a centralized, compile-time optimized profile and strict runtime readback. The approved default is 20 MHz XCLK, JPEG, SVGA 800 x 600, quality 12, brightness +1, contrast 0, saturation -2, sharpness +1, de-noise 5, AE level 0, AWB/AEC/AGC/gamma/lens correction enabled, night mode disabled, and official OV3660 vertical flip enabled. The connected sensor passed all 20 configured setter/readback checks and reported raw initialized gain-ceiling status 248; this value is preserved and is not presented as an enum or as the lost manually tuned value. The original CameraWebServer `/status` JSON is still needed to convert provisional slider values into authoritative values.
 

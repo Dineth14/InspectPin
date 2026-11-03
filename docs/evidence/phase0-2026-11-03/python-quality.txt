@@ -1,0 +1,7 @@
+ruff:
+All checks passed!
+compileall:
+compileall exit=0
+pip check:
+No broken requirements found.
+pip-check exit=0
