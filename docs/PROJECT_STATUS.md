@@ -15,8 +15,8 @@ sleep policy, GPIO6 battery monitor, hardware charge-state input, and Flutter
 battery model/card with warnings.
 
 Actual software results: eight reconciliation/architecture host tests passed;
-the normal bench configuration compiled at **1,113,246 bytes flash / 59,904
-bytes static RAM**; the explicit Rev E candidate compiled at **1,135,538 bytes
+the normal bench configuration compiled at **1,113,230 bytes flash / 59,904
+bytes static RAM**; the explicit Rev E candidate compiled at **1,135,598 bytes
 flash / 60,336 bytes static RAM**. Neither reconciled build was uploaded because
 the connected board still has historical bench wiring.
 
@@ -25,6 +25,7 @@ CLI is unavailable, and no revised ERC, continuity, ADC, standby/back-power,
 wake-current or charging-LED measurements exist. See the
 [reconciliation report](../hardware/REV_E_RECONCILIATION_REPORT.md) and
 [verification procedure](../hardware/REV_E_VERIFICATION_PROCEDURE.md).
+Evidence: [Rev E software/build record](evidence/rev-e-reconciliation-2026-11-03.txt).
 
 ## Phase 3 — buttons, illumination and command dispatch (software complete; drivers gated)
 

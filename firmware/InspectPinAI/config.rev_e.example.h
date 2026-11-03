@@ -29,7 +29,6 @@
 // after PCF8574 INT retention/current and both existing-button wake paths pass.
 #define IP_POWER_MANAGEMENT_ENABLED true
 #define IP_DEEP_SLEEP_ENABLED false
-#define IP_POWER_BUTTON_PIN 5
 #define IP_IDLE_TIMEOUT_MS 300000UL
 
 // PCF8574 outputs are binary through fail-safe inverters in the reconciled design.

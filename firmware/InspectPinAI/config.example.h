@@ -27,7 +27,6 @@
 // Keep disabled until ASK/PCF-INT wake wiring and measured sleep current pass.
 #define IP_POWER_MANAGEMENT_ENABLED false
 #define IP_DEEP_SLEEP_ENABLED false
-#define IP_POWER_BUTTON_PIN 5
 #define IP_IDLE_TIMEOUT_MS 0UL
 #define IP_LIGHT_PWM_ENABLED false
 #define IP_LIGHT_DEFAULT_BRIGHTNESS 255

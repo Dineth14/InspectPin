@@ -29,9 +29,6 @@
 #ifndef IP_IDLE_TIMEOUT_MS
 #define IP_IDLE_TIMEOUT_MS 0UL
 #endif
-#ifndef IP_POWER_BUTTON_PIN
-#define IP_POWER_BUTTON_PIN 5
-#endif
 #ifndef IP_CRITICAL_BATTERY_VOLTS
 #define IP_CRITICAL_BATTERY_VOLTS 3.25f
 #endif
@@ -79,9 +76,8 @@ static_assert(recordSeconds > 0 && recordSeconds <= 30, "Record duration must be
 // The backend already peak-limits generated speech to 25% of PCM16 full scale.
 // Allow unity playback so the firmware does not attenuate that bounded signal again.
 static_assert(playbackGain >= 0 && playbackGain <= 1.0f, "Playback gain must be in the range 0..1");
-static_assert(IP_POWER_BUTTON_PIN>=0 && IP_POWER_BUTTON_PIN<=48, "Invalid wake button pin");
-static_assert(!IP_PCF8574_ENABLED || IP_POWER_BUTTON_PIN==HardwareProfile::pcfInterruptGpio,
-              "Reconciled wake source must be PCF8574 INT on D4/GPIO5");
+static_assert(HardwareProfile::pcfInterruptGpio>=0 && HardwareProfile::pcfInterruptGpio<=21,
+              "PCF interrupt must be on an ESP32-S3 RTC wake GPIO");
 static_assert(IP_LIGHT_DEFAULT_BRIGHTNESS>=0 && IP_LIGHT_DEFAULT_BRIGHTNESS<=255, "Brightness must be 0..255");
 static_assert(IP_BATTERY_DIVIDER_RATIO>1.0f && IP_BATTERY_DIVIDER_RATIO<10.0f, "Invalid battery divider ratio");
 static_assert(IP_HAPTIC_DEFAULT_INTENSITY>=0 && IP_HAPTIC_DEFAULT_INTENSITY<=255, "Haptic intensity must be 0..255");

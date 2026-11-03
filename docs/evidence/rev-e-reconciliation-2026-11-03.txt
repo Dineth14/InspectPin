@@ -1,0 +1,27 @@
+InspectPin final Rev E power/battery reconciliation - 2026-11-03 Asia/Colombo
+
+Repository/KiCad audit:
+  No .kicad_sch, .kicad_pcb, .kicad_pro, legacy .sch/.brd, archive, PDF or image
+  for the user's Rev E design was found in the repository, attachments, searched
+  EE356 project tree, or searched user tree. kicad-cli/eeschema are unavailable.
+  ERC status: BLOCKED / NOT RUN. No fabrication output generated.
+
+Automated checks:
+  Full Python/contract suite: 138 passed in 7.46s.
+  Ruff: passed. compileall: passed. pip check: no broken requirements.
+  Focused hardware/architecture contracts: 8 passed in 0.56s.
+  Flutter command: unavailable; no Flutter build/test pass claimed.
+
+Firmware compile-only checks (ESP32 core 3.3.12, XIAO ESP32-S3):
+  Bench-safe profile: 1113230 bytes flash, 59904 bytes static RAM, exit 0.
+  Rev E candidate (-DIP_USE_REV_E_CANDIDATE_CONFIG):
+    1135598 bytes flash, 60336 bytes static RAM, exit 0.
+  Neither image uploaded: connected hardware has historical bench wiring and the
+  Rev E schematic/continuity review is absent.
+
+Physical tests not executed:
+  KiCad ERC/DRC, net continuity, ADC five-point calibration, standby-divider
+  drain, unpowered back-power, PCF address/INT, 50-cycle ASK/PHOTO wake, sleep
+  current, charge decoder/LED timing, charger current/thermal, flashlight and
+  vibration ratings, battery-only amplifier, and complete regression.
+

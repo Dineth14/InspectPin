@@ -80,3 +80,11 @@ separate VBUS-powered decoder defined in `CHARGING_STATUS_DECODER.md`.
 7. Run camera, SD, microphone, audio, PHOTO, ASK, flash and vibration regressions.
 8. Only then generate reviewed fabrication files.
 
+## Primary references
+
+- [Seeed XIAO ESP32-S3 pin multiplexing](https://wiki.seeedstudio.com/xiao_esp32s3_pin_multiplexing/)
+- [Seeed XIAO ESP32-S3 v1.3 schematic](https://files.seeedstudio.com/wiki/SeeedStudio-XIAO-ESP32S3/res/XIAO_ESP32S3_V1.3_SCH_260115.pdf)
+- [Espressif ESP32-S3 sleep modes](https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/system/sleep_modes.html)
+- [NXP PCF8574/PCF8574A data sheet](https://www.nxp.com/docs/en/data-sheet/PCF8574_PCF8574A.pdf)
+- [SG Micro SGM40567 data sheet](https://www.sg-micro.com/rect/assets/e95e555a-a8a2-4761-b86a-6554dff2d8ed/SGM40567.pdf)
+
