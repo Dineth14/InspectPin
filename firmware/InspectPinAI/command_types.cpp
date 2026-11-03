@@ -1,7 +1,7 @@
 #include "command_types.h"
 
 DeviceCommand Commands::fromSerial(char value) {
-  DeviceCommand c; c.source=CommandSource::SERIAL; c.requestId=String("serial-")+millis();
+  DeviceCommand c; c.source=CommandSource::SERIAL_CONSOLE; c.requestId=String("serial-")+millis();
   switch (value) {
     case 'v': c.type=CommandType::VOICE_START; break;
     case 'c': c.type=CommandType::PHOTO_CAPTURE; break;
@@ -14,6 +14,7 @@ DeviceCommand Commands::fromSerial(char value) {
     case 'k': c.type=CommandType::CAMERA_DIAGNOSTIC; break;
     case 'p': c.type=CommandType::TONE_PLAY; break;
     case 'z': c.type=CommandType::SLEEP; break;
+    case '?': c.type=CommandType::STATUS_GET; break;
     default: c.type=CommandType::NONE; break;
   }
   return c;

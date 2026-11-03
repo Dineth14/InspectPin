@@ -3,6 +3,7 @@
 #include "api_client.h"
 #include "command_types.h"
 #include "operation_guard.h"
+#include "state_model.h"
 enum class AppState { BOOT, INITIALIZING, READY, RECORDING, SAVING, UPLOADING, WAITING_FOR_AI, DOWNLOADING, PLAYING, OFFLINE, RETRYING, ERROR, LOW_BATTERY };
 class App {
  public: void begin(); void tick();
@@ -10,6 +11,7 @@ class App {
   AppState state_=AppState::BOOT;
   ButtonManager button_;
   OperationGuard operation_;
+  StateController runtime_;
   String path_,job_,answerPath_;
   SessionContext context_;
   String captureImage_,captureContext_;
@@ -26,4 +28,5 @@ class App {
   void useContext(const SessionContext &context);
   bool idle() const;
   void handleCommand(const DeviceCommand &command);
+  void updateRuntimeState(AppState value);
 };

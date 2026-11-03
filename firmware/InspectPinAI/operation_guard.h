@@ -1,7 +1,5 @@
 #pragma once
-#include <Arduino.h>
-
-enum class OperationClass : uint8_t { IDLE, CAPTURE, MEDIA_WRITE, NETWORK, AI_WAIT, PLAYBACK, VIDEO, RECOVERY };
+#include "state_model.h"
 
 class OperationGuard {
  public:

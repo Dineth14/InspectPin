@@ -9,7 +9,39 @@
 #include "battery_monitor.h"
 #include "status_feedback.h"
 #include "power_manager.h"
+#include "command_dispatcher.h"
+#include "event_log.h"
+#include "settings_store.h"
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
+void App::updateRuntimeState(AppState value) {
+  TopLevelState top=TopLevelState::ACTIVE;
+  ActiveState active=ActiveState::READY;
+  switch(value) {
+    case AppState::BOOT: top=TopLevelState::BOOTING; active=ActiveState::NONE; break;
+    case AppState::INITIALIZING: top=TopLevelState::INITIALIZING; active=ActiveState::NONE; break;
+    case AppState::RECORDING: active=path_.endsWith(".jpg")?ActiveState::IMAGE_CAPTURE:ActiveState::AUDIO_RECORDING; break;
+    case AppState::SAVING: active=ActiveState::MEDIA_SAVING; break;
+    case AppState::UPLOADING: active=ActiveState::UPLOADING; break;
+    case AppState::WAITING_FOR_AI: active=ActiveState::AI_PROCESSING; break;
+    case AppState::DOWNLOADING: active=ActiveState::DOWNLOADING; break;
+    case AppState::PLAYING: active=ActiveState::AUDIO_PLAYBACK; break;
+    case AppState::RETRYING: top=TopLevelState::RECOVERY; active=ActiveState::NONE; break;
+    case AppState::ERROR: top=TopLevelState::ERROR; active=ActiveState::NONE; break;
+    default: break;
+  }
+  if (runtime_.current().top!=top && !runtime_.transitionTop(top)) {
+    Serial.printf("STATE_TRANSITION_REJECTED from=%u to=%u\n",unsigned(runtime_.current().top),unsigned(top));
+    EventLog::record(EventCode::OPERATION_FAILED,"invalid top-level transition");
+    return;
+  }
+  if (top==TopLevelState::ACTIVE && !runtime_.transitionActive(active)) {
+    Serial.printf("ACTIVE_TRANSITION_REJECTED to=%u\n",unsigned(active));
+    EventLog::record(EventCode::OPERATION_FAILED,"invalid active transition");
+    return;
+  }
+  runtime_.flags().connected=value!=AppState::OFFLINE;
+  runtime_.flags().lowBattery=value==AppState::LOW_BATTERY;
+}
 void App::state(AppState value) {
   state_=value;
   switch(value) {
@@ -22,15 +54,20 @@ void App::state(AppState value) {
     case AppState::READY: case AppState::OFFLINE: case AppState::ERROR: case AppState::LOW_BATTERY: operation_.end(); break;
     default: break;
   }
+  updateRuntimeState(value);
   Serial.printf("STATE %s\n",names[int(value)]);
+  EventLog::record(EventCode::STATE_TRANSITION,String("legacy=")+names[int(value)]+" top="+unsigned(runtime_.current().top)+" active="+unsigned(runtime_.current().active));
 }
 void App::fail(const String &error,bool offline) {
   Serial.printf("Error: %s. Captures retained on SD; 'r' retries pending work.\n",error.c_str());
+  EventLog::record(EventCode::OPERATION_FAILED,error);
   operation_.end(); state(offline?AppState::OFFLINE:AppState::ERROR); Feedback::signal(Feedback::Event::ERROR);
 }
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
+  EventLog::begin();
   state(AppState::INITIALIZING); Feedback::begin(); button_.begin(); Battery::begin(); Power::begin();
+  if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
@@ -83,8 +120,16 @@ void App::retry() {
   state(job_.length()?AppState::WAITING_FOR_AI:AppState::UPLOADING);
 }
 void App::handleCommand(const DeviceCommand &command) {
-  if(command.type==CommandType::NONE) return;
+  DispatchDecision decision=CommandDispatcher::validate(command,runtime_.current(),operation_);
+  if(!decision.accepted) {
+    if(command.type!=CommandType::NONE) {
+      Serial.printf("COMMAND_REJECTED request=%s error=%s actual=%s\n",command.requestId.c_str(),decision.errorCode,names[int(state_)]);
+      EventLog::record(EventCode::COMMAND_REJECTED,String(Commands::name(command.type))+" "+decision.errorCode);
+    }
+    return;
+  }
   Power::noteActivity(); Serial.printf("COMMAND %s source=%u request=%s\n",Commands::name(command.type),unsigned(command.source),command.requestId.c_str());
+  EventLog::record(EventCode::COMMAND_ACCEPTED,String(Commands::name(command.type))+" "+command.requestId);
   switch(command.type) {
     case CommandType::VOICE_START: capture(false); break;
     case CommandType::PHOTO_CAPTURE: capture(true); break;
@@ -97,8 +142,8 @@ void App::handleCommand(const DeviceCommand &command) {
     case CommandType::CAMERA_DIAGNOSTIC: Serial.println(diagnoseCamera()?"Camera profile diagnostic PASS":"Camera profile diagnostic FAIL"); break;
     case CommandType::TONE_PLAY: state(AppState::PLAYING); if(playWav("/tone.wav")) state(AppState::READY); else fail("TONE_PLAYBACK_FAILED"); break;
     case CommandType::SLEEP:
-      if(!operation_.sleepSafe()) Serial.println("Sleep deferred: operation active");
-      else { Store::end(); Power::enterDeepSleep("manual command"); sdReady_=Store::begin(); }
+      if(!operation_.sleepSafe()) { Serial.println("Sleep deferred: operation active"); EventLog::record(EventCode::SLEEP_DEFERRED,command.requestId); }
+      else { SettingsStore::end(); Store::end(); Power::enterDeepSleep("manual command"); sdReady_=Store::begin(); SettingsStore::begin(); }
       break;
     case CommandType::STATUS_GET: Serial.printf("STATE %s heap=%u psram=%u\n",names[int(state_)],ESP.getFreeHeap(),ESP.getFreePsram()); break;
     default: Serial.printf("Command unsupported in current phase: %s\n",Commands::name(command.type)); break;

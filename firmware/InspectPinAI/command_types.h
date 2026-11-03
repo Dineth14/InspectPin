@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-enum class CommandSource : uint8_t { BUTTON, SERIAL, VOICE, BLE, HTTP, INTERNAL };
+enum class CommandSource : uint8_t { BUTTON, SERIAL_CONSOLE, VOICE, BLE, HTTP, INTERNAL };
 enum class CommandType : uint8_t {
   NONE, STATUS_GET, VOICE_START, CANCEL, PHOTO_CAPTURE, VIDEO_START, VIDEO_STOP,
   LIGHT_SET, VOLUME_SET, HAPTIC_SET, BATTERY_GET, MEDIA_LIST, MEDIA_DELETE,
