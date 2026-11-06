@@ -1,0 +1,128 @@
+pcbkit 2
+
+// AO3400A (Alpha & Omega Semiconductor): N-channel MOSFET, 30 V, 5.7 A, 32 mohm at 4.5 V gate,
+// logic level (2.5 V rated), SOT-23
+// Compiled from the part sheet `parts/AO3400A.json` (`parts.create`); status: checked.
+// Datasheet: https://www.aosmd.com/res/datasheets/AO3400A.pdf (Rev 3.1, July 2023)
+// Pins: AO3400A datasheet Rev 3.1, SOT23 top view (p. 1): gate next to the pin 1 mark, source the
+// other lead on that side, drain alone (JEDEC SOT-23 numbering 1 G, 2 S, 3 D; the datasheet draws
+// no numbers)
+// Footprint: the standard package `SOT-23`
+// This file may be used, changed and shared without conditions, with the board or alone.
+
+// Note: Fully on from a 3.3 V logic output (rated at 2.5 V gate drive): a low-side switch for
+// LEDs, relays, fans, small motors.
+// Note: Add about 100 kohm from gate to source so it stays off while the driving pin floats, and a
+// series gate resistor (10-100 ohm) for fast edges.
+// Note: Inductive loads (relays, motors) need a flyback diode across the load.
+// Note: 125 °C/W steady state: about 1 W at 25 °C ambient with good copper on the drain.
+
+/// AO3400A — N-channel MOSFET, 30 V, 5.7 A, 32 mohm at 4.5 V gate, logic level (2.5 V rated),
+/// SOT-23
+part AO3400A: Part {
+  footprint = sot23(3)
+  prefix = "Q"
+  mpn = "AO3400A"
+  manufacturer = "Alpha & Omega Semiconductor"
+  pinout = { G = "1", S = "2", D = "3" }
+  pinTypes = { G = io.input(max = 12V), S = .passive, D = .passive }
+  fields {
+    Status = "checked"
+    Sheet = "AO3400A"
+    Description = "N-channel MOSFET, 30 V, 5.7 A, 32 mohm at 4.5 V gate, logic level (2.5 V rated), SOT-23"
+    PinoutSource = "AO3400A datasheet Rev 3.1, SOT23 top view (p. 1): gate next to the pin 1 mark, source the other lead on that side, drain alone (JEDEC SOT-23 numbering 1 G, 2 S, 3 D; the datasheet draws no numbers)"
+    Datasheet = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+  }
+  simulation = SimulationParameters {
+    parameters = [
+      SimulationParameter {
+        id = "ron-4v5"
+        quantity = .onResistance
+        typ = 19mohm
+        max = 32mohm
+        conditions = "VGS=4.5 V, ID=5 A, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, static characteristics, RDS(ON)"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "ron-2v5"
+        quantity = .onResistance
+        typ = 24mohm
+        max = 48mohm
+        conditions = "VGS=2.5 V, ID=3 A, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, static characteristics, RDS(ON)"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "ciss"
+        quantity = .inputCapacitance
+        typ = 630pF
+        conditions = "VGS=0 V, VDS=15 V, f=1 MHz, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, dynamic parameters, Ciss"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "coss"
+        quantity = .outputCapacitance
+        typ = 75pF
+        conditions = "VGS=0 V, VDS=15 V, f=1 MHz, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, dynamic parameters, Coss"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "crss"
+        quantity = .reverseTransferCapacitance
+        typ = 50pF
+        conditions = "VGS=0 V, VDS=15 V, f=1 MHz, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, dynamic parameters, Crss"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "qg"
+        quantity = .gateCharge
+        typ = 6nC
+        max = 7nC
+        conditions = "VGS=4.5 V, VDS=15 V, ID=5.7 A, TJ=25 degC"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 2, switching parameters, Qg"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "tjunction-absolute"
+        quantity = .junctionAbsoluteTemperature
+        min = -55degC
+        max = 150degC
+        conditions = "Absolute rating; safe operating area and thermal limits also apply"
+        source = SimulationEvidence {
+          url = "https://www.aosmd.com/res/datasheets/AO3400A.pdf"
+          revision = "Rev 3.1, July 2023"
+          location = "p. 1, absolute maximum ratings"
+          confidence = .datasheet
+        }
+      },
+    ]
+  }
+}

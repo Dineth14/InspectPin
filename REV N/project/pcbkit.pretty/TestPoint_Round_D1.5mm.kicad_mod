@@ -1,0 +1,8 @@
+(footprint "TestPoint_Round_D1.5mm" (version 20240108) (generator "pcbkit") (generator_version "0.1") (layer "F.Cu")
+    (descr "Round SMD test pad, diameter 1.5 mm")
+    (property "Reference" "REF**" (at 0 0 0) (layer "F.Fab") (hide yes) (effects (font (size 1 1))))
+    (property "Value" "TestPoint_Round_D1.5mm" (at 0 0 0) (layer "F.Fab") (hide yes) (effects (font (size 1 1))))
+    (fp_rect (start -1 1) (end 1 -1) (stroke (width 0.05) (type solid)) (layer "F.CrtYd"))
+    (fp_circle (center 0 0) (end 1.01 0) (stroke (width 0.12) (type solid)) (fill none) (layer "F.SilkS"))
+    (pad "1" smd circle (at 0 0 0) (size 1.5 1.5) (layers "F.Cu" "F.Mask") (solder_mask_margin 0.05))
+)

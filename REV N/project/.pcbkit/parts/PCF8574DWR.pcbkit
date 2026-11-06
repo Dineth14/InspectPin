@@ -1,0 +1,177 @@
+pcbkit 2
+
+// PCF8574DWR (Texas Instruments): 8-bit quasi-bidirectional I2C I/O expander, 2.5-6 V, addresses
+// 0x20-0x27 by A2-A0 (PCF8574A: 0x38-0x3F), open-drain interrupt; the chip of the I2C backpacks of
+// character LCDs (SOIC-16 wide)
+// Compiled from the part sheet `parts/PCF8574DWR.json` (`parts.create`); status: checked.
+// Datasheet: https://www.ti.com/lit/ds/symlink/pcf8574.pdf (SCPS068K (July 2001, revised September
+// 2024): table 4-1 pin functions (DW, N), 5.1 absolute maximum ratings, 5.3 recommended operating
+// conditions, 7.3.3 address reference)
+// Pins: TI PCF8574 datasheet SCPS068K, table 4-1 pin functions (DW or N column: 1-3 A0-A2, 4-7
+// P0-P3, 8 GND, 9-12 P4-P7, 13 INT, 14 SCL, 15 SDA, 16 VCC), 5.1, 5.3, 7.3.3
+// Footprint: the standard package `SOIC-16 wide (DW)`
+// This file may be used, changed and shared without conditions, with the board or alone.
+
+// Note: A character LCD (HD44780) backpack wires P0-P7 to RS, RW, E, backlight, D4-D7; check the
+// order the library expects.
+
+/// PCF8574DWR — 8-bit quasi-bidirectional I2C I/O expander, 2.5-6 V, addresses 0x20-0x27 by A2-A0
+/// (PCF8574A: 0x38-0x3F), open-drain interrupt; the chip of the I2C backpacks of character LCDs
+/// (SOIC-16 wide)
+part PCF8574DWR: Part {
+  footprint = soicWide(16)
+  prefix = "U"
+  mpn = "PCF8574DWR"
+  manufacturer = "Texas Instruments"
+  pinout = {
+    A0 = "1"
+    A1 = "2"
+    A2 = "3"
+    P0 = "4"
+    P1 = "5"
+    P2 = "6"
+    P3 = "7"
+    GND = "8"
+    P4 = "9"
+    P5 = "10"
+    P6 = "11"
+    P7 = "12"
+    INT = "13"
+    SCL = "14"
+    SDA = "15"
+    VCC = "16"
+  }
+  pinTypes = {
+    A0 = io.input(max = 7V)
+    A1 = io.input(max = 7V)
+    A2 = io.input(max = 7V)
+    P0 = io.bidirectional()
+    P1 = io.bidirectional()
+    P2 = io.bidirectional()
+    P3 = io.bidirectional()
+    GND = .ground
+    P4 = io.bidirectional()
+    P5 = io.bidirectional()
+    P6 = io.bidirectional()
+    P7 = io.bidirectional()
+    INT = io.openDrain()
+    SCL = io.input(max = 7V)
+    SDA = io.openDrain(max = 7V)
+    VCC = io.powerIn(min = 2.5V, max = 7V)
+  }
+  fields {
+    Status = "checked"
+    Sheet = "PCF8574DWR"
+    Description = "8-bit quasi-bidirectional I2C I/O expander, 2.5-6 V, addresses 0x20-0x27 by A2-A0 (PCF8574A: 0x38-0x3F), open-drain interrupt; the chip of the I2C backpacks of character LCDs (SOIC-16 wide)"
+    PinoutSource = "TI PCF8574 datasheet SCPS068K, table 4-1 pin functions (DW or N column: 1-3 A0-A2, 4-7 P0-P3, 8 GND, 9-12 P4-P7, 13 INT, 14 SCL, 15 SDA, 16 VCC), 5.1, 5.3, 7.3.3"
+    Datasheet = "https://www.ti.com/lit/ds/symlink/pcf8574.pdf"
+  }
+  simulation = SimulationParameters {
+    behavior = Behavior {
+      model = "pcf8574"
+      ports = {
+        "i2c" = ["15", "14"]
+        "int" = ["13"]
+        "p0" = ["4"]
+        "p1" = ["5"]
+        "p2" = ["6"]
+        "p3" = ["7"]
+        "p4" = ["9"]
+        "p5" = ["10"]
+        "p6" = ["11"]
+        "p7" = ["12"]
+        "power" = ["16", "8"]
+      }
+      parameters = {}
+      height = 0mm
+    }
+    parameters = [
+      SimulationParameter {
+        id = "icc-operating-100khz"
+        quantity = .supplyCurrent
+        typ = 40uA
+        max = 100uA
+        conditions = "Operating mode, VI=VCC or GND, IO=0, fSCL=100 kHz; typical at VCC=5 V, TA=25 degC; max at VCC=6 V, over operating temperature"
+        source = SimulationEvidence {
+          url = "https://www.ti.com/lit/ds/symlink/pcf8574.pdf"
+          revision = "SCPS068K, revised September 2024"
+          location = "p. 5, section 5.5 Electrical Characteristics, ICC operating mode row"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "rthjb-dw16"
+        quantity = .thetaJb
+        typ = 45.8K/W
+        conditions = "RthetaJB junction-to-board, DW package, 16 pins"
+        source = SimulationEvidence {
+          url = "https://www.ti.com/lit/ds/symlink/pcf8574.pdf"
+          revision = "SCPS068K, revised September 2024"
+          location = "p. 4, section 5.4 Thermal Information"
+          confidence = .datasheet
+        }
+      },
+      SimulationParameter {
+        id = "tj-absolute"
+        quantity = .junctionAbsoluteTemperature
+        max = 150degC
+        conditions = "Junction temperature absolute maximum rating"
+        source = SimulationEvidence {
+          url = "https://www.ti.com/lit/ds/symlink/pcf8574.pdf"
+          revision = "SCPS068K, revised September 2024"
+          location = "p. 4, section 5.1 Absolute Maximum Ratings"
+          confidence = .datasheet
+        }
+      },
+    ]
+  }
+}
+
+/// The support circuit of the PCF8574DWR as its datasheet shows it (8.2 typical application): every
+/// part next to the pin it serves. Add it next to the part: `U1 = PCF8574DWR.PCF8574DWR { … }`,
+/// `U1Support = PCF8574DWR.Support { chip = U1 }`.
+///
+/// - Address 0100 A2 A1 A0: 0x20-0x27 (NXP and TI PCF8574A: 0111 A2 A1 A0, 0x38-0x3F; same pins).
+/// A2-A0 straight to VCC or GND.
+///
+/// - The ports are quasi-bidirectional: write 1 to read a pin as input; a high output is only a
+/// weak current source (about 100 uA), so drive LEDs and loads low-side (sinking up to 25 mA).
+block Support {
+  /// The PCF8574DWR this circuit serves (`PCF8574DWR.Support { chip = U1 }`).
+  chip: Any
+  /// The I2C pull-ups (once per bus: `false` when another part of the bus has them).
+  pullUps: Bool = true
+  /// A0-A2 to GND: address 0x20 (`address20 = false` to strap them for another address).
+  address20: Bool = true
+  /// next to pin 16
+  C1 = cap(100nF, package = "0402") {
+    place = [soft(near(chip.pin.VCC, max = 2mm), weight = 2)]
+    a -- chip.pin.VCC
+    b -- chip.pin.GND
+  }
+  /// I2C pull-up, once per bus
+  RP1 =
+    if pullUps then res(4.7kohm, package = "0402") {
+      place = [soft(near(chip.pin.SDA, max = 5mm), weight = 1)]
+      a -- chip.pin.SDA
+      b -- chip.pin.VCC
+    }
+    else null
+  /// I2C pull-up, once per bus
+  RP2 =
+    if pullUps then res(4.7kohm, package = "0402") {
+      place = [soft(near(chip.pin.SCL, max = 5mm), weight = 1)]
+      a -- chip.pin.SCL
+      b -- chip.pin.VCC
+    }
+    else null
+  /// interrupt pull-up, when INT is used
+  R1 = res(10kohm, package = "0402") {
+    place = [soft(near(chip.pin.INT, max = 5mm), weight = 1)]
+    a -- chip.pin.INT
+    b -- chip.pin.VCC
+  }
+  chip.pin.A0 -- (if address20 then chip.pin.GND else chip.pin.A0)
+  chip.pin.A1 -- (if address20 then chip.pin.GND else chip.pin.A1)
+  chip.pin.A2 -- (if address20 then chip.pin.GND else chip.pin.A2)
+}

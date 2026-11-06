@@ -1,0 +1,81 @@
+{
+  "board": {
+    "design_settings": {
+      "rule_severities": {},
+      "rules": {
+        "min_clearance": 0.15,
+        "min_copper_edge_clearance": 0.3,
+        "min_hole_clearance": 0.25,
+        "min_hole_to_hole": 0.2,
+        "min_microvia_diameter": 0.0,
+        "min_microvia_drill": 0.0,
+        "min_resolved_spokes": 2.0,
+        "min_through_hole_diameter": 0.0,
+        "min_track_width": 0.15,
+        "min_via_annular_width": 0.0,
+        "min_via_diameter": 0.0
+      }
+    }
+  },
+  "meta": {
+    "filename": "InspectPin AI Rev N - Unified Soldered XIAO Mount - ENGINEERING RELEASE.kicad_pro",
+    "version": 1
+  },
+  "net_settings": {
+    "classes": [
+      {
+        "clearance": 0.2,
+        "name": "batteryPower",
+        "track_width": 0.6,
+        "via_diameter": 0.6,
+        "via_drill": 0.3
+      },
+      {
+        "clearance": 0.2,
+        "name": "Default",
+        "track_width": 0.25,
+        "via_diameter": 0.6,
+        "via_drill": 0.3
+      }
+    ],
+    "meta": {
+      "version": 3
+    },
+    "netclass_assignments": {
+      "ASK_N": "Default",
+      "CHARGE_LED_K": "Default",
+      "CHG_BASE": "Default",
+      "CHG_LED_A": "Default",
+      "CHG_SOURCE": "Default",
+      "CHG_STATUS_N": "Default",
+      "FAULT_LED_A": "Default",
+      "FAULT_LED_K": "Default",
+      "FLASH_ANODE": "Default",
+      "FLASH_GATE": "Default",
+      "FLASH_GPIO": "Default",
+      "FLASH_K": "Default",
+      "GND": "Default",
+      "I2C_SCL": "Default",
+      "I2C_SDA": "Default",
+      "I2S_BCLK": "Default",
+      "I2S_DIN": "Default",
+      "I2S_LRCLK": "Default",
+      "NTC_INPUT": "Default",
+      "NTC_VOLT": "Default",
+      "Net-(R5-1)": "Default",
+      "PACK_POS": "batteryPower",
+      "PCF_INT": "Default",
+      "PHOTO_N": "Default",
+      "SD_CD_N": "Default",
+      "SPEAKER_N": "Default",
+      "SPEAKER_P": "Default",
+      "USB_BASE": "Default",
+      "USB_PRESENT_N": "Default",
+      "V3V3": "Default",
+      "VBAT_FUSED": "batteryPower",
+      "VBAT_PRE_SHUNT": "batteryPower",
+      "VBUS": "Default"
+    },
+    "netclass_patterns": []
+  }
+}

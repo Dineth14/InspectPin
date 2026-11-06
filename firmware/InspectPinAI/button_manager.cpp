@@ -8,7 +8,8 @@ void ButtonManager::initialize(Input &input,int pin) {
   input.armed=false; // A button held at startup must not trigger on release.
 }
 void ButtonManager::begin() {
-  initialize(voice_,Config::button);
+  if (Config::button>=0) initialize(voice_,Config::button);
+  else { voice_.raw=voice_.stable=true;voice_.changed=voice_.pressed=millis();voice_.armed=false; }
   if (IP_CAMERA_BUTTON_ENABLED) initialize(camera_,Config::cameraButton);
   pcfPhoto_.raw=pcfPhoto_.stable=true;
   pcfPhoto_.changed=pcfPhoto_.pressed=millis();pcfPhoto_.armed=false;
@@ -33,7 +34,9 @@ bool ButtonManager::releasedLevel(Input &input,bool raw,uint32_t now,uint32_t &h
 ButtonAction ButtonManager::update() {
   uint32_t now=millis();
   uint32_t voiceHeld=0,secondHeld=0;
-  bool voice=released(voice_,Config::button,now,voiceHeld);
+  bool voice=IP_PCF8574_ENABLED
+    ?releasedLevel(voice_,!Expander::askPressed(),now,voiceHeld)
+    :(Config::button>=0&&released(voice_,Config::button,now,voiceHeld));
   bool second=IP_PCF8574_ENABLED
     ?releasedLevel(pcfPhoto_,!Expander::photoPressed(),now,secondHeld)
     :(IP_CAMERA_BUTTON_ENABLED&&released(camera_,Config::cameraButton,now,secondHeld));

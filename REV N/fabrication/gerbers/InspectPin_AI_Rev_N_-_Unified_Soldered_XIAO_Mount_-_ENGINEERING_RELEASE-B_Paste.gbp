@@ -1,0 +1,11 @@
+%TF.GenerationSoftware,PCBKit,pcbkit,0.1.0*%
+%TF.ProjectId,InspectPin AI Rev N - Unified Soldered XIAO Mount - ENGINEERING RELEASE,00000000-0000-0000-0000-000000000000,rev?*%
+%TF.SameCoordinates,Original*%
+%TF.FileFunction,Paste,Bot*%
+%TF.FilePolarity,Positive*%
+%FSLAX46Y46*%
+%MOMM*%
+%LPD*%
+G01*
+%ADD10C,0.1*%
+M02*

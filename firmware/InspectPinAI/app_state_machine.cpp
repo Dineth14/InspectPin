@@ -17,6 +17,7 @@
 #include "video_recorder.h"
 #include "media_catalog.h"
 #include "pcf8574_manager.h"
+#include "ntc_monitor.h"
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","VIDEO_RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 void App::updateRuntimeState(AppState value) {
   TopLevelState top=TopLevelState::ACTIVE;
@@ -73,13 +74,13 @@ void App::fail(const String &error,bool offline) {
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
   EventLog::begin();
-  state(AppState::INITIALIZING); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); ChargeStatus::begin(); Power::begin();
+  state(AppState::INITIALIZING); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
   Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
-  if(IP_PCF8574_ENABLED)Serial.println("Buttons: ASK=D2/GPIO3, PHOTO=PCF8574 P3; no dedicated power button");
+  if(IP_PCF8574_ENABLED)Serial.println("Buttons: PHOTO=PCF8574 P0, ASK=PCF8574 P1; GPIO3 reserved");
   else Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Legacy bench buttons: D2/GPIO3=voice, D5/GPIO6=camera" : "ASK button: D2/GPIO3; PHOTO unavailable until PCF8574 is verified");
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
@@ -110,6 +111,7 @@ void App::capture(bool image) {
   if (!image && context_.imageId.length() && millis()-contextAt_>=context_.remainingMs) {
     fail("IMAGE_EXPIRED: capture again with c or clear with x"); return;
   }
+  if(IP_NTC_ENABLED){auto ntc=Ntc::sample();if(!ntc.valid||!ntc.safe){Illumination::forceOff();fail(ntc.openCircuit?"NTC_OPEN":ntc.shortCircuit?"NTC_SHORT":"BATTERY_TEMPERATURE_UNSAFE");return;}}
   captureImage_=image?"":context_.imageId;
   captureContext_=image?"":context_.contextId;
   path_=Store::newPath(image); job_=""; jobResult_=JobResult{}; attempts_=0;
@@ -163,7 +165,7 @@ void App::handleCommand(const DeviceCommand &command) {
     case CommandType::MEDIA_LIST: MediaCatalog::print(); break;
     case CommandType::MEDIA_DOWNLOAD: MediaCatalog::sendFile(Video::stats().path); break;
     case CommandType::WIFI_CONNECT: Wifi::scan(); Wifi::connect(); break;
-    case CommandType::BATTERY_GET: { auto reading=Battery::sample(); auto charge=ChargeStatus::latest(); Serial.printf("Battery voltage=%.3f V estimate=%.1f%% valid=%s uncertainty=%.2f V low=%s critical=%s calibration=%.4f charge=%s charge_valid=%s source=%s age_ms=%lu\n",reading.volts,reading.percent,reading.valid?"yes":"no",reading.uncertaintyVolts,reading.low?"yes":"no",reading.critical?"yes":"no",Battery::calibration(),ChargeStatus::name(charge.state),charge.valid?"yes":"no",charge.source,(unsigned long)charge.ageMs); break; }
+    case CommandType::BATTERY_GET: { auto reading=Battery::sample(); auto charge=ChargeStatus::latest();auto ntc=Ntc::sample(); Serial.printf("Battery voltage=%.3f V current=%.1f mA power=%.1f mW calibrated_estimate=%.1f%% valid=%s uncertainty=%.2f V low=%s critical=%s calibration=%.4f ntc=%.1f C ntc_valid=%s ntc_safe=%s charge=%s charge_valid=%s source=%s age_ms=%lu\n",reading.volts,reading.currentMilliamps,reading.powerMilliwatts,reading.percent,reading.valid?"yes":"no",reading.uncertaintyVolts,reading.low?"yes":"no",reading.critical?"yes":"no",Battery::calibration(),ntc.celsius,ntc.valid?"yes":"no",ntc.safe?"yes":"no",ChargeStatus::name(charge.state),charge.valid?"yes":"no",charge.source,(unsigned long)charge.ageMs); break; }
     case CommandType::CAMERA_DIAGNOSTIC: Serial.println(diagnoseCamera()?"Camera profile diagnostic PASS":"Camera profile diagnostic FAIL"); break;
     case CommandType::TONE_PLAY: state(AppState::PLAYING); if(playWav("/tone.wav")) state(AppState::READY); else fail("TONE_PLAYBACK_FAILED"); break;
     case CommandType::LIGHT_SET: {
@@ -222,7 +224,7 @@ void App::tick() {
     if (idle() && Serial.available()) {
       char cmd=Serial.read();
       if(cmd=='d') {
-        if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK D2/GPIO3=%s PHOTO PCF/P3=%s PCF_INT D4/GPIO5=%s (pressed=LOW)\n",digitalRead(Config::button)?"HIGH":"LOW",Expander::photoPressed()?"LOW":"HIGH",digitalRead(Config::pcfInterrupt)?"HIGH":"LOW");
+        if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK PCF/P1=%s PHOTO PCF/P0=%s PCF_INT=%s (pressed=LOW)\n",Expander::askPressed()?"LOW":"HIGH",Expander::photoPressed()?"LOW":"HIGH",Config::pcfInterrupt<0?"not-routed":(digitalRead(Config::pcfInterrupt)?"HIGH":"LOW"));
         else Serial.printf("Legacy buttons: D2/GPIO3=%s D5/GPIO6=%s direct-photo=%s (pressed=LOW)\n",digitalRead(Config::button)?"HIGH":"LOW",digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
       }
       else handleCommand(Commands::fromSerial(cmd));

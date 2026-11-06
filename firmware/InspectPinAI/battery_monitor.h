@@ -3,6 +3,7 @@
 namespace Battery {
 struct Reading {
   float volts=-1, percent=-1, uncertaintyVolts=0.08f;
+  float currentMilliamps=0, powerMilliwatts=0;
   bool valid=false, low=false, critical=false;
   uint32_t sampledAt=0;
 };

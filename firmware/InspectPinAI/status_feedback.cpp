@@ -27,14 +27,14 @@ void driveMotor(bool enabled) {
 }
 void driveLight() {
   if(!IP_LIGHT_ENABLED) return;
-  if(IP_PCF8574_ENABLED){Expander::setFlashlight(lamp&&lampBrightness);return;}
+  if(IP_LIGHT_ON_PCF8574){Expander::setFlashlight(lamp&&lampBrightness);return;}
   if(IP_LIGHT_PWM_ENABLED) ledcWrite(Config::light,lamp?lampBrightness:0);
   else digitalWrite(Config::light,lamp&&lampBrightness?HIGH:LOW);
 }
 }
 void Feedback::begin() {
   if (IP_LIGHT_ENABLED) {
-    if(!IP_PCF8574_ENABLED){if(IP_LIGHT_PWM_ENABLED) ledcAttach(Config::light,5000,8); else pinMode(Config::light,OUTPUT);}
+    if(!IP_LIGHT_ON_PCF8574){if(IP_LIGHT_PWM_ENABLED) ledcAttach(Config::light,5000,8); else pinMode(Config::light,OUTPUT);}
     lamp=false; lampBrightness=0; driveLight();
   }
   if (IP_HAPTIC_ENABLED) {

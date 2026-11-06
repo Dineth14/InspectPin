@@ -28,7 +28,7 @@ bool setActiveLow(uint8_t bit,bool enabled){
 bool Expander::begin(){
   if(!IP_PCF8574_ENABLED)return false;
   Wire.begin(HardwareProfile::pcfSdaGpio,HardwareProfile::pcfSclGpio,100000);
-  pinMode(HardwareProfile::pcfInterruptGpio,INPUT_PULLUP);
+  if(HardwareProfile::pcfInterruptGpio>=0) pinMode(HardwareProfile::pcfInterruptGpio,INPUT_PULLUP);
   Wire.beginTransmission(HardwareProfile::pcfAddress);
   ready=Wire.endTransmission()==0;
   outputLatch=0xff; // P0/P1 HIGH -> inverter outputs LOW -> loads OFF.
@@ -39,14 +39,17 @@ bool Expander::begin(){
 void Expander::tick(){if(ready&&millis()-lastRead>=10)readPort();}
 bool Expander::available(){return ready;}
 bool Expander::photoPressed(){return ready&&!(portValue&(1U<<HardwareProfile::pcfPhotoButton));}
+bool Expander::askPressed(){return ready&&!(portValue&(1U<<HardwareProfile::pcfAskButton));}
 bool Expander::setFlashlight(bool enabled){return setActiveLow(HardwareProfile::pcfFlashlight,enabled);}
 bool Expander::setVibration(bool enabled){return setActiveLow(HardwareProfile::pcfVibration,enabled);}
+bool Expander::setStatusLed(bool enabled){return setActiveLow(HardwareProfile::pcfStatusLed,enabled);}
+bool Expander::setFaultLed(bool enabled){return setActiveLow(HardwareProfile::pcfFaultLed,enabled);}
 bool Expander::inputLow(uint8_t bit){return ready&&bit<8&&!(portValue&(1U<<bit));}
 bool Expander::prepareForSleep(){
   if(!ready)return !IP_PCF8574_ENABLED;
   setActiveLow(HardwareProfile::pcfFlashlight,false);
   setActiveLow(HardwareProfile::pcfVibration,false);
-  return readPort()&&digitalRead(HardwareProfile::pcfInterruptGpio)==HIGH;
+  return readPort()&&(HardwareProfile::pcfInterruptGpio<0||digitalRead(HardwareProfile::pcfInterruptGpio)==HIGH);
 }
 uint8_t Expander::latestPort(){return portValue;}
 

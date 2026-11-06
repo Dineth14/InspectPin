@@ -1,0 +1,45 @@
+#pragma once
+// Rev N reproducible build profile. Credentials are intentionally blank.
+// Override with build flags or an uncommitted config.local.h for deployment.
+#define IP_WIFI_SSID "YOUR_HOTSPOT"
+#define IP_WIFI_PASSWORD ""
+#define IP_SERVER_URL "http://192.168.1.2:5000"
+#define IP_DEVICE_TOKEN ""
+#define IP_DEVICE_ID ""
+#define IP_RECORD_SECONDS 5
+#define IP_PLAYBACK_GAIN 1.0f
+#define IP_DEBUG true
+#define IP_CAMERA_ENABLED true
+#define IP_CAMERA_BUTTON_ENABLED false
+#define IP_PCF8574_ENABLED true
+#define IP_CHARGE_DECODER_ENABLED true
+#define IP_BATTERY_ENABLED true
+#define IP_INA219_ENABLED true
+#define IP_NTC_ENABLED true
+#define IP_LIGHT_ENABLED true
+#define IP_LIGHT_ON_PCF8574 false
+#define IP_HAPTIC_ENABLED false
+#define IP_REV_N_STATUS_LEDS_ENABLED true
+#define IP_POWER_MANAGEMENT_ENABLED false
+#define IP_DEEP_SLEEP_ENABLED false
+#define IP_IDLE_TIMEOUT_MS 0UL
+#define IP_LIGHT_PWM_ENABLED false
+#define IP_LIGHT_DEFAULT_BRIGHTNESS 255
+#define IP_LIGHT_TIMEOUT_MS 30000UL
+#define IP_HAPTIC_PWM_ENABLED false
+#define IP_HAPTIC_DEFAULT_INTENSITY 0
+#define IP_BATTERY_CALIBRATION 1.0f
+#define IP_BATTERY_UNCERTAINTY_VOLTS 0.05f
+#define IP_BATTERY_HYSTERESIS_VOLTS 0.10f
+#define IP_LOW_BATTERY_VOLTS 3.40f
+#define IP_CRITICAL_BATTERY_VOLTS 3.25f
+#define IP_INA219_SHUNT_OHMS 0.1f
+#define IP_INA219_CURRENT_LSB_AMPS 0.0001f
+#define IP_NTC_FIXED_OHMS 10000.0f
+#define IP_NTC_NOMINAL_OHMS 10000.0f
+#define IP_NTC_BETA 3950.0f
+#define IP_NTC_NOMINAL_C 25.0f
+#define IP_NTC_MIN_C 0.0f
+#define IP_NTC_MAX_C 45.0f
+#define IP_USB_PRESENT_AVAILABLE true
+#define IP_NCHG_AVAILABLE false

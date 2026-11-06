@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "pcbkit")(type "KiCad")(uri "${KIPRJMOD}/pcbkit.kicad_sym")(options "")(descr "The symbols PCBKit drew"))
+)

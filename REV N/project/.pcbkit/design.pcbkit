@@ -1,0 +1,290 @@
+pcbkit 2
+wish "Compact InspectPin AI wearable: manufacturer Seeed XIAO ESP32-S3 Sense with native camera, microphone, microSD and side-facing USB-C; PHOTO and ASK inputs; sound with I2S amplifier; flashlight; protected LiPo and redundant fuse; ONBOARD INA219 battery voltage and charge/discharge current monitor for software-calibrated state-of-charge estimate; firmware cannot promise MAX fuel gauge accuracy; battery-contact NTC wire pads, safe charger status sensing tap, side SD extender detect pads, and I2C debug probes on main board; four corner enclosure mounting points; no duplicate ESP32, charger, USB, mic, camera or SD interface. All charger thermal cutoff and cell protections are supplied by purchased validated protected pack."
+
+use ./parts/MAX98357AETE as MAX98357AETE
+use ./parts/PCF8574DWR as PCF8574DWR
+use ./parts/MMBT3904 as MMBT3904
+use ./parts/B2B_PH_K_S as B2B_PH_K_S
+use ./parts/AO3400A as AO3400A
+use ./parts/INA219AIDR as INA219AIDR
+
+board = Board {
+ name = "InspectPin AI Rev N - Unified Soldered XIAO Mount - ENGINEERING RELEASE"
+ outline = rect(38mm, 60mm, radius = 2mm)
+ layers = [signal(Cu.top), signal(Cu.bottom)]
+ fab { mask = .black; edgePlating = false }
+}
+// Fabricator-facing silkscreen legends. These are NOT a mechanical key;
+// physically verify the USB-right orientation with a 1:1 dummy assembly.
+silkUsb = Text { text = "XIAO USB >"; size = 1mm; layer = Silk.bottom }
+silkPack = Text { text = "1S PROTECTED PACK"; size = 1mm; layer = Silk.top }
+silkPolarity = Text { text = "CHECK BAT POLARITY"; size = 1mm; layer = Silk.bottom }
+// Non-plated M2 clearance holes for clip enclosure; screw boss size/3D fit
+// remains to be verified physically. Keep RF antenna, battery and camera
+// away from all mounting hardware.
+@binds("wearable enclosure mounting")
+H1 = hole("M2") { at=(3.5mm,3.5mm) }
+H2 = hole("M2") { at=(34.5mm,3.5mm) }
+H3 = hole("M2") { at=(34.5mm,56.5mm) }
+H4 = hole("M2") { at=(3.5mm,56.5mm) }
+net GND
+net V3V3 { voltage = 3.3V }
+net VBUS { voltage = 5V }
+net PACK_POS { voltage = 3.7V; current = 1A }
+net VBAT_PRE_SHUNT { voltage = 3.7V; current = 1A }
+net VBAT_FUSED { voltage = 3.7V; current = 1A }
+// Short low-loss copper from battery JST to PPTC/shunt at rated 1A peak.
+// 0.6mm rather than the automatic 0.3mm width reduces resistive heating.
+batteryPower = NetClass { nets = [PACK_POS,VBAT_PRE_SHUNT,VBAT_FUSED]; trackWidth = 0.6mm; clearance = 0.2mm }
+net I2C_SDA, I2C_SCL, PHOTO_N, ASK_N, PCF_INT, CHARGE_LED_K, FAULT_LED_K
+net USB_BASE, USB_PRESENT_N, CHG_SOURCE, CHG_BASE, CHG_STATUS_N
+net NTC_VOLT, NTC_INPUT
+net FLASH_GPIO, FLASH_GATE, FLASH_ANODE, FLASH_K
+net I2S_DIN, I2S_BCLK, I2S_LRCLK, SPEAKER_P, SPEAKER_N
+net SD_CD_N
+
+// Single mechanically modeled XIAO ESP32-S3 Sense module footprint rather than
+// two separate user-plugged sockets. SOLDER the module on through-hole headers
+// at assembly using a 1:1 orientation jig, NOT a user-hot-plugged component.
+// The footprint as one assembly fixes the TWO-row pitch mechanically and
+// reserves the projected 21 x 17.8mm XIAO board envelope.
+// The existing XIAO USB-C still faces the right enclosure wall (+X).
+// Sense camera/mic/microSD stack mounts on the original Seeed expansion board,
+// not directly on this carrier; verify its additional height in enclosure.
+@binds("ESP32-S3 XIAO Sense USB-C")
+UXIAO = moduleSocket(
+ "InspectPin_Seeed_XIAO_ESP32S3_Sense_soldered",
+ socketRow(1,7,(-7.62mm,7.62mm),(2.54mm,0mm))
+ + socketRow(8,7,(-7.62mm,-7.62mm),(2.54mm,0mm)),
+ Box { min = (-10.5mm,-8.9mm); max = (10.5mm,8.9mm) },
+ description="Manually solder factory XIAO ESP32-S3 Sense, single 14-contact module footprint, USB right",
+ socket=7mm,
+ board=1.6mm,
+ parts=7mm,
+ mount=.soldered
+) {
+ "1" -- I2S_BCLK
+ "2" -- I2C_SCL
+ "3" -- I2C_SDA
+ "4" -- FLASH_GPIO
+ // Pin 5 ESP32-S3 GPIO3 boot strap not connected.
+ "6" -- I2S_DIN
+ "7" -- NTC_VOLT
+ "8" -- I2S_LRCLK
+ // Pins 9-11 Sense SPI microSD reserved, intentionally not connected.
+ "12" -- V3V3
+ "13" -- GND
+ "14" -- VBUS
+ at = (25.5mm, 39.62mm)
+ rotation = 0deg
+ orderedElsewhere = "Seeed XIAO ESP32-S3 Sense / hand-soldered on factory header jig"
+}
+// XIAO D0/GPIO1=NTC ADC (sensor voltage remains below 3V3).
+// XIAO D1/GPIO2=amplifier DIN. XIAO D2/GPIO3=UNUSED STRAPPING INPUT.
+// XIAO D3/GPIO4=flash; D4=I2C SDA; D5=I2C SCL; D6=I2S BCLK.
+// XIAO D7=I2S LRCLK; D8/D9/D10 dedicated Sense microSD, not routed.
+// PCF interrupt is left disconnected: user buttons are polled in firmware;
+// deep sleep wake by button is NOT provided by this revision. Never connect
+// the charger temp probe to GPIO3 (strapping pin).
+// D7 LRCLK, D8/9/10 are Sense microSD data lines: CARRIER MUST NOT
+// add ground, power or new signals to D8-D10. These three socket pads are
+// left mechanically present but electrically NOT CONNECTED.
+// Original Sense camera and microphone exclusively use internal expansion.
+// I2C address PCF8574=0x20; onboard INA219=0x40.
+
+// Side panel PHOTO/ASK switches are normally-open, active-low to GND;
+// cables go to this main carrier, no second daughterboard.
+@binds("PHOTO ASK buttons")
+JPHOTO = header(2) { pins = [PHOTO_N, GND]; place = [area(.right)] }
+JASK   = header(2) { pins = [ASK_N, GND]; place = [area(.right)] }
+RPHOTO = res(10kohm, package="0603") { a -- PHOTO_N; b -- V3V3 }
+RASK   = res(10kohm, package="0603") { a -- ASK_N; b -- V3V3 }
+
+// I2C GPIO expander for two buttons, user charging LED, USB detection,
+// optional low-level charger-status input and removable-card switch.
+// Each P0..P7 input MUST have its output latch set to HIGH before reading.
+// P2/P6 are LED sinks, active-low. No high current outputs.
+UCTRL = PCF8574DWR.PCF8574DWR {
+ VCC -- V3V3
+ GND -- GND
+ SDA -- I2C_SDA
+ SCL -- I2C_SCL
+ INT -- PCF_INT
+ P0 -- PHOTO_N
+ P1 -- ASK_N
+ P2 -- CHARGE_LED_K
+ P3 -- USB_PRESENT_N
+ P4 -- CHG_STATUS_N
+ // P5 unused; no longer wired to external MAX17048 ALERT
+ P6 -- FAULT_LED_K
+ P7 -- SD_CD_N
+ place = [area(.bottom)]
+}
+UCTRLSupport = PCF8574DWR.Support { chip = UCTRL }
+
+// Independent green user status LED: firmware controls OFF=no USB,
+// BLINK=verified charger active, SOLID=verified charging complete.
+// Without optional CHG pad tap, only an UNKNOWN state is warranted;
+// do not represent SOC=100% as confirmed charge termination.
+@binds("charging status LED")
+// 330ohm: at Vf 2.8V, PCF output LOW, I approximately (3.3-2.8)/330=1.5mA.
+RCHGLED = res(330ohm, package="0603") { a -- V3V3; b -- CHG_LED_A }
+DCHG = led(color=.green, package="0805") { A -- CHG_LED_A; K -- CHARGE_LED_K; place=[area(.top)] }
+RFAULT = res(1kohm, package="0603") { a -- V3V3; b -- FAULT_LED_A }
+DFAULT = led(color=.red, package="0805") { A -- FAULT_LED_A; K -- FAULT_LED_K; place=[area(.top)] }
+net CHG_LED_A, FAULT_LED_A
+
+// USB presence: 5V from XIAO 5V breakout ONLY. Battery power gives 0V.
+// BJT output has safe 3.3V pullup, ACTIVE LOW when USB inserted.
+QUSB = MMBT3904.MMBT3904 { B -- USB_BASE; C -- USB_PRESENT_N; E -- GND }
+RUSBIN = res(22kohm, package="0603") { a -- VBUS; b -- USB_BASE }
+RUSBPD = res(100kohm, package="0603") { a -- USB_BASE; b -- GND }
+RUSBPU = res(10kohm, package="0603") { a -- USB_PRESENT_N; b -- V3V3 }
+
+// OPTIONAL VERIFIED XIAO NCHG solder tap: the charge-status pad is NOT
+// exposed on its standard 14 pins. Do NOT connect until genuine PCB revision
+// test-pad voltage, source impedance and physical access are verified.
+// This buffered circuit cannot back-drive the 5V CHG net into MCU 3.3V.
+// CHG_SOURCE and GND remain accessible as labelled bare test/solder pads;
+// an actual wired charger NCHG tap is required for truthful full/charging LED.
+
+RCHGDEFAULT = res(100kohm,package="0603") { a -- VBUS; b -- CHG_SOURCE }
+RCHGIN = res(100kohm,package="0603") { a -- CHG_SOURCE; b -- CHG_BASE }
+RCHGPD = res(100kohm,package="0603") { a -- CHG_BASE; b -- GND }
+QCHG = MMBT3904.MMBT3904 { B -- CHG_BASE; C -- CHG_STATUS_N; E -- GND }
+RCHGPU = res(10kohm,package="0603") { a -- CHG_STATUS_N; b -- V3V3 }
+// CHG_STATUS_N HIGH means NCHG is LOW (charging) when actual tap installed.
+
+// This powered design REQUIRES a certified PROTECTED 1S battery pack.
+// The pack has an internal PCM/disconnect stage, and battery contact thermally
+// protected charge-disconnect. Independent supplier evidence is required.
+packEnvironment = environment(.liionPack, PACK_POS, asked="externally protected one-cell LiPo pack with 3V discharge safeguard", cells=1, protected=true)
+// Power: pack MUST already have independently verified cell-adjacent PCM,
+// overcharge/undervoltage/overcurrent/short and thermal charge cutoff.
+// This 1.5A PPTC is REDUNDANT, not battery protection by itself.
+// Its trip characteristics vs startup/WiFi/audio currents need qualification.
+// Firmware MUST disable audio/torch and enter safe low-current state before
+// 3.0V (define calibrated under-load threshold per cell data), while PCM
+// remains a last-resort hardware cutoff; the charger itself is unaffected.
+@binds("protected 900mAh LiPo")
+JBAT = B2B_PH_K_S.B2B_PH_K_S { C1 -- PACK_POS; C2 -- GND; place=[area(.bottomLeft)] }
+// Battery-lead input decoupling in addition to the amplifier local capacitors.
+CBAT_INPUT = cap(22uF,package="1206",ratedVoltage=10V) {
+ a -- PACK_POS
+ b -- GND
+ place=[soft(near(JBAT,max=6mm),weight=2)]
+}
+// 1.5A hold at 23C gives margin for 1A hypothetical system peak; PCM is primary.
+// Verify derated hold current against ambient and pack protection limit.
+F_BAT = fuse(1.5A, package="1206", resettable=true, mpn="1206L150THWR", manufacturer="Littelfuse") {
+ orderCode = "C118413"
+ a -- PACK_POS
+ b -- VBAT_PRE_SHUNT
+ place=[near(JBAT)]
+}
+// Battery path: protected 1S LiPo -> JBAT -> 1.5A F_BAT PPTC -> 0.1ohm
+// INA219 shunt R4 -> VBAT_FUSED -> XIAO underside BAT pads, speaker and torch.
+// INA219 is the onboard current and voltage monitor, not an Adafruit breakout.
+// Check both battery cable polarities with a multimeter before applying power.
+// This solder harness terminates on XIAO UNDERSIDE BAT+ and BAT-,
+// NOT on XIAO 5V/3V3. Check polarity with DMM on every module revision.
+// 3-position keyed JST-PH harness is DIFFERENT from pack's 2-position plug.
+// Pin 1 = protected BAT+, pin 2 = deliberately NC, pin 3 = BAT-/GND.
+// Supplied matching 3-position receptacle MUST be keyed and oriented by DMM.
+JBAT_XIAO = wireConnector(3, pitch=2mm) {
+ orderCode = "C131339"
+ "1" -- VBAT_FUSED
+ "3" -- GND
+ place=[area(.topLeft)]
+}
+
+// Onboard TI INA219AIDR current/voltage monitor (JLCPCB C138706):
+// series shunt in main PROTECTED battery supply rail after PPTC fuse;
+// current sign and voltage measurable during charge or discharge.
+// THIS IS NOT A TRUE MODELGAUGE: battery percentage firmware requires a
+// calibrated charge-counting integration + idle-state OCV correction.
+// Battery pack protection and thermal cutoff are still independent hardware.
+@binds("onboard battery voltage current SOC estimate")
+UMON = INA219AIDR.INA219AIDR {
+ VS -- V3V3
+ GND -- GND
+ SDA -- I2C_SDA
+ SCL -- I2C_SCL
+ INP -- VBAT_PRE_SHUNT
+ INN -- VBAT_FUSED
+ place = [area(.bottomLeft)]
+}
+UMONSupport = INA219AIDR.Support {
+ chip = UMON
+ pullUps = false
+ address40 = true
+}
+// manufacturer support: RSHUNT 100 milliohm high-side,
+// Cbypass 100nF close to V3V3, A0/A1 grounded => 0x40.
+// INA219 I2C monitor can be read in firmware: current in mA and pack voltage.
+
+// Battery-contact NTC: a 10k insulated NTC is mounted on actual pouch,
+// connected via two-wire JST/panel harness. ADC D0 GPIO1 can read it.
+// *** NOT an independent CHARGING INHIBIT ***: pack's independent hardware
+// cutoff is mandatory. Open and short = FAULT, prohibit use/advise unplug.
+@binds("battery temperature")
+// A pouch-contact thermistor needs actual thermal contact with the CELL.
+// Bare solder pads NTC_INPUT/GND below replace the bulky NTC connector.
+RNTC = res(10kohm,package="0603") { a -- V3V3; b -- NTC_INPUT }
+CNTC = cap(100nF,package="0603") { a -- NTC_INPUT; b -- GND }
+RNTCSER = res(1kohm,package="0603") { a -- NTC_INPUT; b -- NTC_VOLT }
+
+// MAX98357A powered from PROTECTED, FUSED 1S BATTERY instead of XIAO 3V3:
+// vendor specs support 2.5–5.5V VDD; reduces risk of XIAO 3V3 brownout.
+// Its SD_MODE is supported and referred to 3V3 by the built-in amplifier
+// Support circuit so MCU-off means amplifier shutdown. Validate whether
+// the chosen protected 900mAh pack and 1.5A PPTC tolerate peak voice+WiFi
+// and that the sound is acceptable across 3.0–4.2V pack variation.
+// Use 8ohm speaker and firmware digital gain/volume limit.
+@binds("speaker audio")
+UAMP = MAX98357AETE.MAX98357AETE {
+ VDD -- VBAT_FUSED
+ GND -- GND
+ EP -- GND
+ DIN -- I2S_DIN
+ BCLK -- I2S_BCLK
+ LRCLK -- I2S_LRCLK
+ OUTP -- SPEAKER_P
+ OUTN -- SPEAKER_N
+ GAIN_SLOT -- GND
+ place = [area(.bottom)]
+}
+UAMPSupport = MAX98357AETE.Support { chip=UAMP, vio=V3V3 }
+JSPK = B2B_PH_K_S.B2B_PH_K_S { C1 -- SPEAKER_P; C2 -- SPEAKER_N; place=[area(.bottom)] }
+// Differential I2S amplifier: no speaker wire may connect to system GND.
+
+// Flashlight LED is powered from FUSED BATTERY to avoid loading XIAO 3V3.
+// 47ohm series resistor nominally ~23mA at 4.2V with 3.1V Vf white LED,
+// ~13mA at 3.7V; actual white LED bin, current and thermal limits must be
+// measured. Torch output dims as battery approaches 3.0V; this is expected.
+// NEVER drive a bare high-power LED from this connector.
+@binds("torch flashlight")
+RGATE = res(100ohm,package="0603") { a -- FLASH_GPIO; b -- FLASH_GATE }
+RGPULL = res(100kohm,package="0603") { a -- FLASH_GATE; b -- GND }
+QFLASH = AO3400A.AO3400A { G -- FLASH_GATE; D -- FLASH_K; S -- GND }
+RFLASH = res(47ohm,package="1206") { a -- VBAT_FUSED; b -- FLASH_ANODE }
+// Flash connector must remain ABOVE the physical XIAO Sense assembly footprint.
+// Cable is accessible from top enclosure edge, not buried below stacked Sense PCB.
+JFLASH = header(2) { pins=[FLASH_ANODE,FLASH_K]; place=[area(.top)] }
+
+// Original Seeed Sense microSD socket remains on its expansion board;
+// passive male-to-female microSD extender is needed for side-access card.
+// If extender has mechanical detect contacts, solder its two wires onto
+// carrier SD_CD_N/GND pads. NO electrical connection to 14-pin XIAO CS.
+@binds("removable side microSD")
+RSDCD = res(10kohm,package="0603") { a -- V3V3; b -- SD_CD_N }
+
+// Small 1.8mm unpopulated solder/test pads replace JNTC/JCHG_TAP/JSD_DETECT,
+// and a five-pin debug header: do not populate dangling connectors.
+// Provide strain relief for the NTC/charger/card-detect flying wires.
+TNTC = TestPoints { nets = [NTC_INPUT,GND]; diameter = 1.8mm }
+TCHG = TestPoints { nets = [CHG_SOURCE,GND]; diameter = 1.8mm }
+TSD = TestPoints { nets = [SD_CD_N,GND]; diameter = 1.8mm }
+TDBG = TestPoints { nets = [V3V3,GND,I2C_SDA,I2C_SCL]; diameter = 1.5mm }
+TPOWER = TestPoints { nets=[VBUS,VBAT_FUSED,USB_PRESENT_N,CHG_STATUS_N,NTC_VOLT,I2S_BCLK]; diameter=1.5mm }
+gndPour = pour(net=GND,layers=[Cu.bottom]) {}

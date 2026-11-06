@@ -1,0 +1,1143 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-6 -6 432 309" width="432mm" height="309mm" font-family="Inter, 'Helvetica Neue', Arial, sans-serif" font-weight="600">
+<title>InspectPin AI Rev N - Unified Soldered XIAO Mount - ENGINEERING RELEASE</title>
+<style>
+.w{stroke:#1d7a4c;fill:none} polygon.w,circle.w.s,text.w{fill:#1d7a4c;stroke:none}
+.j{stroke:#1d7a4c;fill:none} polygon.j,circle.j.s,text.j{fill:#1d7a4c;stroke:none}
+.b{stroke:#1f2126;fill:none} polygon.b,circle.b.s,text.b{fill:#1f2126;stroke:none}
+.bf{stroke:#fbf8ee;fill:none} polygon.bf,circle.bf.s,text.bf{fill:#fbf8ee;stroke:none}
+.p{stroke:#1f2126;fill:none} polygon.p,circle.p.s,text.p{fill:#1f2126;stroke:none}
+.pn{stroke:#4a4d55;fill:none} polygon.pn,circle.pn.s,text.pn{fill:#4a4d55;stroke:none}
+.pu{stroke:#86888f;fill:none} polygon.pu,circle.pu.s,text.pu{fill:#86888f;stroke:none}
+.r{stroke:#1f2126;fill:none} polygon.r,circle.r.s,text.r{fill:#1f2126;stroke:none}
+.v{stroke:#4a4d55;fill:none} polygon.v,circle.v.s,text.v{fill:#4a4d55;stroke:none}
+.l{stroke:#1d7a4c;fill:none} polygon.l,circle.l.s,text.l{fill:#1d7a4c;stroke:none}
+.pw{stroke:#c2361f;fill:none} polygon.pw,circle.pw.s,text.pw{fill:#c2361f;stroke:none}
+.g{stroke:#1f2126;fill:none} polygon.g,circle.g.s,text.g{fill:#1f2126;stroke:none}
+.nc{stroke:#c2361f;fill:none} polygon.nc,circle.nc.s,text.nc{fill:#c2361f;stroke:none}
+.f{stroke:#b5b6b0;fill:none} polygon.f,circle.f.s,text.f{fill:#b5b6b0;stroke:none}
+.ft{stroke:#1f2126;fill:none} polygon.ft,circle.ft.s,text.ft{fill:#1f2126;stroke:none}
+.fn{stroke:#86888f;fill:none} polygon.fn,circle.fn.s,text.fn{fill:#86888f;stroke:none}
+.bd{stroke:#86888f;fill:none} polygon.bd,circle.bd.s,text.bd{fill:#86888f;stroke:none}
+.tb{stroke:#1f2126;fill:none} polygon.tb,circle.tb.s,text.tb{fill:#1f2126;stroke:none}
+.x{stroke:#773dd6;fill:none} polygon.x,circle.x.s,text.x{fill:#773dd6;stroke:none}
+polyline,circle{stroke-linecap:round;stroke-linejoin:round}
+.hit{fill:transparent;stroke:none}
+.x{display:none}
+</style>
+<rect x="-6" y="-6" width="432" height="309" fill="#eeeeec"/>
+<rect x="0" y="0" width="420" height="297" fill="#fdfdfb"/>
+<polyline class="bd" stroke-width="0.35" points="10,10 410,10 410,287 10,287 10,10"/>
+<polyline class="bd" stroke-width="0.18" points="4.5,4.5 415.5,4.5 415.5,292.5 4.5,292.5 4.5,4.5"/>
+<text class="bd" x="35" y="7.832" font-size="1.6" text-anchor="middle">1</text>
+<text class="bd" x="35" y="290.332" font-size="1.6" text-anchor="middle">1</text>
+<text class="bd" x="85" y="7.832" font-size="1.6" text-anchor="middle">2</text>
+<text class="bd" x="85" y="290.332" font-size="1.6" text-anchor="middle">2</text>
+<polyline class="bd" stroke-width="0.18" points="60,4.5 60,10"/>
+<polyline class="bd" stroke-width="0.18" points="60,287 60,292.5"/>
+<text class="bd" x="135" y="7.832" font-size="1.6" text-anchor="middle">3</text>
+<text class="bd" x="135" y="290.332" font-size="1.6" text-anchor="middle">3</text>
+<polyline class="bd" stroke-width="0.18" points="110,4.5 110,10"/>
+<polyline class="bd" stroke-width="0.18" points="110,287 110,292.5"/>
+<text class="bd" x="185" y="7.832" font-size="1.6" text-anchor="middle">4</text>
+<text class="bd" x="185" y="290.332" font-size="1.6" text-anchor="middle">4</text>
+<polyline class="bd" stroke-width="0.18" points="160,4.5 160,10"/>
+<polyline class="bd" stroke-width="0.18" points="160,287 160,292.5"/>
+<text class="bd" x="235" y="7.832" font-size="1.6" text-anchor="middle">5</text>
+<text class="bd" x="235" y="290.332" font-size="1.6" text-anchor="middle">5</text>
+<polyline class="bd" stroke-width="0.18" points="210,4.5 210,10"/>
+<polyline class="bd" stroke-width="0.18" points="210,287 210,292.5"/>
+<text class="bd" x="285" y="7.832" font-size="1.6" text-anchor="middle">6</text>
+<text class="bd" x="285" y="290.332" font-size="1.6" text-anchor="middle">6</text>
+<polyline class="bd" stroke-width="0.18" points="260,4.5 260,10"/>
+<polyline class="bd" stroke-width="0.18" points="260,287 260,292.5"/>
+<text class="bd" x="335" y="7.832" font-size="1.6" text-anchor="middle">7</text>
+<text class="bd" x="335" y="290.332" font-size="1.6" text-anchor="middle">7</text>
+<polyline class="bd" stroke-width="0.18" points="310,4.5 310,10"/>
+<polyline class="bd" stroke-width="0.18" points="310,287 310,292.5"/>
+<text class="bd" x="385" y="7.832" font-size="1.6" text-anchor="middle">8</text>
+<text class="bd" x="385" y="290.332" font-size="1.6" text-anchor="middle">8</text>
+<polyline class="bd" stroke-width="0.18" points="360,4.5 360,10"/>
+<polyline class="bd" stroke-width="0.18" points="360,287 360,292.5"/>
+<text class="bd" x="7.25" y="33.665" font-size="1.6" text-anchor="middle">A</text>
+<text class="bd" x="412.75" y="33.665" font-size="1.6" text-anchor="middle">A</text>
+<text class="bd" x="7.25" y="79.832" font-size="1.6" text-anchor="middle">B</text>
+<text class="bd" x="412.75" y="79.832" font-size="1.6" text-anchor="middle">B</text>
+<polyline class="bd" stroke-width="0.18" points="4.5,56.167 10,56.167"/>
+<polyline class="bd" stroke-width="0.18" points="410,56.167 415.5,56.167"/>
+<text class="bd" x="7.25" y="125.999" font-size="1.6" text-anchor="middle">C</text>
+<text class="bd" x="412.75" y="125.999" font-size="1.6" text-anchor="middle">C</text>
+<polyline class="bd" stroke-width="0.18" points="4.5,102.333 10,102.333"/>
+<polyline class="bd" stroke-width="0.18" points="410,102.333 415.5,102.333"/>
+<text class="bd" x="7.25" y="172.165" font-size="1.6" text-anchor="middle">D</text>
+<text class="bd" x="412.75" y="172.165" font-size="1.6" text-anchor="middle">D</text>
+<polyline class="bd" stroke-width="0.18" points="4.5,148.5 10,148.5"/>
+<polyline class="bd" stroke-width="0.18" points="410,148.5 415.5,148.5"/>
+<text class="bd" x="7.25" y="218.332" font-size="1.6" text-anchor="middle">E</text>
+<text class="bd" x="412.75" y="218.332" font-size="1.6" text-anchor="middle">E</text>
+<polyline class="bd" stroke-width="0.18" points="4.5,194.667 10,194.667"/>
+<polyline class="bd" stroke-width="0.18" points="410,194.667 415.5,194.667"/>
+<text class="bd" x="7.25" y="264.499" font-size="1.6" text-anchor="middle">F</text>
+<text class="bd" x="412.75" y="264.499" font-size="1.6" text-anchor="middle">F</text>
+<polyline class="bd" stroke-width="0.18" points="4.5,240.833 10,240.833"/>
+<polyline class="bd" stroke-width="0.18" points="410,240.833 415.5,240.833"/>
+<polyline class="tb" stroke-width="0.35" points="290,262 410,262 410,287 290,287 290,262"/>
+<polyline class="tb" stroke-width="0.18" points="290,272.417 410,272.417"/>
+<polyline class="tb" stroke-width="0.18" points="290,279.708 410,279.708"/>
+<text class="bd" x="291.6" y="264.671" font-size="1.042" text-anchor="start">Title</text>
+<text class="bd" x="408.4" y="264.671" font-size="1.042" text-anchor="end">Generated by PCBKit</text>
+<text class="tb" x="291.6" y="269.806" font-size="3.132" text-anchor="start" font-weight="700">InspectPin AI Rev N - Unified Soldered XIAO Mount - ENGINEERING RELEASE</text>
+<text class="bd" x="291.6" y="274.775" font-size="1.042" text-anchor="start">Document type</text>
+<text class="tb" x="291.6" y="277.919" font-size="1.667" text-anchor="start">Schematic</text>
+<polyline class="tb" stroke-width="0.18" points="330,272.417 330,279.708"/>
+<text class="bd" x="331.6" y="274.775" font-size="1.042" text-anchor="start">Document id</text>
+<text class="tb" x="331.6" y="277.64" font-size="0.9" text-anchor="start">INSPECTPIN-AI-REV-N---UNIFIED-SOLDERED-XIAO-MOUNT---ENGINEERING-RELEASE-SCH</text>
+<polyline class="tb" stroke-width="0.18" points="370,272.417 370,279.708"/>
+<text class="bd" x="371.6" y="274.775" font-size="1.042" text-anchor="start">Size</text>
+<text class="tb" x="371.6" y="277.919" font-size="1.667" text-anchor="start">A3</text>
+<text class="bd" x="291.6" y="282.066" font-size="1.042" text-anchor="start">Author</text>
+<text class="tb" x="291.6" y="285.21" font-size="1.667" text-anchor="start">—</text>
+<polyline class="tb" stroke-width="0.18" points="320,279.708 320,287"/>
+<text class="bd" x="321.6" y="282.066" font-size="1.042" text-anchor="start">Revision</text>
+<text class="tb" x="321.6" y="285.21" font-size="1.667" text-anchor="start">—</text>
+<polyline class="tb" stroke-width="0.18" points="350,279.708 350,287"/>
+<text class="bd" x="351.6" y="282.066" font-size="1.042" text-anchor="start">Date</text>
+<text class="tb" x="351.6" y="285.21" font-size="1.667" text-anchor="start">2026-11-05</text>
+<polyline class="tb" stroke-width="0.18" points="380,279.708 380,287"/>
+<text class="bd" x="381.6" y="282.066" font-size="1.042" text-anchor="start">Sheet</text>
+<text class="tb" x="381.6" y="285.21" font-size="1.667" text-anchor="start">1 / 1</text>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="355.6,15.24 403.86,15.24 403.86,66.04 355.6,66.04 355.6,15.24"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="35.56,154.94 63.5,154.94 63.5,180.34 35.56,180.34 35.56,154.94"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="17.78,73.66 48.26,73.66 48.26,104.14 17.78,104.14 17.78,73.66"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="30.48,114.3 78.74,114.3 78.74,147.32 30.48,147.32 30.48,114.3"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="269.24,198.12 342.9,198.12 342.9,248.92 269.24,248.92 269.24,198.12"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="350.52,218.44 378.46,218.44 378.46,254 350.52,254 350.52,218.44"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="294.64,15.24 325.12,15.24 325.12,50.8 294.64,50.8 294.64,15.24"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="360.68,76.2 388.62,76.2 388.62,111.76 360.68,111.76 360.68,76.2"/>
+<polyline class="f" stroke-width="0.18" stroke-dasharray="1.2 0.9" points="294.64,78.74 353.06,78.74 353.06,127 294.64,127 294.64,78.74"/>
+<circle class="bf s" cx="149.86" cy="101.6" r="3.251" stroke-width="0"/>
+<polygon class="bf" points="140.5,103.41 138.9,103.41 138.9,107.41 140.5,107.41"/>
+<polygon class="bf" points="121.19,100.8 121.19,102.4 125.19,102.4 125.19,100.8"/>
+<polygon class="bf" points="115.1,95.79 113.5,95.79 113.5,99.79 115.1,99.79"/>
+<circle class="bf s" cx="279.4" cy="86.36" r="3.251" stroke-width="0"/>
+<polygon class="bf" points="268.44,84.55 270.04,84.55 270.04,80.55 268.44,80.55"/>
+<polygon class="bf" points="254.8,88.17 253.2,88.17 253.2,92.17 254.8,92.17"/>
+<polygon class="bf" points="183.15,72.39 183.15,74.93 185.15,73.66"/>
+<polygon class="bf" points="174.46,71.85 176.06,71.85 176.06,67.85 174.46,67.85"/>
+<polygon class="bf" points="184.62,89.63 186.22,89.63 186.22,85.63 184.62,85.63"/>
+<polygon class="bf" points="211.62,54.07 210.02,54.07 210.02,50.07 211.62,50.07"/>
+<polygon class="bf" points="213.09,77.47 213.09,80.01 211.09,78.74"/>
+<polygon class="bf" points="220.18,72.93 221.78,72.93 221.78,76.93 220.18,76.93"/>
+<polygon class="bf" points="210.02,88.17 211.62,88.17 211.62,92.17 210.02,92.17"/>
+<polygon class="bf" points="211.62,107.41 210.02,107.41 210.02,103.41 211.62,103.41"/>
+<polygon class="bf" points="211.62,125.19 210.02,125.19 210.02,121.19 211.62,121.19"/>
+<polygon class="bf" points="193.04,27.94 203.2,27.94 203.2,137.16 193.04,137.16"/>
+<polygon class="bf" points="162.56,154.94 167.64,154.94 167.64,162.56 162.56,162.56"/>
+<polygon class="bf" points="256.54,124.46 261.62,124.46 261.62,132.08 256.54,132.08"/>
+<polygon class="bf" points="181.07,253.2 181.07,254.8 177.07,254.8 177.07,253.2"/>
+<polygon class="bf" points="170.98,255.81 169.38,255.81 169.38,259.81 170.98,259.81"/>
+<polygon class="bf" points="211.55,240.5 211.55,242.1 207.55,242.1 207.55,240.5"/>
+<polygon class="bf" points="217.64,235.49 219.24,235.49 219.24,239.49 217.64,239.49"/>
+<polygon class="bf" points="187.96,215.9 198.12,215.9 198.12,271.78 187.96,271.78"/>
+<polygon class="bf" points="130.34,184.69 128.74,184.69 128.74,188.69 130.34,188.69"/>
+<polygon class="bf" points="137.16,187.96 142.24,187.96 142.24,198.12 137.16,198.12"/>
+<polygon class="bf" points="371.64,36.29 370.04,36.29 370.04,32.29 371.64,32.29"/>
+<polygon class="bf" points="309.88,160.02 314.96,160.02 314.96,167.64 309.88,167.64"/>
+<polygon class="bf" points="326.91,142.78 328.41,142.78 328.41,146.78 326.91,146.78"/>
+<polygon class="bf" points="353.06,142.24 358.14,142.24 358.14,152.4 353.06,152.4"/>
+<polygon class="bf" points="342.9,165.1 347.98,165.1 347.98,175.26 342.9,175.26"/>
+<polygon class="bf" points="71.12,208.28 91.44,208.28 91.44,233.68 71.12,233.68"/>
+<polygon class="bf" points="60.16,132.62 61.76,132.62 61.76,136.62 60.16,136.62"/>
+<polygon class="bf" points="287.82,219.17 286.22,219.17 286.22,215.17 287.82,215.17"/>
+<polygon class="bf" points="309.08,235.49 310.68,235.49 310.68,239.49 309.08,239.49"/>
+<polygon class="bf" points="324.32,215.17 325.92,215.17 325.92,219.17 324.32,219.17"/>
+<polygon class="bf" points="33.02,27.94 78.74,27.94 78.74,43.18 33.02,43.18"/>
+<circle class="b" cx="149.86" cy="101.6" r="3.251" stroke-width="0.25"/>
+<polyline class="b" stroke-width="0.25" points="146.05,101.6 147.32,101.6"/>
+<polyline class="b" stroke-width="0.25" points="146.304,101.6 149.86,101.6"/>
+<polyline class="b" stroke-width="0.25" points="149.86,102.87 152.4,104.14"/>
+<polyline class="b" stroke-width="0.25" points="149.86,100.33 152.4,99.06"/>
+<polyline class="b" stroke-width="0.25" points="149.86,99.06 149.86,104.14"/>
+<polygon class="b" points="151.384,102.87 151.892,103.886 150.876,104.14"/>
+<polyline class="b" stroke-width="0.25" points="151.384,102.87 151.892,103.886 150.876,104.14 151.384,102.87"/>
+<polyline class="p" stroke-width="0.2" points="144.78,101.6 147.32,101.6"/>
+<text class="pn" x="146.05" y="101.286" font-size="1.2" text-anchor="middle">B</text>
+<text class="pu" x="146.05" y="102.696" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="152.4,106.68 152.4,104.14"/>
+<text class="pn" x="151.65" y="105.846" font-size="1.2" text-anchor="middle" transform="rotate(-90 151.65 105.41)">E</text>
+<text class="pu" x="153.15" y="105.756" font-size="0.95" text-anchor="middle" transform="rotate(-90 153.15 105.41)">2</text>
+<polyline class="p" stroke-width="0.2" points="152.4,96.52 152.4,99.06"/>
+<text class="pn" x="151.65" y="98.226" font-size="1.2" text-anchor="middle" transform="rotate(-90 151.65 97.79)">C</text>
+<text class="pu" x="153.15" y="98.136" font-size="0.95" text-anchor="middle" transform="rotate(-90 153.15 97.79)">3</text>
+<polyline class="b" stroke-width="0.25" points="140.5,103.41 138.9,103.41 138.9,107.41 140.5,107.41 140.5,103.41"/>
+<polyline class="p" stroke-width="0.2" points="139.7,101.6 139.7,103.41"/>
+<polyline class="p" stroke-width="0.2" points="139.7,107.41 139.7,109.22"/>
+<polyline class="b" stroke-width="0.25" points="121.19,100.8 121.19,102.4 125.19,102.4 125.19,100.8 121.19,100.8"/>
+<polyline class="p" stroke-width="0.2" points="119.38,101.6 121.19,101.6"/>
+<polyline class="p" stroke-width="0.2" points="125.19,101.6 127,101.6"/>
+<polyline class="b" stroke-width="0.25" points="115.1,95.79 113.5,95.79 113.5,99.79 115.1,99.79 115.1,95.79"/>
+<polyline class="p" stroke-width="0.2" points="114.3,93.98 114.3,95.79"/>
+<polyline class="p" stroke-width="0.2" points="114.3,99.79 114.3,101.6"/>
+<circle class="b" cx="279.4" cy="86.36" r="3.251" stroke-width="0.25"/>
+<polyline class="b" stroke-width="0.25" points="275.59,86.36 276.86,86.36"/>
+<polyline class="b" stroke-width="0.25" points="275.844,86.36 279.4,86.36"/>
+<polyline class="b" stroke-width="0.25" points="279.4,87.63 281.94,88.9"/>
+<polyline class="b" stroke-width="0.25" points="279.4,85.09 281.94,83.82"/>
+<polyline class="b" stroke-width="0.25" points="279.4,83.82 279.4,88.9"/>
+<polygon class="b" points="280.924,87.63 281.432,88.646 280.416,88.9"/>
+<polyline class="b" stroke-width="0.25" points="280.924,87.63 281.432,88.646 280.416,88.9 280.924,87.63"/>
+<polyline class="p" stroke-width="0.2" points="274.32,86.36 276.86,86.36"/>
+<text class="pn" x="275.59" y="86.047" font-size="1.2" text-anchor="middle">B</text>
+<text class="pu" x="275.59" y="87.456" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="281.94,91.44 281.94,88.9"/>
+<text class="pn" x="281.19" y="90.607" font-size="1.2" text-anchor="middle" transform="rotate(-90 281.19 90.17)">E</text>
+<text class="pu" x="282.69" y="90.516" font-size="0.95" text-anchor="middle" transform="rotate(-90 282.69 90.17)">2</text>
+<polyline class="p" stroke-width="0.2" points="281.94,81.28 281.94,83.82"/>
+<text class="pn" x="281.19" y="82.986" font-size="1.2" text-anchor="middle" transform="rotate(-90 281.19 82.55)">C</text>
+<text class="pu" x="282.69" y="82.896" font-size="0.95" text-anchor="middle" transform="rotate(-90 282.69 82.55)">3</text>
+<polyline class="b" stroke-width="0.25" points="268.44,84.55 270.04,84.55 270.04,80.55 268.44,80.55 268.44,84.55"/>
+<polyline class="p" stroke-width="0.2" points="269.24,86.36 269.24,84.55"/>
+<polyline class="p" stroke-width="0.2" points="269.24,80.55 269.24,78.74"/>
+<polyline class="b" stroke-width="0.25" points="254.8,88.17 253.2,88.17 253.2,92.17 254.8,92.17 254.8,88.17"/>
+<polyline class="p" stroke-width="0.2" points="254,86.36 254,88.17"/>
+<polyline class="p" stroke-width="0.2" points="254,92.17 254,93.98"/>
+<polyline class="b" stroke-width="0.25" points="183.15,72.39 183.15,74.93 185.15,73.66 183.15,72.39"/>
+<polyline class="b" stroke-width="0.25" points="185.15,72.39 185.15,74.93"/>
+<polyline class="p" stroke-width="0.2" points="180.34,73.66 183.15,73.66"/>
+<polyline class="p" stroke-width="0.2" points="185.15,73.66 187.96,73.66"/>
+<polyline class="b" stroke-width="0.18" points="183.75,75.21 182.75,76.21"/>
+<polygon class="b" points="182.573,76.387 183.21,76.175 182.785,75.75"/>
+<polyline class="b" stroke-width="0.18" points="184.75,75.21 183.75,76.21"/>
+<polygon class="b" points="183.573,76.387 184.21,76.175 183.785,75.75"/>
+<polyline class="b" stroke-width="0.25" points="174.46,71.85 176.06,71.85 176.06,67.85 174.46,67.85 174.46,71.85"/>
+<polyline class="p" stroke-width="0.2" points="175.26,73.66 175.26,71.85"/>
+<polyline class="p" stroke-width="0.2" points="175.26,67.85 175.26,66.04"/>
+<polyline class="b" stroke-width="0.25" points="184.62,89.63 186.22,89.63 186.22,85.63 184.62,85.63 184.62,89.63"/>
+<polyline class="p" stroke-width="0.2" points="185.42,91.44 185.42,89.63"/>
+<polyline class="p" stroke-width="0.2" points="185.42,85.63 185.42,83.82"/>
+<polyline class="b" stroke-width="0.25" points="211.62,54.07 210.02,54.07 210.02,50.07 211.62,50.07 211.62,54.07"/>
+<polyline class="p" stroke-width="0.2" points="210.82,55.88 210.82,54.07"/>
+<polyline class="p" stroke-width="0.2" points="210.82,50.07 210.82,48.26"/>
+<polyline class="b" stroke-width="0.25" points="213.09,77.47 213.09,80.01 211.09,78.74 213.09,77.47"/>
+<polyline class="b" stroke-width="0.25" points="211.09,77.47 211.09,80.01"/>
+<polyline class="p" stroke-width="0.2" points="215.9,78.74 213.09,78.74"/>
+<polyline class="p" stroke-width="0.2" points="211.09,78.74 208.28,78.74"/>
+<polyline class="b" stroke-width="0.18" points="212.49,80.29 213.49,81.29"/>
+<polygon class="b" points="213.667,81.467 213.03,81.255 213.455,80.83"/>
+<polyline class="b" stroke-width="0.18" points="211.49,80.29 212.49,81.29"/>
+<polygon class="b" points="212.667,81.467 212.03,81.255 212.455,80.83"/>
+<polyline class="b" stroke-width="0.25" points="220.18,72.93 221.78,72.93 221.78,76.93 220.18,76.93 220.18,72.93"/>
+<polyline class="p" stroke-width="0.2" points="220.98,71.12 220.98,72.93"/>
+<polyline class="p" stroke-width="0.2" points="220.98,76.93 220.98,78.74"/>
+<polyline class="b" stroke-width="0.25" points="210.02,88.17 211.62,88.17 211.62,92.17 210.02,92.17 210.02,88.17"/>
+<polyline class="p" stroke-width="0.2" points="210.82,86.36 210.82,88.17"/>
+<polyline class="p" stroke-width="0.2" points="210.82,92.17 210.82,93.98"/>
+<polyline class="b" stroke-width="0.25" points="211.62,107.41 210.02,107.41 210.02,103.41 211.62,103.41 211.62,107.41"/>
+<polyline class="p" stroke-width="0.2" points="210.82,109.22 210.82,107.41"/>
+<polyline class="p" stroke-width="0.2" points="210.82,103.41 210.82,101.6"/>
+<polyline class="b" stroke-width="0.25" points="211.62,125.19 210.02,125.19 210.02,121.19 211.62,121.19 211.62,125.19"/>
+<polyline class="p" stroke-width="0.2" points="210.82,127 210.82,125.19"/>
+<polyline class="p" stroke-width="0.2" points="210.82,121.19 210.82,119.38"/>
+<polyline class="b" stroke-width="0.25" points="193.04,27.94 203.2,27.94 203.2,137.16 193.04,137.16 193.04,27.94"/>
+<polyline class="p" stroke-width="0.2" points="190.5,73.66 193.04,73.66"/>
+<text class="pn" x="193.64" y="74.096" font-size="1.2" text-anchor="start">P2</text>
+<text class="pu" x="191.77" y="73.256" font-size="0.95" text-anchor="middle">6</text>
+<polyline class="p" stroke-width="0.2" points="190.5,91.44 193.04,91.44"/>
+<text class="pn" x="193.64" y="91.877" font-size="1.2" text-anchor="start">P1</text>
+<text class="pu" x="191.77" y="91.036" font-size="0.95" text-anchor="middle">5</text>
+<polyline class="p" stroke-width="0.2" points="205.74,33.02 203.2,33.02"/>
+<text class="pn" x="202.6" y="33.457" font-size="1.2" text-anchor="end">SDA</text>
+<text class="pu" x="204.47" y="32.616" font-size="0.95" text-anchor="middle">15</text>
+<polyline class="p" stroke-width="0.2" points="205.74,38.1 203.2,38.1"/>
+<text class="pn" x="202.6" y="38.537" font-size="1.2" text-anchor="end">SCL</text>
+<text class="pu" x="204.47" y="37.696" font-size="0.95" text-anchor="middle">14</text>
+<polyline class="p" stroke-width="0.2" points="205.74,55.88 203.2,55.88"/>
+<text class="pn" x="202.6" y="56.317" font-size="1.2" text-anchor="end">P3</text>
+<text class="pu" x="204.47" y="55.476" font-size="0.95" text-anchor="middle">7</text>
+<polyline class="p" stroke-width="0.2" points="205.74,63.5 203.2,63.5"/>
+<text class="pn" x="202.6" y="63.937" font-size="1.2" text-anchor="end">INT</text>
+<text class="pu" x="204.47" y="63.096" font-size="0.95" text-anchor="middle">13</text>
+<polyline class="p" stroke-width="0.2" points="205.74,78.74 203.2,78.74"/>
+<text class="pn" x="202.6" y="79.177" font-size="1.2" text-anchor="end">P6</text>
+<text class="pu" x="204.47" y="78.336" font-size="0.95" text-anchor="middle">11</text>
+<polyline class="p" stroke-width="0.2" points="205.74,93.98 203.2,93.98"/>
+<text class="pn" x="202.6" y="94.417" font-size="1.2" text-anchor="end">P4</text>
+<text class="pu" x="204.47" y="93.576" font-size="0.95" text-anchor="middle">9</text>
+<polyline class="p" stroke-width="0.2" points="205.74,109.22 203.2,109.22"/>
+<text class="pn" x="202.6" y="109.657" font-size="1.2" text-anchor="end">P7</text>
+<text class="pu" x="204.47" y="108.816" font-size="0.95" text-anchor="middle">12</text>
+<polyline class="p" stroke-width="0.2" points="205.74,127 203.2,127"/>
+<text class="pn" x="202.6" y="127.437" font-size="1.2" text-anchor="end">P0</text>
+<text class="pu" x="204.47" y="126.596" font-size="0.95" text-anchor="middle">4</text>
+<polyline class="p" stroke-width="0.2" points="205.74,132.08 203.2,132.08"/>
+<text class="pn" x="202.6" y="132.517" font-size="1.2" text-anchor="end">P5</text>
+<text class="pu" x="204.47" y="131.676" font-size="0.95" text-anchor="middle">10</text>
+<polyline class="p" stroke-width="0.2" points="198.12,25.4 198.12,27.94"/>
+<text class="pn" x="198.12" y="29.477" font-size="1.2" text-anchor="middle">VCC</text>
+<text class="pu" x="198.47" y="27.016" font-size="0.95" text-anchor="start">16</text>
+<polyline class="p" stroke-width="0.2" points="198.12,139.7 198.12,137.16"/>
+<text class="pn" x="198.12" y="136.497" font-size="1.2" text-anchor="middle">A0</text>
+<text class="pu" x="198.47" y="138.776" font-size="0.95" text-anchor="start">1–3,8</text>
+<polyline class="b" stroke-width="0.25" points="162.56,154.94 167.64,154.94 167.64,162.56 162.56,162.56 162.56,154.94"/>
+<polyline class="p" stroke-width="0.2" points="170.18,157.48 167.64,157.48"/>
+<text class="pu" x="168.91" y="157.076" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="170.18,160.02 167.64,160.02"/>
+<text class="pu" x="168.91" y="159.616" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="b" stroke-width="0.25" points="256.54,124.46 261.62,124.46 261.62,132.08 256.54,132.08 256.54,124.46"/>
+<polyline class="p" stroke-width="0.2" points="254,127 256.54,127"/>
+<text class="pu" x="255.27" y="126.596" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="254,129.54 256.54,129.54"/>
+<text class="pu" x="255.27" y="129.136" font-size="0.95" text-anchor="middle">2</text>
+<circle class="b" cx="135.27" cy="254" r="2.45" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="130.81,254 133.52,254"/>
+<polyline class="b" stroke-width="0.25" points="133.52,252.7 133.52,255.3"/>
+<polyline class="b" stroke-width="0.4" points="134.12,252.4 134.12,253.2"/>
+<polyline class="b" stroke-width="0.4" points="134.12,253.7 134.12,254.3"/>
+<polyline class="b" stroke-width="0.4" points="134.12,254.8 134.12,255.6"/>
+<polyline class="p" stroke-width="0.2" points="134.12,252.8 135.89,252.8 135.89,250.19"/>
+<polyline class="p" stroke-width="0.2" points="134.12,255.2 135.89,255.2 135.89,257.81"/>
+<polyline class="p" stroke-width="0.2" points="134.12,254 135.89,254 135.89,255.2"/>
+<polygon class="b" points="134.22,254 134.97,253.65 134.97,254.35"/>
+<polyline class="b" stroke-width="0.25" points="181.07,253.2 181.07,254.8 177.07,254.8 177.07,253.2 181.07,253.2"/>
+<polyline class="p" stroke-width="0.2" points="182.88,254 181.07,254"/>
+<polyline class="p" stroke-width="0.2" points="177.07,254 175.26,254"/>
+<polyline class="b" stroke-width="0.25" points="170.98,255.81 169.38,255.81 169.38,259.81 170.98,259.81 170.98,255.81"/>
+<polyline class="p" stroke-width="0.2" points="170.18,254 170.18,255.81"/>
+<polyline class="p" stroke-width="0.2" points="170.18,259.81 170.18,261.62"/>
+<polyline class="b" stroke-width="0.25" points="211.55,240.5 211.55,242.1 207.55,242.1 207.55,240.5 211.55,240.5"/>
+<polyline class="p" stroke-width="0.2" points="213.36,241.3 211.55,241.3"/>
+<polyline class="p" stroke-width="0.2" points="207.55,241.3 205.74,241.3"/>
+<polyline class="b" stroke-width="0.25" points="217.64,235.49 219.24,235.49 219.24,239.49 217.64,239.49 217.64,235.49"/>
+<polyline class="p" stroke-width="0.2" points="218.44,233.68 218.44,235.49"/>
+<polyline class="p" stroke-width="0.2" points="218.44,239.49 218.44,241.3"/>
+<polyline class="b" stroke-width="0.4" points="232.08,244.66 235.28,244.66"/>
+<polyline class="b" stroke-width="0.4" points="232.08,245.56 235.28,245.56"/>
+<polyline class="p" stroke-width="0.2" points="233.68,241.3 233.68,244.66"/>
+<polyline class="p" stroke-width="0.2" points="233.68,245.56 233.68,248.92"/>
+<polyline class="b" stroke-width="0.25" points="187.96,215.9 198.12,215.9 198.12,271.78 187.96,271.78 187.96,215.9"/>
+<polyline class="p" stroke-width="0.2" points="185.42,236.22 187.96,236.22"/>
+<text class="pn" x="188.56" y="236.657" font-size="1.2" text-anchor="start">3</text>
+<text class="pu" x="186.69" y="235.816" font-size="0.95" text-anchor="middle">3</text>
+<polyline class="p" stroke-width="0.2" points="185.42,241.3 187.96,241.3"/>
+<text class="pn" x="188.56" y="241.737" font-size="1.2" text-anchor="start">2</text>
+<text class="pu" x="186.69" y="240.896" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="p" stroke-width="0.2" points="185.42,254 187.96,254"/>
+<text class="pn" x="188.56" y="254.437" font-size="1.2" text-anchor="start">4</text>
+<text class="pu" x="186.69" y="253.596" font-size="0.95" text-anchor="middle">4</text>
+<polyline class="p" stroke-width="0.2" points="200.66,220.98 198.12,220.98"/>
+<text class="pn" x="197.52" y="221.417" font-size="1.2" text-anchor="end">8</text>
+<text class="pu" x="199.39" y="220.576" font-size="0.95" text-anchor="middle">8</text>
+<polyline class="p" stroke-width="0.2" points="200.66,226.06 198.12,226.06"/>
+<text class="pn" x="197.52" y="226.497" font-size="1.2" text-anchor="end">6</text>
+<text class="pu" x="199.39" y="225.656" font-size="0.95" text-anchor="middle">6</text>
+<polyline class="p" stroke-width="0.2" points="200.66,241.3 198.12,241.3"/>
+<text class="pn" x="197.52" y="241.737" font-size="1.2" text-anchor="end">7</text>
+<text class="pu" x="199.39" y="240.896" font-size="0.95" text-anchor="middle">7</text>
+<polyline class="p" stroke-width="0.2" points="200.66,256.54 198.12,256.54"/>
+<text class="pn" x="197.52" y="256.977" font-size="1.2" text-anchor="end">1</text>
+<text class="pu" x="199.39" y="256.136" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="200.66,259.08 198.12,259.08"/>
+<text class="pn" x="197.52" y="259.517" font-size="1.2" text-anchor="end">5</text>
+<text class="pu" x="199.39" y="258.676" font-size="0.95" text-anchor="middle">5</text>
+<polyline class="p" stroke-width="0.2" points="200.66,261.62 198.12,261.62"/>
+<text class="pn" x="197.52" y="262.057" font-size="1.2" text-anchor="end">9</text>
+<text class="pu" x="199.39" y="261.216" font-size="0.95" text-anchor="middle">9</text>
+<polyline class="p" stroke-width="0.2" points="200.66,264.16 198.12,264.16"/>
+<text class="pn" x="197.52" y="264.597" font-size="1.2" text-anchor="end">10</text>
+<text class="pu" x="199.39" y="263.756" font-size="0.95" text-anchor="middle">10</text>
+<polyline class="p" stroke-width="0.2" points="200.66,266.7 198.12,266.7"/>
+<text class="pn" x="197.52" y="267.137" font-size="1.2" text-anchor="end">11</text>
+<text class="pu" x="199.39" y="266.296" font-size="0.95" text-anchor="middle">11</text>
+<polyline class="p" stroke-width="0.2" points="190.5,213.36 190.5,215.9"/>
+<text class="pn" x="190.5" y="217.437" font-size="1.2" text-anchor="middle">12</text>
+<text class="pu" x="190.85" y="214.976" font-size="0.95" text-anchor="start">12</text>
+<polyline class="p" stroke-width="0.2" points="195.58,213.36 195.58,215.9"/>
+<text class="pn" x="195.58" y="217.437" font-size="1.2" text-anchor="middle">14</text>
+<text class="pu" x="195.93" y="214.976" font-size="0.95" text-anchor="start">14</text>
+<polyline class="p" stroke-width="0.2" points="193.04,274.32 193.04,271.78"/>
+<text class="pn" x="193.04" y="271.117" font-size="1.2" text-anchor="middle">13</text>
+<text class="pu" x="193.39" y="273.396" font-size="0.95" text-anchor="start">13</text>
+<polyline class="b" stroke-width="0.25" points="130.34,184.69 128.74,184.69 128.74,188.69 130.34,188.69 130.34,184.69"/>
+<polyline class="p" stroke-width="0.2" points="129.54,182.88 129.54,184.69"/>
+<polyline class="p" stroke-width="0.2" points="129.54,188.69 129.54,190.5"/>
+<polyline class="b" stroke-width="0.25" points="137.16,187.96 142.24,187.96 142.24,198.12 137.16,198.12 137.16,187.96"/>
+<polyline class="p" stroke-width="0.2" points="134.62,190.5 137.16,190.5"/>
+<text class="pu" x="135.89" y="190.096" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="134.62,195.58 137.16,195.58"/>
+<text class="pu" x="135.89" y="195.176" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="b" stroke-width="0.4" points="364.16,52.89 367.36,52.89"/>
+<polyline class="b" stroke-width="0.4" points="364.16,53.79 367.36,53.79"/>
+<polyline class="p" stroke-width="0.2" points="365.76,49.53 365.76,52.89"/>
+<polyline class="p" stroke-width="0.2" points="365.76,53.79 365.76,57.15"/>
+<polyline class="b" stroke-width="0.4" points="384.48,52.89 387.68,52.89"/>
+<polyline class="b" stroke-width="0.4" points="384.48,53.79 387.68,53.79"/>
+<polyline class="p" stroke-width="0.2" points="386.08,49.53 386.08,52.89"/>
+<polyline class="p" stroke-width="0.2" points="386.08,53.79 386.08,57.15"/>
+<polyline class="b" stroke-width="0.25" points="371.64,36.29 370.04,36.29 370.04,32.29 371.64,32.29 371.64,36.29"/>
+<polyline class="p" stroke-width="0.2" points="370.84,38.1 370.84,36.29"/>
+<polyline class="p" stroke-width="0.2" points="370.84,32.29 370.84,30.48"/>
+<circle class="b" cx="53.34" cy="167.64" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="53.34,168.29 53.34,170.18"/>
+<circle class="b" cx="40.64" cy="167.64" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="40.64,168.29 40.64,170.18"/>
+<circle class="b" cx="38.1" cy="86.36" r="1.5" stroke-width="0.25"/>
+<circle class="b" cx="38.1" cy="86.36" r="0.7" stroke-width="0.18"/>
+<circle class="b" cx="25.4" cy="86.36" r="1.5" stroke-width="0.25"/>
+<circle class="b" cx="25.4" cy="86.36" r="0.7" stroke-width="0.18"/>
+<circle class="b" cx="25.4" cy="96.52" r="1.5" stroke-width="0.25"/>
+<circle class="b" cx="25.4" cy="96.52" r="0.7" stroke-width="0.18"/>
+<circle class="b" cx="38.1" cy="96.52" r="1.5" stroke-width="0.25"/>
+<circle class="b" cx="38.1" cy="96.52" r="0.7" stroke-width="0.18"/>
+<polyline class="b" stroke-width="0.25" points="309.88,160.02 314.96,160.02 314.96,167.64 309.88,167.64 309.88,160.02"/>
+<polyline class="p" stroke-width="0.2" points="317.5,162.56 314.96,162.56"/>
+<text class="pn" x="314.36" y="162.997" font-size="1.2" text-anchor="end">C1</text>
+<text class="pu" x="316.23" y="162.156" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="317.5,165.1 314.96,165.1"/>
+<text class="pn" x="314.36" y="165.537" font-size="1.2" text-anchor="end">C2</text>
+<text class="pu" x="316.23" y="164.696" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="b" stroke-width="0.4" points="303.2,144.33 306.4,144.33"/>
+<polyline class="b" stroke-width="0.4" points="303.2,145.23 306.4,145.23"/>
+<polyline class="p" stroke-width="0.2" points="304.8,140.97 304.8,144.33"/>
+<polyline class="p" stroke-width="0.2" points="304.8,145.23 304.8,148.59"/>
+<polyline class="b" stroke-width="0.25" points="326.91,142.78 328.41,142.78 328.41,146.78 326.91,146.78 326.91,142.78"/>
+<polyline class="p" stroke-width="0.2" points="327.66,140.97 327.66,148.59"/>
+<polyline class="b" stroke-width="0.25" points="353.06,142.24 358.14,142.24 358.14,152.4 353.06,152.4 353.06,142.24"/>
+<polyline class="p" stroke-width="0.2" points="350.52,144.78 353.06,144.78"/>
+<text class="pu" x="351.79" y="144.376" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="350.52,147.32 353.06,147.32"/>
+<text class="pu" x="351.79" y="146.916" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="p" stroke-width="0.2" points="350.52,149.86 353.06,149.86"/>
+<text class="pu" x="351.79" y="149.456" font-size="0.95" text-anchor="middle">3</text>
+<polyline class="b" stroke-width="0.25" points="342.9,165.1 347.98,165.1 347.98,175.26 342.9,175.26 342.9,165.1"/>
+<polyline class="p" stroke-width="0.2" points="350.52,167.64 347.98,167.64"/>
+<text class="pn" x="347.38" y="168.076" font-size="1.2" text-anchor="end">C1</text>
+<text class="pu" x="349.25" y="167.236" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="350.52,172.72 347.98,172.72"/>
+<text class="pn" x="347.38" y="173.157" font-size="1.2" text-anchor="end">C2</text>
+<text class="pu" x="349.25" y="172.316" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="b" stroke-width="0.254" points="71.12,208.28 91.44,208.28 91.44,233.68 71.12,233.68 71.12,208.28"/>
+<polyline class="p" stroke-width="0.2" points="68.58,223.52 71.12,223.52"/>
+<text class="pn" x="71.628" y="223.956" font-size="1.2" text-anchor="start">DIN</text>
+<text class="pu" x="69.85" y="223.116" font-size="0.95" text-anchor="middle">1</text>
+<polyline class="p" stroke-width="0.2" points="93.98,228.6 91.44,228.6"/>
+<text class="pn" x="90.932" y="229.037" font-size="1.2" text-anchor="end">GAIN_SLOT</text>
+<text class="pu" x="92.71" y="228.196" font-size="0.95" text-anchor="middle">2</text>
+<polyline class="p" stroke-width="0.2" points="68.58,215.9 71.12,215.9"/>
+<text class="pn" x="71.628" y="216.337" font-size="1.2" text-anchor="start">SD_MODE</text>
+<text class="pu" x="69.85" y="215.496" font-size="0.95" text-anchor="middle">4</text>
+<polyline class="p" stroke-width="0.2" points="68.58,210.82 71.12,210.82"/>
+<text class="pn" x="71.628" y="211.257" font-size="1.2" text-anchor="start">VDD</text>
+<text class="pu" x="69.85" y="210.416" font-size="0.95" text-anchor="middle">7</text>
+<polyline class="p" stroke-width="0.2" points="93.98,215.9 91.44,215.9"/>
+<text class="pn" x="90.932" y="216.337" font-size="1.2" text-anchor="end">OUTP</text>
+<text class="pu" x="92.71" y="215.496" font-size="0.95" text-anchor="middle">9</text>
+<polyline class="p" stroke-width="0.2" points="93.98,220.98 91.44,220.98"/>
+<text class="pn" x="90.932" y="221.416" font-size="1.2" text-anchor="end">OUTN</text>
+<text class="pu" x="92.71" y="220.576" font-size="0.95" text-anchor="middle">10</text>
+<polyline class="p" stroke-width="0.2" points="68.58,231.14 71.12,231.14"/>
+<text class="pn" x="71.628" y="231.576" font-size="1.2" text-anchor="start">GND</text>
+<text class="pu" x="69.85" y="230.736" font-size="0.95" text-anchor="middle">11</text>
+<polyline class="p" stroke-width="0.2" points="68.58,220.98 71.12,220.98"/>
+<text class="pn" x="71.628" y="221.416" font-size="1.2" text-anchor="start">LRCLK</text>
+<text class="pu" x="69.85" y="220.576" font-size="0.95" text-anchor="middle">14</text>
+<polyline class="p" stroke-width="0.2" points="68.58,218.44 71.12,218.44"/>
+<text class="pn" x="71.628" y="218.877" font-size="1.2" text-anchor="start">BCLK</text>
+<text class="pu" x="69.85" y="218.036" font-size="0.95" text-anchor="middle">16</text>
+<polyline class="p" stroke-width="0.2" points="68.58,228.6 71.12,228.6"/>
+<text class="pn" x="71.628" y="229.037" font-size="1.2" text-anchor="start">EP</text>
+<text class="pu" x="69.85" y="228.196" font-size="0.95" text-anchor="middle">17</text>
+<polyline class="b" stroke-width="0.4" points="36.5,134.17 39.7,134.17"/>
+<polyline class="b" stroke-width="0.4" points="36.5,135.07 39.7,135.07"/>
+<polyline class="p" stroke-width="0.2" points="38.1,130.81 38.1,134.17"/>
+<polyline class="p" stroke-width="0.2" points="38.1,135.07 38.1,138.43"/>
+<polyline class="b" stroke-width="0.25" points="60.16,132.62 61.76,132.62 61.76,136.62 60.16,136.62 60.16,132.62"/>
+<polyline class="p" stroke-width="0.2" points="60.96,130.81 60.96,132.62"/>
+<polyline class="p" stroke-width="0.2" points="60.96,136.62 60.96,138.43"/>
+<polyline class="b" stroke-width="0.4" points="275.26,235.77 278.46,235.77"/>
+<polyline class="b" stroke-width="0.4" points="275.26,236.67 278.46,236.67"/>
+<polyline class="p" stroke-width="0.2" points="276.86,232.41 276.86,235.77"/>
+<polyline class="p" stroke-width="0.2" points="276.86,236.67 276.86,240.03"/>
+<polyline class="b" stroke-width="0.25" points="287.82,219.17 286.22,219.17 286.22,215.17 287.82,215.17 287.82,219.17"/>
+<polyline class="p" stroke-width="0.2" points="287.02,220.98 287.02,219.17"/>
+<polyline class="p" stroke-width="0.2" points="287.02,215.17 287.02,213.36"/>
+<circle class="b" cx="302.26" cy="218.44" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="302.26,219.09 302.26,220.98"/>
+<polyline class="b" stroke-width="0.25" points="309.08,235.49 310.68,235.49 310.68,239.49 309.08,239.49 309.08,235.49"/>
+<polyline class="p" stroke-width="0.2" points="309.88,233.68 309.88,235.49"/>
+<polyline class="p" stroke-width="0.2" points="309.88,239.49 309.88,241.3"/>
+<circle class="b" cx="325.12" cy="238.76" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="325.12,239.41 325.12,241.3"/>
+<polyline class="b" stroke-width="0.25" points="324.32,215.17 325.92,215.17 325.92,219.17 324.32,219.17 324.32,215.17"/>
+<polyline class="p" stroke-width="0.2" points="325.12,213.36 325.12,215.17"/>
+<polyline class="p" stroke-width="0.2" points="325.12,219.17 325.12,220.98"/>
+<circle class="b" cx="370.84" cy="246.38" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="370.84,247.03 370.84,248.92"/>
+<circle class="b" cx="358.14" cy="231.14" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="358.14,231.79 358.14,233.68"/>
+<circle class="b" cx="314.96" cy="43.18" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="314.96,43.83 314.96,45.72"/>
+<circle class="b" cx="299.72" cy="27.94" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="299.72,28.59 299.72,30.48"/>
+<circle class="b" cx="378.46" cy="104.14" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="378.46,104.79 378.46,106.68"/>
+<circle class="b" cx="365.76" cy="88.9" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="365.76,89.55 365.76,91.44"/>
+<circle class="b" cx="317.5" cy="116.84" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="317.5,117.49 317.5,119.38"/>
+<circle class="b" cx="304.8" cy="116.84" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="304.8,117.49 304.8,119.38"/>
+<circle class="b" cx="320.04" cy="104.14" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="320.04,104.79 320.04,106.68"/>
+<circle class="b" cx="317.5" cy="91.44" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="317.5,92.09 317.5,93.98"/>
+<circle class="b" cx="342.9" cy="91.44" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="342.9,92.09 342.9,93.98"/>
+<circle class="b" cx="342.9" cy="116.84" r="0.65" stroke-width="0.25"/>
+<polyline class="p" stroke-width="0.2" points="342.9,117.49 342.9,119.38"/>
+<polyline class="b" stroke-width="0.25" points="33.02,27.94 78.74,27.94 78.74,43.18 33.02,43.18 33.02,27.94"/>
+<polyline class="p" stroke-width="0.2" points="30.48,33.02 33.02,33.02"/>
+<text class="pn" x="33.62" y="33.457" font-size="1.2" text-anchor="start">SDA</text>
+<text class="pu" x="31.75" y="32.616" font-size="0.95" text-anchor="middle">3</text>
+<polyline class="p" stroke-width="0.2" points="30.48,38.1 33.02,38.1"/>
+<text class="pn" x="33.62" y="38.537" font-size="1.2" text-anchor="start">SCL</text>
+<text class="pu" x="31.75" y="37.696" font-size="0.95" text-anchor="middle">4</text>
+<polyline class="p" stroke-width="0.2" points="40.64,25.4 40.64,27.94"/>
+<text class="pn" x="40.64" y="29.476" font-size="1.2" text-anchor="middle">VS</text>
+<text class="pu" x="40.99" y="27.016" font-size="0.95" text-anchor="start">5</text>
+<polyline class="p" stroke-width="0.2" points="55.88,25.4 55.88,27.94"/>
+<text class="pn" x="55.88" y="29.476" font-size="1.2" text-anchor="middle">INN</text>
+<text class="pu" x="56.23" y="27.016" font-size="0.95" text-anchor="start">7</text>
+<polyline class="p" stroke-width="0.2" points="71.12,25.4 71.12,27.94"/>
+<text class="pn" x="71.12" y="29.476" font-size="1.2" text-anchor="middle">INP</text>
+<text class="pu" x="71.47" y="27.016" font-size="0.95" text-anchor="start">8</text>
+<polyline class="p" stroke-width="0.2" points="55.88,45.72 55.88,43.18"/>
+<text class="pn" x="55.88" y="42.517" font-size="1.2" text-anchor="middle">A1</text>
+<text class="pu" x="56.23" y="44.796" font-size="0.95" text-anchor="start">1,2,6</text>
+<polyline class="w" stroke-width="0.25" points="152.4,96.52 152.4,93.98"/>
+<polyline class="l" stroke-width="0.18" points="152.4,93.98 151.45,93.03 151.45,82.564 152.4,81.614 153.35,82.564 153.35,93.03 152.4,93.98"/>
+<text class="l" x="152.4" y="88.252" font-size="1.25" text-anchor="middle" transform="rotate(-90 152.4 87.797)">CHG_STATUS_N</text>
+<polyline class="g" stroke-width="0.2" points="139.7,109.22 139.7,110.49"/>
+<polyline class="g" stroke-width="0.25" points="138.4,110.49 141,110.49"/>
+<polyline class="g" stroke-width="0.25" points="138.85,110.97 140.55,110.97"/>
+<polyline class="g" stroke-width="0.25" points="139.3,111.45 140.1,111.45"/>
+<text class="g" x="139.7" y="113.775" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="138.2" y="104.256" font-size="1.5" text-anchor="end" font-weight="700">RCHGPD</text>
+<text class="v" x="138.2" y="105.883" font-size="1.3" text-anchor="end">100 kΩ</text>
+<text class="v" x="138.2" y="107.536" font-size="1.17" text-anchor="end">0603WAF1003T5E</text>
+<text class="r" x="123.19" y="96.446" font-size="1.5" text-anchor="middle" font-weight="700">RCHGIN</text>
+<text class="v" x="123.19" y="98.073" font-size="1.3" text-anchor="middle">100 kΩ</text>
+<text class="v" x="123.19" y="99.726" font-size="1.17" text-anchor="middle">0603WAF1003T5E</text>
+<polyline class="pw" stroke-width="0.2" points="114.3,93.98 114.3,92.38"/>
+<polyline class="pw" stroke-width="0.35" points="115.4,92.38 113.2,92.38"/>
+<text class="pw" x="114.3" y="91.685" font-size="1.25" text-anchor="middle">VBUS</text>
+<text class="r" x="112.8" y="96.636" font-size="1.5" text-anchor="end" font-weight="700">RCHGDEFAULT</text>
+<text class="v" x="112.8" y="98.263" font-size="1.3" text-anchor="end">100 kΩ</text>
+<text class="v" x="112.8" y="99.916" font-size="1.17" text-anchor="end">0603WAF1003T5E</text>
+<polyline class="l" stroke-width="0.18" points="101.6,101.6 101.6,102.55 90.688,102.55 90.688,100.65 101.6,100.65 101.6,101.6"/>
+<text class="l" x="96.144" y="102.055" font-size="1.25" text-anchor="middle">CHG_SOURCE</text>
+<polyline class="w" stroke-width="0.25" points="119.38,101.6 101.6,101.6"/>
+<circle class="j s" cx="114.3" cy="101.6" r="0.48" stroke-width="0"/>
+<polyline class="w" stroke-width="0.25" points="144.78,101.6 127,101.6"/>
+<circle class="j s" cx="139.7" cy="101.6" r="0.48" stroke-width="0"/>
+<polyline class="g" stroke-width="0.2" points="152.4,106.68 152.4,107.95"/>
+<polyline class="g" stroke-width="0.25" points="153.7,107.95 151.1,107.95"/>
+<polyline class="g" stroke-width="0.25" points="153.25,108.43 151.55,108.43"/>
+<polyline class="g" stroke-width="0.25" points="152.8,108.91 152,108.91"/>
+<text class="g" x="152.4" y="111.235" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="146.05" y="78.609" font-size="1.5" text-anchor="start" font-weight="700">QCHG</text>
+<text class="v" x="146.05" y="80.237" font-size="1.3" text-anchor="start">MMBT3904-7-F</text>
+<polyline class="w" stroke-width="0.25" points="281.94,81.28 281.94,78.74"/>
+<polyline class="l" stroke-width="0.18" points="281.94,78.74 280.99,77.79 280.99,66.942 281.94,65.992 282.89,66.942 282.89,77.79 281.94,78.74"/>
+<text class="l" x="281.94" y="72.821" font-size="1.25" text-anchor="middle" transform="rotate(-90 281.94 72.366)">USB_PRESENT_N</text>
+<polyline class="pw" stroke-width="0.2" points="269.24,78.74 269.24,77.14"/>
+<polyline class="pw" stroke-width="0.35" points="270.34,77.14 268.14,77.14"/>
+<text class="pw" x="269.24" y="76.445" font-size="1.25" text-anchor="middle">VBUS</text>
+<text class="r" x="267.74" y="81.396" font-size="1.5" text-anchor="end" font-weight="700">RUSBIN</text>
+<text class="v" x="267.74" y="83.023" font-size="1.3" text-anchor="end">22 kΩ</text>
+<text class="v" x="267.74" y="84.676" font-size="1.17" text-anchor="end">0603WAF2202T5E</text>
+<polyline class="g" stroke-width="0.2" points="254,93.98 254,95.25"/>
+<polyline class="g" stroke-width="0.25" points="252.7,95.25 255.3,95.25"/>
+<polyline class="g" stroke-width="0.25" points="253.15,95.73 254.85,95.73"/>
+<polyline class="g" stroke-width="0.25" points="253.6,96.21 254.4,96.21"/>
+<text class="g" x="254" y="98.535" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="252.5" y="89.016" font-size="1.5" text-anchor="end" font-weight="700">RUSBPD</text>
+<text class="v" x="252.5" y="90.643" font-size="1.3" text-anchor="end">100 kΩ</text>
+<text class="v" x="252.5" y="92.296" font-size="1.17" text-anchor="end">0603WAF1003T5E</text>
+<polyline class="w" stroke-width="0.25" points="274.32,86.36 254,86.36"/>
+<circle class="j s" cx="269.24" cy="86.36" r="0.48" stroke-width="0"/>
+<polyline class="g" stroke-width="0.2" points="281.94,91.44 281.94,92.71"/>
+<polyline class="g" stroke-width="0.25" points="283.24,92.71 280.64,92.71"/>
+<polyline class="g" stroke-width="0.25" points="282.79,93.19 281.09,93.19"/>
+<polyline class="g" stroke-width="0.25" points="282.34,93.67 281.54,93.67"/>
+<text class="g" x="281.94" y="95.995" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="275.59" y="62.988" font-size="1.5" text-anchor="start" font-weight="700">QUSB</text>
+<text class="v" x="275.59" y="64.615" font-size="1.3" text-anchor="start">MMBT3904-7-F</text>
+<text class="r" x="184.15" y="68.006" font-size="1.5" text-anchor="middle" font-weight="700">DCHG</text>
+<text class="v" x="184.15" y="69.633" font-size="1.3" text-anchor="middle">green</text>
+<text class="v" x="184.15" y="71.286" font-size="1.17" text-anchor="middle">KT-0805G</text>
+<polyline class="pw" stroke-width="0.2" points="175.26,66.04 175.26,64.44"/>
+<polyline class="pw" stroke-width="0.35" points="176.36,64.44 174.16,64.44"/>
+<text class="pw" x="175.26" y="63.745" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="173.76" y="68.696" font-size="1.5" text-anchor="end" font-weight="700">RCHGLED</text>
+<text class="v" x="173.76" y="70.323" font-size="1.3" text-anchor="end">330 Ω</text>
+<text class="v" x="173.76" y="71.976" font-size="1.17" text-anchor="end">0603WAF3300T5E</text>
+<polyline class="w" stroke-width="0.25" points="180.34,73.66 175.26,73.66"/>
+<polyline class="w" stroke-width="0.25" points="190.5,73.66 187.96,73.66"/>
+<polyline class="pw" stroke-width="0.2" points="185.42,83.82 185.42,82.22"/>
+<polyline class="pw" stroke-width="0.35" points="186.52,82.22 184.32,82.22"/>
+<text class="pw" x="185.42" y="81.525" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="183.92" y="86.476" font-size="1.5" text-anchor="end" font-weight="700">RASK</text>
+<text class="v" x="183.92" y="88.103" font-size="1.3" text-anchor="end">10 kΩ</text>
+<text class="v" x="183.92" y="89.756" font-size="1.17" text-anchor="end">0603WAF1002T5E</text>
+<polyline class="l" stroke-width="0.18" points="172.72,91.44 167.784,91.44"/>
+<text class="l" x="170.252" y="91.275" font-size="1.25" text-anchor="middle">ASK_N</text>
+<polyline class="w" stroke-width="0.25" points="190.5,91.44 172.72,91.44"/>
+<circle class="j s" cx="185.42" cy="91.44" r="0.48" stroke-width="0"/>
+<polyline class="l" stroke-width="0.18" points="208.28,33.02 209.23,32.07 214.938,32.07 215.888,33.02 214.938,33.97 209.23,33.97 208.28,33.02"/>
+<text class="l" x="212.084" y="33.475" font-size="1.25" text-anchor="middle">I2C_SDA</text>
+<polyline class="w" stroke-width="0.25" points="205.74,33.02 208.28,33.02"/>
+<polyline class="l" stroke-width="0.18" points="208.28,38.1 209.23,37.15 215.702,37.15 215.702,39.05 209.23,39.05 208.28,38.1"/>
+<text class="l" x="212.466" y="38.555" font-size="1.25" text-anchor="middle">I2C_SCL</text>
+<polyline class="w" stroke-width="0.25" points="205.74,38.1 208.28,38.1"/>
+<polyline class="pw" stroke-width="0.2" points="210.82,48.26 210.82,46.66"/>
+<polyline class="pw" stroke-width="0.35" points="209.72,46.66 211.92,46.66"/>
+<text class="pw" x="210.82" y="45.965" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="212.32" y="50.916" font-size="1.5" text-anchor="start" font-weight="700">RUSBPU</text>
+<text class="v" x="212.32" y="52.543" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="212.32" y="54.196" font-size="1.17" text-anchor="start">0603WAF1002T5E</text>
+<polyline class="l" stroke-width="0.18" points="223.52,55.88 224.47,54.93 235.318,54.93 236.268,55.88 235.318,56.83 224.47,56.83 223.52,55.88"/>
+<text class="l" x="229.894" y="56.335" font-size="1.25" text-anchor="middle">USB_PRESENT_N</text>
+<polyline class="w" stroke-width="0.25" points="205.74,55.88 223.52,55.88"/>
+<circle class="j s" cx="210.82" cy="55.88" r="0.48" stroke-width="0"/>
+<polyline class="l" stroke-width="0.18" points="208.28,63.5 209.23,62.55 214.849,62.55 215.799,63.5 214.849,64.45 209.23,64.45 208.28,63.5"/>
+<text class="l" x="212.039" y="63.955" font-size="1.25" text-anchor="middle">PCF_INT</text>
+<polyline class="w" stroke-width="0.25" points="205.74,63.5 208.28,63.5"/>
+<text class="r" x="212.09" y="73.086" font-size="1.5" text-anchor="middle" font-weight="700">DFAULT</text>
+<text class="v" x="212.09" y="74.713" font-size="1.3" text-anchor="middle">red</text>
+<text class="v" x="212.09" y="76.366" font-size="1.17" text-anchor="middle">NCD0805R1</text>
+<polyline class="pw" stroke-width="0.2" points="220.98,71.12 220.98,69.52"/>
+<polyline class="pw" stroke-width="0.35" points="219.88,69.52 222.08,69.52"/>
+<text class="pw" x="220.98" y="68.825" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="222.48" y="73.776" font-size="1.5" text-anchor="start" font-weight="700">RFAULT</text>
+<text class="v" x="222.48" y="75.403" font-size="1.3" text-anchor="start">1 kΩ</text>
+<text class="v" x="222.48" y="77.056" font-size="1.17" text-anchor="start">0603WAF1001T5E</text>
+<polyline class="w" stroke-width="0.25" points="215.9,78.74 220.98,78.74"/>
+<polyline class="w" stroke-width="0.25" points="205.74,78.74 208.28,78.74"/>
+<polyline class="pw" stroke-width="0.2" points="210.82,86.36 210.82,84.76"/>
+<polyline class="pw" stroke-width="0.35" points="209.72,84.76 211.92,84.76"/>
+<text class="pw" x="210.82" y="84.065" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="212.32" y="89.016" font-size="1.5" text-anchor="start" font-weight="700">RCHGPU</text>
+<text class="v" x="212.32" y="90.643" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="212.32" y="92.296" font-size="1.17" text-anchor="start">0603WAF1002T5E</text>
+<polyline class="l" stroke-width="0.18" points="223.52,93.98 224.47,93.03 234.936,93.03 235.886,93.98 234.936,94.93 224.47,94.93 223.52,93.98"/>
+<text class="l" x="229.703" y="94.435" font-size="1.25" text-anchor="middle">CHG_STATUS_N</text>
+<polyline class="w" stroke-width="0.25" points="205.74,93.98 223.52,93.98"/>
+<circle class="j s" cx="210.82" cy="93.98" r="0.48" stroke-width="0"/>
+<polyline class="pw" stroke-width="0.2" points="210.82,101.6 210.82,100"/>
+<polyline class="pw" stroke-width="0.35" points="209.72,100 211.92,100"/>
+<text class="pw" x="210.82" y="99.305" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="212.32" y="104.256" font-size="1.5" text-anchor="start" font-weight="700">RSDCD</text>
+<text class="v" x="212.32" y="105.883" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="212.32" y="107.536" font-size="1.17" text-anchor="start">0603WAF1002T5E</text>
+<polyline class="l" stroke-width="0.18" points="223.52,109.22 224.47,108.27 230.58,108.27 231.53,109.22 230.58,110.17 224.47,110.17 223.52,109.22"/>
+<text class="l" x="227.525" y="109.675" font-size="1.25" text-anchor="middle">SD_CD_N</text>
+<polyline class="w" stroke-width="0.25" points="205.74,109.22 223.52,109.22"/>
+<circle class="j s" cx="210.82" cy="109.22" r="0.48" stroke-width="0"/>
+<polyline class="pw" stroke-width="0.2" points="210.82,119.38 210.82,117.78"/>
+<polyline class="pw" stroke-width="0.35" points="209.72,117.78 211.92,117.78"/>
+<text class="pw" x="210.82" y="117.085" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="212.32" y="122.036" font-size="1.5" text-anchor="start" font-weight="700">RPHOTO</text>
+<text class="v" x="212.32" y="123.663" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="212.32" y="125.316" font-size="1.17" text-anchor="start">0603WAF1002T5E</text>
+<polyline class="w" stroke-width="0.25" points="205.74,127 223.52,127"/>
+<circle class="j s" cx="210.82" cy="127" r="0.48" stroke-width="0"/>
+<polyline class="pw" stroke-width="0.2" points="198.12,25.4 198.12,23.8"/>
+<polyline class="pw" stroke-width="0.35" points="197.02,23.8 199.22,23.8"/>
+<text class="pw" x="198.12" y="23.105" font-size="1.25" text-anchor="middle">V3V3</text>
+<polyline class="g" stroke-width="0.2" points="198.12,139.7 198.12,140.97"/>
+<polyline class="g" stroke-width="0.25" points="199.42,140.97 196.82,140.97"/>
+<polyline class="g" stroke-width="0.25" points="198.97,141.45 197.27,141.45"/>
+<polyline class="g" stroke-width="0.25" points="198.52,141.93 197.72,141.93"/>
+<text class="g" x="198.12" y="144.255" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="193.04" y="19.021" font-size="1.5" text-anchor="start" font-weight="700">UCTRL</text>
+<text class="v" x="193.04" y="20.648" font-size="1.3" text-anchor="start">PCF8574DWR</text>
+<polyline class="l" stroke-width="0.18" points="172.72,157.48 177.656,157.48"/>
+<text class="l" x="175.188" y="157.315" font-size="1.25" text-anchor="middle">ASK_N</text>
+<polyline class="w" stroke-width="0.25" points="170.18,157.48 172.72,157.48"/>
+<polyline class="w" stroke-width="0.25" points="170.18,160.02 172.72,160.02"/>
+<polyline class="g" stroke-width="0.2" points="172.72,160.02 172.72,161.29"/>
+<polyline class="g" stroke-width="0.25" points="174.02,161.29 171.42,161.29"/>
+<polyline class="g" stroke-width="0.25" points="173.57,161.77 171.87,161.77"/>
+<polyline class="g" stroke-width="0.25" points="173.12,162.25 172.32,162.25"/>
+<text class="g" x="172.72" y="164.575" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="162.56" y="152.136" font-size="1.5" text-anchor="start" font-weight="700">JASK</text>
+<text class="v" x="162.56" y="153.716" font-size="1.17" text-anchor="start">MTP125-1102S1</text>
+<polyline class="w" stroke-width="0.25" points="254,127 251.46,127"/>
+<polyline class="w" stroke-width="0.25" points="254,129.54 251.46,129.54"/>
+<polyline class="g" stroke-width="0.2" points="251.46,129.54 251.46,130.81"/>
+<polyline class="g" stroke-width="0.25" points="250.16,130.81 252.76,130.81"/>
+<polyline class="g" stroke-width="0.25" points="250.61,131.29 252.31,131.29"/>
+<polyline class="g" stroke-width="0.25" points="251.06,131.77 251.86,131.77"/>
+<text class="g" x="251.46" y="134.095" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="256.54" y="121.656" font-size="1.5" text-anchor="start" font-weight="700">JPHOTO</text>
+<text class="v" x="256.54" y="123.236" font-size="1.17" text-anchor="start">MTP125-1102S1</text>
+<polyline class="w" stroke-width="0.25" points="135.89,250.19 135.89,248.92"/>
+<polyline class="w" stroke-width="0.25" points="130.81,254 129.54,254"/>
+<polyline class="g" stroke-width="0.2" points="135.89,257.81 135.89,259.08"/>
+<polyline class="g" stroke-width="0.25" points="137.19,259.08 134.59,259.08"/>
+<polyline class="g" stroke-width="0.25" points="136.74,259.56 135.04,259.56"/>
+<polyline class="g" stroke-width="0.25" points="136.29,260.04 135.49,260.04"/>
+<text class="g" x="135.89" y="262.365" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="133.32" y="236.734" font-size="1.5" text-anchor="start" font-weight="700">QFLASH</text>
+<text class="v" x="133.32" y="238.362" font-size="1.3" text-anchor="start">AO3400A</text>
+<polyline class="l" stroke-width="0.18" points="182.88,236.22 181.93,237.17 176.222,237.17 175.272,236.22 176.222,235.27 181.93,235.27 182.88,236.22"/>
+<text class="l" x="179.076" y="236.675" font-size="1.25" text-anchor="middle">I2C_SDA</text>
+<polyline class="w" stroke-width="0.25" points="185.42,236.22 182.88,236.22"/>
+<polyline class="l" stroke-width="0.18" points="182.88,241.3 181.93,242.25 175.458,242.25 175.458,240.35 181.93,240.35 182.88,241.3"/>
+<text class="l" x="178.694" y="241.755" font-size="1.25" text-anchor="middle">I2C_SCL</text>
+<polyline class="w" stroke-width="0.25" points="185.42,241.3 182.88,241.3"/>
+<text class="r" x="179.07" y="248.846" font-size="1.5" text-anchor="middle" font-weight="700">RGATE</text>
+<text class="v" x="179.07" y="250.473" font-size="1.3" text-anchor="middle">100 Ω</text>
+<text class="v" x="179.07" y="252.126" font-size="1.17" text-anchor="middle">0603WAF1000T5E</text>
+<polyline class="g" stroke-width="0.2" points="170.18,261.62 170.18,262.89"/>
+<polyline class="g" stroke-width="0.25" points="168.88,262.89 171.48,262.89"/>
+<polyline class="g" stroke-width="0.25" points="169.33,263.37 171.03,263.37"/>
+<polyline class="g" stroke-width="0.25" points="169.78,263.85 170.58,263.85"/>
+<text class="g" x="170.18" y="266.175" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="168.68" y="256.656" font-size="1.5" text-anchor="end" font-weight="700">RGPULL</text>
+<text class="v" x="168.68" y="258.283" font-size="1.3" text-anchor="end">100 kΩ</text>
+<text class="v" x="168.68" y="259.936" font-size="1.17" text-anchor="end">0603WAF1003T5E</text>
+<polyline class="w" stroke-width="0.25" points="175.26,254 157.48,254"/>
+<circle class="j s" cx="170.18" cy="254" r="0.48" stroke-width="0"/>
+<polyline class="w" stroke-width="0.25" points="185.42,254 182.88,254"/>
+<polyline class="l" stroke-width="0.18" points="203.2,220.98 210.551,220.98"/>
+<text class="l" x="206.876" y="220.815" font-size="1.25" text-anchor="middle">I2S_LRCLK</text>
+<polyline class="w" stroke-width="0.25" points="200.66,220.98 203.2,220.98"/>
+<polyline class="l" stroke-width="0.18" points="203.2,226.06 208.721,226.06"/>
+<text class="l" x="205.961" y="225.895" font-size="1.25" text-anchor="middle">I2S_DIN</text>
+<polyline class="w" stroke-width="0.25" points="200.66,226.06 203.2,226.06"/>
+<polyline class="w" stroke-width="0.25" points="203.2,241.3 203.2,237.49 205.74,237.49"/>
+<polyline class="l" stroke-width="0.18" points="205.74,237.49 205.74,236.54 214.774,236.54 214.774,238.44 205.74,238.44 205.74,237.49"/>
+<text class="l" x="210.257" y="237.945" font-size="1.25" text-anchor="middle">NTC_VOLT</text>
+<text class="r" x="209.55" y="244.246" font-size="1.5" text-anchor="middle" font-weight="700">RNTCSER</text>
+<text class="v" x="209.55" y="245.873" font-size="1.3" text-anchor="middle">1 kΩ</text>
+<text class="v" x="209.55" y="247.526" font-size="1.17" text-anchor="middle">0603WAF1001T5E</text>
+<polyline class="pw" stroke-width="0.2" points="218.44,233.68 218.44,232.08"/>
+<polyline class="pw" stroke-width="0.35" points="217.34,232.08 219.54,232.08"/>
+<text class="pw" x="218.44" y="231.385" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="219.94" y="236.336" font-size="1.5" text-anchor="start" font-weight="700">RNTC</text>
+<text class="v" x="219.94" y="237.963" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="219.94" y="239.616" font-size="1.17" text-anchor="start">0603WAF1002T5E</text>
+<polyline class="g" stroke-width="0.2" points="233.68,248.92 233.68,250.19"/>
+<polyline class="g" stroke-width="0.25" points="234.98,250.19 232.38,250.19"/>
+<polyline class="g" stroke-width="0.25" points="234.53,250.67 232.83,250.67"/>
+<polyline class="g" stroke-width="0.25" points="234.08,251.15 233.28,251.15"/>
+<text class="g" x="233.68" y="253.475" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="235.98" y="243.956" font-size="1.5" text-anchor="start" font-weight="700">CNTC</text>
+<text class="v" x="235.98" y="245.583" font-size="1.3" text-anchor="start">100 nF</text>
+<text class="v" x="235.98" y="247.236" font-size="1.17" text-anchor="start">CC0603KRX7R9BB104</text>
+<polyline class="l" stroke-width="0.18" points="248.92,241.3 248.92,240.35 258.398,240.35 258.398,242.25 248.92,242.25 248.92,241.3"/>
+<text class="l" x="253.659" y="241.755" font-size="1.25" text-anchor="middle">NTC_INPUT</text>
+<polyline class="w" stroke-width="0.25" points="213.36,241.3 248.92,241.3"/>
+<circle class="j s" cx="218.44" cy="241.3" r="0.48" stroke-width="0"/>
+<circle class="j s" cx="233.68" cy="241.3" r="0.48" stroke-width="0"/>
+<polyline class="w" stroke-width="0.25" points="200.66,241.3 205.74,241.3"/>
+<circle class="j s" cx="203.2" cy="241.3" r="0.48" stroke-width="0"/>
+<polyline class="l" stroke-width="0.18" points="203.2,256.54 204.15,255.59 211.404,255.59 211.404,257.49 204.15,257.49 203.2,256.54"/>
+<text class="l" x="207.777" y="256.995" font-size="1.25" text-anchor="middle">I2S_BCLK</text>
+<polyline class="w" stroke-width="0.25" points="200.66,256.54 203.2,256.54"/>
+<polyline class="pw" stroke-width="0.2" points="190.5,213.36 190.5,211.76"/>
+<polyline class="pw" stroke-width="0.35" points="189.4,211.76 191.6,211.76"/>
+<text class="pw" x="190.5" y="211.065" font-size="1.25" text-anchor="middle">V3V3</text>
+<polyline class="pw" stroke-width="0.2" points="195.58,213.36 195.58,211.76"/>
+<polyline class="pw" stroke-width="0.35" points="194.48,211.76 196.68,211.76"/>
+<text class="pw" x="195.58" y="211.065" font-size="1.25" text-anchor="middle">VBUS</text>
+<polyline class="g" stroke-width="0.2" points="193.04,274.32 193.04,275.59"/>
+<polyline class="g" stroke-width="0.25" points="194.34,275.59 191.74,275.59"/>
+<polyline class="g" stroke-width="0.25" points="193.89,276.07 192.19,276.07"/>
+<polyline class="g" stroke-width="0.25" points="193.44,276.55 192.64,276.55"/>
+<text class="g" x="193.04" y="278.875" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="187.96" y="206.981" font-size="1.5" text-anchor="start" font-weight="700">UXIAO</text>
+<text class="v" x="187.96" y="208.608" font-size="1.3" text-anchor="start">InspectPin</text>
+<polyline class="pw" stroke-width="0.2" points="129.54,182.88 129.54,181.28"/>
+<polyline class="pw" stroke-width="0.35" points="130.64,181.28 128.44,181.28"/>
+<text class="pw" x="129.54" y="180.585" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<text class="r" x="128.04" y="185.536" font-size="1.5" text-anchor="end" font-weight="700">RFLASH</text>
+<text class="v" x="128.04" y="187.163" font-size="1.3" text-anchor="end">47 Ω</text>
+<text class="v" x="128.04" y="188.816" font-size="1.17" text-anchor="end">1206W4F470JT5E</text>
+<polyline class="w" stroke-width="0.25" points="134.62,190.5 129.54,190.5"/>
+<polyline class="w" stroke-width="0.25" points="134.62,195.58 132.08,195.58"/>
+<text class="r" x="137.16" y="185.156" font-size="1.5" text-anchor="start" font-weight="700">JFLASH</text>
+<text class="v" x="137.16" y="186.736" font-size="1.17" text-anchor="start">MTP125-1102S1</text>
+<polyline class="pw" stroke-width="0.2" points="365.76,49.53 365.76,47.93"/>
+<polyline class="pw" stroke-width="0.35" points="364.66,47.93 366.86,47.93"/>
+<text class="pw" x="365.76" y="47.235" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<polyline class="g" stroke-width="0.2" points="365.76,57.15 365.76,58.42"/>
+<polyline class="g" stroke-width="0.25" points="367.06,58.42 364.46,58.42"/>
+<polyline class="g" stroke-width="0.25" points="366.61,58.9 364.91,58.9"/>
+<polyline class="g" stroke-width="0.25" points="366.16,59.38 365.36,59.38"/>
+<text class="g" x="365.76" y="61.705" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="368.06" y="52.186" font-size="1.5" text-anchor="start" font-weight="700">C3</text>
+<text class="v" x="368.06" y="53.813" font-size="1.3" text-anchor="start">10 µF</text>
+<text class="v" x="368.06" y="55.466" font-size="1.17" text-anchor="start">CL21A106KAYNNNE</text>
+<polyline class="pw" stroke-width="0.2" points="386.08,49.53 386.08,47.93"/>
+<polyline class="pw" stroke-width="0.35" points="384.98,47.93 387.18,47.93"/>
+<text class="pw" x="386.08" y="47.235" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<polyline class="g" stroke-width="0.2" points="386.08,57.15 386.08,58.42"/>
+<polyline class="g" stroke-width="0.25" points="387.38,58.42 384.78,58.42"/>
+<polyline class="g" stroke-width="0.25" points="386.93,58.9 385.23,58.9"/>
+<polyline class="g" stroke-width="0.25" points="386.48,59.38 385.68,59.38"/>
+<text class="g" x="386.08" y="61.705" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="388.38" y="52.186" font-size="1.5" text-anchor="start" font-weight="700">C4</text>
+<text class="v" x="388.38" y="53.813" font-size="1.3" text-anchor="start">100 nF</text>
+<text class="v" x="388.38" y="55.466" font-size="1.17" text-anchor="start">CL05B104KO5NNNC</text>
+<polyline class="l" stroke-width="0.18" points="365.76,38.1 365.76,39.05 360.902,39.05 360.902,37.15 365.76,37.15 365.76,38.1"/>
+<text class="l" x="363.331" y="38.555" font-size="1.25" text-anchor="middle">R5.1</text>
+<polyline class="pw" stroke-width="0.2" points="370.84,30.48 370.84,28.88"/>
+<polyline class="pw" stroke-width="0.35" points="369.74,28.88 371.94,28.88"/>
+<text class="pw" x="370.84" y="28.185" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="372.34" y="33.136" font-size="1.5" text-anchor="start" font-weight="700">R5</text>
+<text class="v" x="372.34" y="34.763" font-size="1.3" text-anchor="start">634 kΩ</text>
+<text class="v" x="372.34" y="36.416" font-size="1.17" text-anchor="start">0402WGF6343TCE</text>
+<polyline class="w" stroke-width="0.25" points="365.76,38.1 370.84,38.1"/>
+<polyline class="pw" stroke-width="0.2" points="53.34,170.18 53.34,171.78"/>
+<polyline class="pw" stroke-width="0.35" points="54.44,171.78 52.24,171.78"/>
+<text class="pw" x="53.34" y="173.385" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="54.74" y="168.186" font-size="1.5" text-anchor="start" font-weight="700">TP7</text>
+<polyline class="g" stroke-width="0.2" points="40.64,170.18 40.64,171.45"/>
+<polyline class="g" stroke-width="0.25" points="41.94,171.45 39.34,171.45"/>
+<polyline class="g" stroke-width="0.25" points="41.49,171.93 39.79,171.93"/>
+<polyline class="g" stroke-width="0.25" points="41.04,172.41 40.24,172.41"/>
+<text class="g" x="40.64" y="174.735" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="42.04" y="168.186" font-size="1.5" text-anchor="start" font-weight="700">TP8</text>
+<text class="r" x="40.4" y="86.906" font-size="1.5" text-anchor="start" font-weight="700">H1</text>
+<text class="r" x="27.7" y="86.906" font-size="1.5" text-anchor="start" font-weight="700">H2</text>
+<text class="r" x="27.7" y="97.066" font-size="1.5" text-anchor="start" font-weight="700">H3</text>
+<text class="r" x="40.4" y="97.066" font-size="1.5" text-anchor="start" font-weight="700">H4</text>
+<polyline class="w" stroke-width="0.25" points="317.5,162.56 320.04,162.56"/>
+<polyline class="pw" stroke-width="0.2" points="320.04,162.56 320.04,160.96"/>
+<polyline class="pw" stroke-width="0.35" points="318.94,160.96 321.14,160.96"/>
+<text class="pw" x="320.04" y="160.265" font-size="1.25" text-anchor="middle">PACK_POS</text>
+<polyline class="w" stroke-width="0.25" points="317.5,165.1 320.04,165.1"/>
+<polyline class="g" stroke-width="0.2" points="320.04,165.1 320.04,166.37"/>
+<polyline class="g" stroke-width="0.25" points="321.34,166.37 318.74,166.37"/>
+<polyline class="g" stroke-width="0.25" points="320.89,166.85 319.19,166.85"/>
+<polyline class="g" stroke-width="0.25" points="320.44,167.33 319.64,167.33"/>
+<text class="g" x="320.04" y="169.655" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="314.96" y="157.216" font-size="1.5" text-anchor="end" font-weight="700">JBAT</text>
+<text class="v" x="314.96" y="158.843" font-size="1.3" text-anchor="end">B2B-PH-K-S(LF)(SN)</text>
+<polyline class="pw" stroke-width="0.2" points="304.8,140.97 304.8,139.37"/>
+<polyline class="pw" stroke-width="0.35" points="303.7,139.37 305.9,139.37"/>
+<text class="pw" x="304.8" y="138.675" font-size="1.25" text-anchor="middle">PACK_POS</text>
+<polyline class="g" stroke-width="0.2" points="304.8,148.59 304.8,149.86"/>
+<polyline class="g" stroke-width="0.25" points="306.1,149.86 303.5,149.86"/>
+<polyline class="g" stroke-width="0.25" points="305.65,150.34 303.95,150.34"/>
+<polyline class="g" stroke-width="0.25" points="305.2,150.82 304.4,150.82"/>
+<text class="g" x="304.8" y="153.145" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="307.1" y="143.626" font-size="1.5" text-anchor="start" font-weight="700">CBAT_INPUT</text>
+<text class="v" x="307.1" y="145.253" font-size="1.3" text-anchor="start">22 µF</text>
+<text class="v" x="307.1" y="146.906" font-size="1.17" text-anchor="start">CL31A226KAHNNNE</text>
+<polyline class="pw" stroke-width="0.2" points="327.66,140.97 327.66,139.37"/>
+<polyline class="pw" stroke-width="0.35" points="326.56,139.37 328.76,139.37"/>
+<text class="pw" x="327.66" y="138.675" font-size="1.25" text-anchor="middle">PACK_POS</text>
+<polyline class="pw" stroke-width="0.2" points="327.66,148.59 327.66,150.19"/>
+<polyline class="pw" stroke-width="0.35" points="328.76,150.19 326.56,150.19"/>
+<text class="pw" x="327.66" y="151.795" font-size="1.25" text-anchor="middle">VBAT_PRE_SHUNT</text>
+<text class="r" x="329.11" y="143.626" font-size="1.5" text-anchor="start" font-weight="700">F_BAT</text>
+<text class="v" x="329.11" y="145.253" font-size="1.3" text-anchor="start">PTC 1500mA</text>
+<text class="v" x="329.11" y="146.906" font-size="1.17" text-anchor="start">1206L150THWR</text>
+<polyline class="w" stroke-width="0.25" points="350.52,144.78 347.98,144.78"/>
+<polyline class="pw" stroke-width="0.2" points="347.98,144.78 347.98,143.18"/>
+<polyline class="pw" stroke-width="0.35" points="349.08,143.18 346.88,143.18"/>
+<text class="pw" x="347.98" y="142.485" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<polyline class="w" stroke-width="0.25" points="350.52,149.86 347.98,149.86"/>
+<polyline class="g" stroke-width="0.2" points="347.98,149.86 347.98,151.13"/>
+<polyline class="g" stroke-width="0.25" points="346.68,151.13 349.28,151.13"/>
+<polyline class="g" stroke-width="0.25" points="347.13,151.61 348.83,151.61"/>
+<polyline class="g" stroke-width="0.25" points="347.58,152.09 348.38,152.09"/>
+<text class="g" x="347.98" y="154.415" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="353.06" y="139.436" font-size="1.5" text-anchor="start" font-weight="700">JBAT_XIAO</text>
+<text class="v" x="353.06" y="141.063" font-size="1.3" text-anchor="start">B3B-PH-K-S(LF)(SN)</text>
+<polyline class="l" stroke-width="0.18" points="353.06,167.64 360.987,167.64"/>
+<text class="l" x="357.024" y="167.475" font-size="1.25" text-anchor="middle">SPEAKER_P</text>
+<polyline class="w" stroke-width="0.25" points="350.52,167.64 353.06,167.64"/>
+<polyline class="l" stroke-width="0.18" points="353.06,172.72 361.13,172.72"/>
+<text class="l" x="357.095" y="172.555" font-size="1.25" text-anchor="middle">SPEAKER_N</text>
+<polyline class="w" stroke-width="0.25" points="350.52,172.72 353.06,172.72"/>
+<text class="r" x="342.9" y="162.296" font-size="1.5" text-anchor="start" font-weight="700">JSPK</text>
+<text class="v" x="342.9" y="163.923" font-size="1.3" text-anchor="start">B2B-PH-K-S(LF)(SN)</text>
+<polyline class="w" stroke-width="0.25" points="68.58,210.82 66.04,210.82"/>
+<polyline class="pw" stroke-width="0.2" points="66.04,210.82 66.04,209.22"/>
+<polyline class="pw" stroke-width="0.35" points="64.94,209.22 67.14,209.22"/>
+<text class="pw" x="66.04" y="208.525" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<polyline class="l" stroke-width="0.18" points="66.04,215.9 65.09,216.85 61.182,216.85 61.182,214.95 65.09,214.95 66.04,215.9"/>
+<text class="l" x="63.136" y="216.355" font-size="1.25" text-anchor="middle">R5.1</text>
+<polyline class="w" stroke-width="0.25" points="68.58,215.9 66.04,215.9"/>
+<polyline class="l" stroke-width="0.18" points="96.52,215.9 104.447,215.9"/>
+<text class="l" x="100.484" y="215.735" font-size="1.25" text-anchor="middle">SPEAKER_P</text>
+<polyline class="w" stroke-width="0.25" points="93.98,215.9 96.52,215.9"/>
+<polyline class="w" stroke-width="0.25" points="68.58,218.44 58.42,218.44"/>
+<polyline class="l" stroke-width="0.18" points="55.88,218.44 54.93,219.39 47.676,219.39 47.676,217.49 54.93,217.49 55.88,218.44"/>
+<text class="l" x="51.303" y="218.895" font-size="1.25" text-anchor="middle">I2S_BCLK</text>
+<polyline class="w" stroke-width="0.25" points="58.42,218.44 55.88,218.44"/>
+<polyline class="l" stroke-width="0.18" points="96.52,220.98 104.59,220.98"/>
+<text class="l" x="100.555" y="220.815" font-size="1.25" text-anchor="middle">SPEAKER_N</text>
+<polyline class="w" stroke-width="0.25" points="93.98,220.98 96.52,220.98"/>
+<polyline class="w" stroke-width="0.25" points="68.58,220.98 45.72,220.98"/>
+<polyline class="l" stroke-width="0.18" points="43.18,220.98 35.829,220.98"/>
+<text class="l" x="39.504" y="220.815" font-size="1.25" text-anchor="middle">I2S_LRCLK</text>
+<polyline class="w" stroke-width="0.25" points="45.72,220.98 43.18,220.98"/>
+<polyline class="l" stroke-width="0.18" points="66.04,223.52 60.519,223.52"/>
+<text class="l" x="63.279" y="223.355" font-size="1.25" text-anchor="middle">I2S_DIN</text>
+<polyline class="w" stroke-width="0.25" points="68.58,223.52 66.04,223.52"/>
+<polyline class="w" stroke-width="0.25" points="93.98,228.6 96.52,228.6"/>
+<polyline class="g" stroke-width="0.2" points="96.52,228.6 96.52,229.87"/>
+<polyline class="g" stroke-width="0.25" points="97.82,229.87 95.22,229.87"/>
+<polyline class="g" stroke-width="0.25" points="97.37,230.35 95.67,230.35"/>
+<polyline class="g" stroke-width="0.25" points="96.92,230.83 96.12,230.83"/>
+<text class="g" x="96.52" y="233.155" font-size="1.25" text-anchor="middle">GND</text>
+<polyline class="w" stroke-width="0.25" points="68.58,228.6 66.04,228.6"/>
+<polyline class="g" stroke-width="0.2" points="66.04,228.6 66.04,229.87"/>
+<polyline class="g" stroke-width="0.25" points="67.34,229.87 64.74,229.87"/>
+<polyline class="g" stroke-width="0.25" points="66.89,230.35 65.19,230.35"/>
+<polyline class="g" stroke-width="0.25" points="66.44,230.83 65.64,230.83"/>
+<text class="g" x="66.04" y="233.155" font-size="1.25" text-anchor="middle">GND</text>
+<polyline class="w" stroke-width="0.25" points="68.58,231.14 66.04,231.14"/>
+<polyline class="g" stroke-width="0.2" points="66.04,231.14 66.04,232.41"/>
+<polyline class="g" stroke-width="0.25" points="67.34,232.41 64.74,232.41"/>
+<polyline class="g" stroke-width="0.25" points="66.89,232.89 65.19,232.89"/>
+<polyline class="g" stroke-width="0.25" points="66.44,233.37 65.64,233.37"/>
+<text class="g" x="66.04" y="235.695" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="71.12" y="205.476" font-size="1.5" text-anchor="start" font-weight="700">UAMP</text>
+<text class="v" x="71.12" y="207.103" font-size="1.3" text-anchor="start">MAX98357AETE+T</text>
+<polyline class="pw" stroke-width="0.2" points="38.1,130.81 38.1,129.21"/>
+<polyline class="pw" stroke-width="0.35" points="37,129.21 39.2,129.21"/>
+<text class="pw" x="38.1" y="128.515" font-size="1.25" text-anchor="middle">V3V3</text>
+<polyline class="g" stroke-width="0.2" points="38.1,138.43 38.1,139.7"/>
+<polyline class="g" stroke-width="0.25" points="39.4,139.7 36.8,139.7"/>
+<polyline class="g" stroke-width="0.25" points="38.95,140.18 37.25,140.18"/>
+<polyline class="g" stroke-width="0.25" points="38.5,140.66 37.7,140.66"/>
+<text class="g" x="38.1" y="142.985" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="40.4" y="133.466" font-size="1.5" text-anchor="start" font-weight="700">C2</text>
+<text class="v" x="40.4" y="135.093" font-size="1.3" text-anchor="start">100 nF</text>
+<text class="v" x="40.4" y="136.746" font-size="1.17" text-anchor="start">CL05B104KO5NNNC</text>
+<polyline class="pw" stroke-width="0.2" points="60.96,130.81 60.96,129.21"/>
+<polyline class="pw" stroke-width="0.35" points="59.86,129.21 62.06,129.21"/>
+<text class="pw" x="60.96" y="128.515" font-size="1.25" text-anchor="middle">VBAT_PRE_SHUNT</text>
+<polyline class="pw" stroke-width="0.2" points="60.96,138.43 60.96,140.03"/>
+<polyline class="pw" stroke-width="0.35" points="62.06,140.03 59.86,140.03"/>
+<text class="pw" x="60.96" y="141.635" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<text class="r" x="62.46" y="133.466" font-size="1.5" text-anchor="start" font-weight="700">R4</text>
+<text class="v" x="62.46" y="135.093" font-size="1.3" text-anchor="start">100 mΩ</text>
+<text class="v" x="62.46" y="136.746" font-size="1.17" text-anchor="start">1206W4F100LT5E</text>
+<polyline class="pw" stroke-width="0.2" points="276.86,232.41 276.86,230.81"/>
+<polyline class="pw" stroke-width="0.35" points="275.76,230.81 277.96,230.81"/>
+<text class="pw" x="276.86" y="230.115" font-size="1.25" text-anchor="middle">V3V3</text>
+<polyline class="g" stroke-width="0.2" points="276.86,240.03 276.86,241.3"/>
+<polyline class="g" stroke-width="0.25" points="278.16,241.3 275.56,241.3"/>
+<polyline class="g" stroke-width="0.25" points="277.71,241.78 276.01,241.78"/>
+<polyline class="g" stroke-width="0.25" points="277.26,242.26 276.46,242.26"/>
+<text class="g" x="276.86" y="244.585" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="279.16" y="235.066" font-size="1.5" text-anchor="start" font-weight="700">C1</text>
+<text class="v" x="279.16" y="236.693" font-size="1.3" text-anchor="start">100 nF</text>
+<text class="v" x="279.16" y="238.346" font-size="1.17" text-anchor="start">CL05B104KO5NNNC</text>
+<polyline class="l" stroke-width="0.18" points="281.94,220.98 281.94,221.93 274.332,221.93 274.332,220.03 281.94,220.03 281.94,220.98"/>
+<text class="l" x="278.136" y="221.435" font-size="1.25" text-anchor="middle">I2C_SDA</text>
+<polyline class="pw" stroke-width="0.2" points="287.02,213.36 287.02,211.76"/>
+<polyline class="pw" stroke-width="0.35" points="285.92,211.76 288.12,211.76"/>
+<text class="pw" x="287.02" y="211.065" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="288.52" y="216.016" font-size="1.5" text-anchor="start" font-weight="700">R1</text>
+<text class="v" x="288.52" y="217.643" font-size="1.3" text-anchor="start">4.7 kΩ</text>
+<text class="v" x="288.52" y="219.296" font-size="1.17" text-anchor="start">0402WGF4701TCE</text>
+<text class="r" x="303.66" y="218.986" font-size="1.5" text-anchor="start" font-weight="700">TP9</text>
+<polyline class="w" stroke-width="0.25" points="281.94,220.98 302.26,220.98"/>
+<circle class="j s" cx="287.02" cy="220.98" r="0.48" stroke-width="0"/>
+<polyline class="l" stroke-width="0.18" points="304.8,241.3 304.8,242.25 297.378,242.25 297.378,240.35 304.8,240.35 304.8,241.3"/>
+<text class="l" x="301.089" y="241.755" font-size="1.25" text-anchor="middle">I2C_SCL</text>
+<polyline class="pw" stroke-width="0.2" points="309.88,233.68 309.88,232.08"/>
+<polyline class="pw" stroke-width="0.35" points="308.78,232.08 310.98,232.08"/>
+<text class="pw" x="309.88" y="231.385" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="311.38" y="236.336" font-size="1.5" text-anchor="start" font-weight="700">R2</text>
+<text class="v" x="311.38" y="237.963" font-size="1.3" text-anchor="start">4.7 kΩ</text>
+<text class="v" x="311.38" y="239.616" font-size="1.17" text-anchor="start">0402WGF4701TCE</text>
+<text class="r" x="326.52" y="239.306" font-size="1.5" text-anchor="start" font-weight="700">TP10</text>
+<polyline class="w" stroke-width="0.25" points="304.8,241.3 325.12,241.3"/>
+<circle class="j s" cx="309.88" cy="241.3" r="0.48" stroke-width="0"/>
+<polyline class="l" stroke-width="0.18" points="320.04,220.98 320.04,221.93 312.521,221.93 312.521,220.03 320.04,220.03 320.04,220.98"/>
+<text class="l" x="316.281" y="221.435" font-size="1.25" text-anchor="middle">PCF_INT</text>
+<polyline class="pw" stroke-width="0.2" points="325.12,213.36 325.12,211.76"/>
+<polyline class="pw" stroke-width="0.35" points="324.02,211.76 326.22,211.76"/>
+<text class="pw" x="325.12" y="211.065" font-size="1.25" text-anchor="middle">V3V3</text>
+<text class="r" x="326.62" y="216.016" font-size="1.5" text-anchor="start" font-weight="700">R3</text>
+<text class="v" x="326.62" y="217.643" font-size="1.3" text-anchor="start">10 kΩ</text>
+<text class="v" x="326.62" y="219.296" font-size="1.17" text-anchor="start">0402WGF1002TCE</text>
+<polyline class="w" stroke-width="0.25" points="320.04,220.98 325.12,220.98"/>
+<polyline class="l" stroke-width="0.18" points="365.76,248.92 365.76,249.87 356.282,249.87 356.282,247.97 365.76,247.97 365.76,248.92"/>
+<text class="l" x="361.021" y="249.375" font-size="1.25" text-anchor="middle">NTC_INPUT</text>
+<text class="r" x="372.24" y="246.926" font-size="1.5" text-anchor="start" font-weight="700">TP1</text>
+<polyline class="w" stroke-width="0.25" points="365.76,248.92 370.84,248.92"/>
+<polyline class="g" stroke-width="0.2" points="358.14,233.68 358.14,234.95"/>
+<polyline class="g" stroke-width="0.25" points="359.44,234.95 356.84,234.95"/>
+<polyline class="g" stroke-width="0.25" points="358.99,235.43 357.29,235.43"/>
+<polyline class="g" stroke-width="0.25" points="358.54,235.91 357.74,235.91"/>
+<text class="g" x="358.14" y="238.235" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="359.54" y="231.686" font-size="1.5" text-anchor="start" font-weight="700">TP2</text>
+<polyline class="l" stroke-width="0.18" points="309.88,45.72 309.88,46.67 298.968,46.67 298.968,44.77 309.88,44.77 309.88,45.72"/>
+<text class="l" x="304.424" y="46.175" font-size="1.25" text-anchor="middle">CHG_SOURCE</text>
+<text class="r" x="316.36" y="43.726" font-size="1.5" text-anchor="start" font-weight="700">TP3</text>
+<polyline class="w" stroke-width="0.25" points="309.88,45.72 314.96,45.72"/>
+<polyline class="g" stroke-width="0.2" points="299.72,30.48 299.72,31.75"/>
+<polyline class="g" stroke-width="0.25" points="301.02,31.75 298.42,31.75"/>
+<polyline class="g" stroke-width="0.25" points="300.57,32.23 298.87,32.23"/>
+<polyline class="g" stroke-width="0.25" points="300.12,32.71 299.32,32.71"/>
+<text class="g" x="299.72" y="35.035" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="301.12" y="28.486" font-size="1.5" text-anchor="start" font-weight="700">TP4</text>
+<polyline class="l" stroke-width="0.18" points="373.38,106.68 373.38,107.63 365.37,107.63 365.37,105.73 373.38,105.73 373.38,106.68"/>
+<text class="l" x="369.375" y="107.135" font-size="1.25" text-anchor="middle">SD_CD_N</text>
+<text class="r" x="379.86" y="104.686" font-size="1.5" text-anchor="start" font-weight="700">TP5</text>
+<polyline class="w" stroke-width="0.25" points="373.38,106.68 378.46,106.68"/>
+<polyline class="g" stroke-width="0.2" points="365.76,91.44 365.76,92.71"/>
+<polyline class="g" stroke-width="0.25" points="367.06,92.71 364.46,92.71"/>
+<polyline class="g" stroke-width="0.25" points="366.61,93.19 364.91,93.19"/>
+<polyline class="g" stroke-width="0.25" points="366.16,93.67 365.36,93.67"/>
+<text class="g" x="365.76" y="95.995" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="367.16" y="89.446" font-size="1.5" text-anchor="start" font-weight="700">TP6</text>
+<polyline class="pw" stroke-width="0.2" points="317.5,119.38 317.5,120.98"/>
+<polyline class="pw" stroke-width="0.35" points="318.6,120.98 316.4,120.98"/>
+<text class="pw" x="317.5" y="122.585" font-size="1.25" text-anchor="middle">VBUS</text>
+<text class="r" x="318.9" y="117.386" font-size="1.5" text-anchor="start" font-weight="700">TP11</text>
+<polyline class="pw" stroke-width="0.2" points="304.8,119.38 304.8,120.98"/>
+<polyline class="pw" stroke-width="0.35" points="305.9,120.98 303.7,120.98"/>
+<text class="pw" x="304.8" y="122.585" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<text class="r" x="306.2" y="117.386" font-size="1.5" text-anchor="start" font-weight="700">TP12</text>
+<text class="r" x="321.44" y="104.686" font-size="1.5" text-anchor="start" font-weight="700">TP13</text>
+<polyline class="w" stroke-width="0.25" points="314.96,106.68 320.04,106.68"/>
+<polyline class="l" stroke-width="0.18" points="312.42,93.98 312.42,94.93 300.054,94.93 300.054,93.03 312.42,93.03 312.42,93.98"/>
+<text class="l" x="306.237" y="94.435" font-size="1.25" text-anchor="middle">CHG_STATUS_N</text>
+<text class="r" x="318.9" y="91.986" font-size="1.5" text-anchor="start" font-weight="700">TP14</text>
+<polyline class="w" stroke-width="0.25" points="312.42,93.98 317.5,93.98"/>
+<polyline class="l" stroke-width="0.18" points="337.82,93.98 337.82,94.93 328.786,94.93 328.786,93.03 337.82,93.03 337.82,93.98"/>
+<text class="l" x="333.303" y="94.435" font-size="1.25" text-anchor="middle">NTC_VOLT</text>
+<text class="r" x="344.3" y="91.986" font-size="1.5" text-anchor="start" font-weight="700">TP15</text>
+<polyline class="w" stroke-width="0.25" points="337.82,93.98 342.9,93.98"/>
+<polyline class="l" stroke-width="0.18" points="337.82,119.38 337.82,120.33 329.616,120.33 329.616,118.43 337.82,118.43 337.82,119.38"/>
+<text class="l" x="333.718" y="119.835" font-size="1.25" text-anchor="middle">I2S_BCLK</text>
+<text class="r" x="344.3" y="117.386" font-size="1.5" text-anchor="start" font-weight="700">TP16</text>
+<polyline class="w" stroke-width="0.25" points="337.82,119.38 342.9,119.38"/>
+<polyline class="l" stroke-width="0.18" points="27.94,33.02 26.99,33.97 21.282,33.97 20.332,33.02 21.282,32.07 26.99,32.07 27.94,33.02"/>
+<text class="l" x="24.136" y="33.475" font-size="1.25" text-anchor="middle">I2C_SDA</text>
+<polyline class="w" stroke-width="0.25" points="30.48,33.02 27.94,33.02"/>
+<polyline class="l" stroke-width="0.18" points="27.94,38.1 26.99,39.05 20.518,39.05 20.518,37.15 26.99,37.15 27.94,38.1"/>
+<text class="l" x="23.754" y="38.555" font-size="1.25" text-anchor="middle">I2C_SCL</text>
+<polyline class="w" stroke-width="0.25" points="30.48,38.1 27.94,38.1"/>
+<polyline class="pw" stroke-width="0.2" points="40.64,25.4 40.64,23.8"/>
+<polyline class="pw" stroke-width="0.35" points="39.54,23.8 41.74,23.8"/>
+<text class="pw" x="40.64" y="23.105" font-size="1.25" text-anchor="middle">V3V3</text>
+<polyline class="pw" stroke-width="0.2" points="55.88,25.4 55.88,23.8"/>
+<polyline class="pw" stroke-width="0.35" points="54.78,23.8 56.98,23.8"/>
+<text class="pw" x="55.88" y="23.105" font-size="1.25" text-anchor="middle">VBAT_FUSED</text>
+<polyline class="pw" stroke-width="0.2" points="71.12,25.4 71.12,23.8"/>
+<polyline class="pw" stroke-width="0.35" points="70.02,23.8 72.22,23.8"/>
+<text class="pw" x="71.12" y="23.105" font-size="1.25" text-anchor="middle">VBAT_PRE_SHUNT</text>
+<polyline class="g" stroke-width="0.2" points="55.88,45.72 55.88,46.99"/>
+<polyline class="g" stroke-width="0.25" points="57.18,46.99 54.58,46.99"/>
+<polyline class="g" stroke-width="0.25" points="56.73,47.47 55.03,47.47"/>
+<polyline class="g" stroke-width="0.25" points="56.28,47.95 55.48,47.95"/>
+<text class="g" x="55.88" y="50.275" font-size="1.25" text-anchor="middle">GND</text>
+<text class="r" x="33.02" y="45.326" font-size="1.5" text-anchor="start" font-weight="700">UMON</text>
+<text class="v" x="33.02" y="46.953" font-size="1.3" text-anchor="start">INA219AIDR</text>
+<text class="ft" x="358.1" y="18.895" font-size="1.8" text-anchor="start" font-weight="700">UAMPSupport</text>
+<text class="fn" x="371.92" y="18.786" font-size="1.5" text-anchor="start">Support</text>
+<text class="fn" x="358.1" y="21.295" font-size="1.25" text-anchor="start">The support circuit of the MAX98357AETE+T as its datashe…</text>
+<text class="ft" x="38.06" y="158.595" font-size="1.8" text-anchor="start" font-weight="700">TDBG</text>
+<text class="fn" x="44.482" y="158.486" font-size="1.5" text-anchor="start">TestPoints</text>
+<text class="fn" x="38.06" y="160.995" font-size="1.25" text-anchor="start">Test points on nets (one each)</text>
+<text class="ft" x="20.28" y="77.315" font-size="1.8" text-anchor="start" font-weight="700">Mechanical</text>
+<text class="fn" x="31.715" y="77.206" font-size="1.5" text-anchor="start"></text>
+<text class="ft" x="32.98" y="117.955" font-size="1.8" text-anchor="start" font-weight="700">UMONSupport</text>
+<text class="fn" x="47.079" y="117.846" font-size="1.5" text-anchor="start">Support</text>
+<text class="fn" x="32.98" y="120.355" font-size="1.25" text-anchor="start">The support circuit of the INA219AIDR as its datasheet s…</text>
+<text class="ft" x="271.74" y="201.775" font-size="1.8" text-anchor="start" font-weight="700">UCTRLSupport</text>
+<text class="fn" x="286.134" y="201.666" font-size="1.5" text-anchor="start">Support</text>
+<text class="fn" x="271.74" y="204.175" font-size="1.25" text-anchor="start">The support circuit of the PCF8574DWR as its datasheet shows it (8.2 typical application):…</text>
+<text class="ft" x="353.02" y="222.095" font-size="1.8" text-anchor="start" font-weight="700">TNTC</text>
+<text class="fn" x="359.489" y="221.986" font-size="1.5" text-anchor="start">TestPoints</text>
+<text class="fn" x="353.02" y="224.495" font-size="1.25" text-anchor="start">Test points on nets (one each)</text>
+<text class="ft" x="297.14" y="18.895" font-size="1.8" text-anchor="start" font-weight="700">TCHG</text>
+<text class="fn" x="303.746" y="18.786" font-size="1.5" text-anchor="start">TestPoints</text>
+<text class="fn" x="297.14" y="21.295" font-size="1.25" text-anchor="start">Test points on nets (one each)</text>
+<text class="ft" x="363.18" y="79.855" font-size="1.8" text-anchor="start" font-weight="700">TSD</text>
+<text class="fn" x="368.238" y="79.746" font-size="1.5" text-anchor="start">TestPoints</text>
+<text class="fn" x="363.18" y="82.255" font-size="1.25" text-anchor="start">Test points on nets (one each)</text>
+<text class="ft" x="297.14" y="82.395" font-size="1.8" text-anchor="start" font-weight="700">TPOWER</text>
+<text class="fn" x="306.372" y="82.286" font-size="1.5" text-anchor="start">TestPoints</text>
+<text class="fn" x="297.14" y="84.795" font-size="1.25" text-anchor="start">Test points on nets (one each)</text>
+<polyline class="w" stroke-width="0.25" points="157.48,254 138.43,254 138.43,262.89 129.54,262.89 129.54,254"/>
+<polyline class="w" stroke-width="0.25" points="132.08,195.58 130.81,195.58 130.81,248.92 135.89,248.92"/>
+<polyline class="w" stroke-width="0.25" points="251.46,127 223.52,127"/>
+<polyline class="w" stroke-width="0.25" points="314.96,106.68 284.48,106.68 284.48,80.01 281.94,80.01"/>
+<circle class="j s" cx="281.94" cy="80.01" r="0.48" stroke-width="0"/>
+<rect class="hit" x="275.26" y="235.52" width="3.2" height="1.4"><title>C1 · Capacitor 100 nF — steadies V3V3 (in UCTRLSupport · Support)</title></rect>
+<rect class="hit" x="36.5" y="133.92" width="3.2" height="1.4"><title>C2 · Capacitor 100 nF — steadies V3V3 (in UMONSupport · Support)</title></rect>
+<rect class="hit" x="364.16" y="52.64" width="3.2" height="1.4"><title>C3 · Capacitor 10 µF — steadies VBAT_FUSED (in UAMPSupport · Support)</title></rect>
+<rect class="hit" x="384.48" y="52.64" width="3.2" height="1.4"><title>C4 · Capacitor 100 nF — steadies VBAT_FUSED (in UAMPSupport · Support)</title></rect>
+<rect class="hit" x="303.2" y="144.08" width="3.2" height="1.4"><title>CBAT_INPUT · Capacitor 22 µF — steadies PACK_POS</title></rect>
+<rect class="hit" x="232.08" y="244.41" width="3.2" height="1.4"><title>CNTC · Capacitor 100 nF — filters NTC_INPUT</title></rect>
+<rect class="hit" x="183.15" y="72.36" width="2" height="4.2"><title>DCHG · LED green — lights up</title></rect>
+<rect class="hit" x="211.09" y="77.44" width="2" height="4.2"><title>DFAULT · LED red — lights up</title></rect>
+<rect class="hit" x="326.91" y="142.78" width="1.5" height="4"><title>F_BAT · Fuse PTC 1500mA — breaks on overcurrent</title></rect>
+<rect class="hit" x="36.5" y="84.76" width="3.2" height="3.2"><title>H1 · Mounting hole — for a screw</title></rect>
+<rect class="hit" x="23.8" y="84.76" width="3.2" height="3.2"><title>H2 · Mounting hole — for a screw</title></rect>
+<rect class="hit" x="23.8" y="94.92" width="3.2" height="3.2"><title>H3 · Mounting hole — for a screw</title></rect>
+<rect class="hit" x="36.5" y="94.92" width="3.2" height="3.2"><title>H4 · Mounting hole — for a screw</title></rect>
+<rect class="hit" x="162.56" y="154.94" width="5.08" height="7.62"><title>JASK · Connector, 2 pins</title></rect>
+<rect class="hit" x="309.88" y="160.02" width="5.08" height="7.62"><title>JBAT · Connector, 2 pins</title></rect>
+<rect class="hit" x="353.06" y="142.24" width="5.08" height="10.16"><title>JBAT_XIAO · Connector, 3 pins</title></rect>
+<rect class="hit" x="137.16" y="187.96" width="5.08" height="10.16"><title>JFLASH · Connector, 2 pins</title></rect>
+<rect class="hit" x="256.54" y="124.46" width="5.08" height="7.62"><title>JPHOTO · Connector, 2 pins</title></rect>
+<rect class="hit" x="342.9" y="165.1" width="5.08" height="10.16"><title>JSPK · Connector, 2 pins</title></rect>
+<rect class="hit" x="146.05" y="98.349" width="7.061" height="6.502"><title>QCHG · NPN small-signal transistor, 40 V, 200 mA, hFE 100-300 at 10 mA, SOT-23 (the SM…</title></rect>
+<rect class="hit" x="133.32" y="251.5" width="4.4" height="5"><title>QFLASH · N-channel MOSFET AO3400A — a switch</title></rect>
+<rect class="hit" x="275.59" y="83.109" width="7.061" height="6.502"><title>QUSB · NPN small-signal transistor, 40 V, 200 mA, hFE 100-300 at 10 mA, SOT-23 (the SM…</title></rect>
+<rect class="hit" x="286.22" y="215.17" width="1.6" height="4"><title>R1 · Resistor 4.7 kΩ — pulls I2C_SDA up to V3V3 (in UCTRLSupport · Support)</title></rect>
+<rect class="hit" x="309.08" y="235.49" width="1.6" height="4"><title>R2 · Resistor 4.7 kΩ — pulls I2C_SCL up to V3V3 (in UCTRLSupport · Support)</title></rect>
+<rect class="hit" x="324.32" y="215.17" width="1.6" height="4"><title>R3 · Resistor 10 kΩ — pulls PCF_INT up to V3V3 (in UCTRLSupport · Support)</title></rect>
+<rect class="hit" x="60.16" y="132.62" width="1.6" height="4"><title>R4 · Resistor 100 mΩ — between VBAT_PRE_SHUNT and VBAT_FUSED (in UMONSupport · Support)</title></rect>
+<rect class="hit" x="370.04" y="32.29" width="1.6" height="4"><title>R5 · Resistor 634 kΩ — pulls Net-(R5-1) up to V3V3 (in UAMPSupport · Support)</title></rect>
+<rect class="hit" x="184.62" y="85.63" width="1.6" height="4"><title>RASK · Resistor 10 kΩ — pulls ASK_N up to V3V3</title></rect>
+<rect class="hit" x="113.5" y="95.79" width="1.6" height="4"><title>RCHGDEFAULT · Resistor 100 kΩ — pulls CHG_SOURCE up to VBUS</title></rect>
+<rect class="hit" x="121.19" y="100.8" width="4" height="1.6"><title>RCHGIN · Resistor 100 kΩ — divides the voltage at CHG_SOURCE</title></rect>
+<rect class="hit" x="174.46" y="67.85" width="1.6" height="4"><title>RCHGLED · Resistor 330 Ω — limits the LED's current</title></rect>
+<rect class="hit" x="138.9" y="103.41" width="1.6" height="4"><title>RCHGPD · Resistor 100 kΩ — pulls CHG_BASE down</title></rect>
+<rect class="hit" x="210.02" y="88.17" width="1.6" height="4"><title>RCHGPU · Resistor 10 kΩ — pulls CHG_STATUS_N up to V3V3</title></rect>
+<rect class="hit" x="220.18" y="72.93" width="1.6" height="4"><title>RFAULT · Resistor 1 kΩ — limits the LED's current</title></rect>
+<rect class="hit" x="128.74" y="184.69" width="1.6" height="4"><title>RFLASH · Resistor 47 Ω — pulls FLASH_ANODE up to VBAT_FUSED</title></rect>
+<rect class="hit" x="177.07" y="253.2" width="4" height="1.6"><title>RGATE · Resistor 100 Ω — in series, FLASH_GPIO to FLASH_GATE</title></rect>
+<rect class="hit" x="169.38" y="255.81" width="1.6" height="4"><title>RGPULL · Resistor 100 kΩ — pulls FLASH_GATE down</title></rect>
+<rect class="hit" x="217.64" y="235.49" width="1.6" height="4"><title>RNTC · Resistor 10 kΩ — pulls NTC_INPUT up to V3V3</title></rect>
+<rect class="hit" x="207.55" y="240.5" width="4" height="1.6"><title>RNTCSER · Resistor 1 kΩ — divides the voltage at NTC_INPUT</title></rect>
+<rect class="hit" x="210.02" y="121.19" width="1.6" height="4"><title>RPHOTO · Resistor 10 kΩ — pulls PHOTO_N up to V3V3</title></rect>
+<rect class="hit" x="210.02" y="103.41" width="1.6" height="4"><title>RSDCD · Resistor 10 kΩ — pulls SD_CD_N up to V3V3</title></rect>
+<rect class="hit" x="268.44" y="80.55" width="1.6" height="4"><title>RUSBIN · Resistor 22 kΩ — divides the voltage at USB_BASE</title></rect>
+<rect class="hit" x="253.2" y="88.17" width="1.6" height="4"><title>RUSBPD · Resistor 100 kΩ — divides the voltage at USB_BASE</title></rect>
+<rect class="hit" x="210.02" y="50.07" width="1.6" height="4"><title>RUSBPU · Resistor 10 kΩ — pulls USB_PRESENT_N up to V3V3</title></rect>
+<rect class="hit" x="370.14" y="245.68" width="1.4" height="1.4"><title>TP1 · Test point — probe NTC_INPUT (in TNTC · TestPoints)</title></rect>
+<rect class="hit" x="357.44" y="230.44" width="1.4" height="1.4"><title>TP2 · Test point — probe GND (in TNTC · TestPoints)</title></rect>
+<rect class="hit" x="314.26" y="42.48" width="1.4" height="1.4"><title>TP3 · Test point — probe CHG_SOURCE (in TCHG · TestPoints)</title></rect>
+<rect class="hit" x="299.02" y="27.24" width="1.4" height="1.4"><title>TP4 · Test point — probe GND (in TCHG · TestPoints)</title></rect>
+<rect class="hit" x="377.76" y="103.44" width="1.4" height="1.4"><title>TP5 · Test point — probe SD_CD_N (in TSD · TestPoints)</title></rect>
+<rect class="hit" x="365.06" y="88.2" width="1.4" height="1.4"><title>TP6 · Test point — probe GND (in TSD · TestPoints)</title></rect>
+<rect class="hit" x="52.64" y="166.94" width="1.4" height="1.4"><title>TP7 · Test point — probe V3V3 (in TDBG · TestPoints)</title></rect>
+<rect class="hit" x="39.94" y="166.94" width="1.4" height="1.4"><title>TP8 · Test point — probe GND (in TDBG · TestPoints)</title></rect>
+<rect class="hit" x="301.56" y="217.74" width="1.4" height="1.4"><title>TP9 · Test point — probe I2C_SDA (in TDBG · TestPoints)</title></rect>
+<rect class="hit" x="324.42" y="238.06" width="1.4" height="1.4"><title>TP10 · Test point — probe I2C_SCL (in TDBG · TestPoints)</title></rect>
+<rect class="hit" x="316.8" y="116.14" width="1.4" height="1.4"><title>TP11 · Test point — probe VBUS (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="304.1" y="116.14" width="1.4" height="1.4"><title>TP12 · Test point — probe VBAT_FUSED (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="319.34" y="103.44" width="1.4" height="1.4"><title>TP13 · Test point — probe USB_PRESENT_N (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="316.8" y="90.74" width="1.4" height="1.4"><title>TP14 · Test point — probe CHG_STATUS_N (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="342.2" y="90.74" width="1.4" height="1.4"><title>TP15 · Test point — probe NTC_VOLT (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="342.2" y="116.14" width="1.4" height="1.4"><title>TP16 · Test point — probe I2S_BCLK (in TPOWER · TestPoints)</title></rect>
+<rect class="hit" x="71.12" y="208.28" width="20.32" height="25.4"><title>UAMP · MAX98357A I2S digital-input class-D mono amplifier, 3.2 W into 4 Ω at 5 V, 2.5-…</title></rect>
+<rect class="hit" x="193.04" y="27.94" width="10.16" height="109.22"><title>UCTRL · 8-bit quasi-bidirectional I2C I/O expander, 2.5-6 V, addresses 0x20-0x27 by A2-…</title></rect>
+<rect class="hit" x="33.02" y="27.94" width="45.72" height="15.24"><title>UMON · INA219 high-side current, bus voltage and power monitor, I2C (addresses 0x40-0x…</title></rect>
+<rect class="hit" x="187.96" y="215.9" width="10.16" height="55.88"><title>UXIAO · Chip</title></rect>
+</svg>
