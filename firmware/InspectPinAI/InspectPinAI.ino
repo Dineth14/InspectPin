@@ -6,6 +6,7 @@ void setup() {
   uint32_t started=millis(); while (!Serial && millis()-started<2000) delay(10);
   // The normal PHOTO/ASK workflows include bounded camera, SD and HTTP calls.
   // Keep the loop task supervised, while allowing those calls to finish.
+  Serial.println("BOOT: setup start");
   enableLoopWDT();
   esp_task_wdt_config_t watchdogConfig = {
     .timeout_ms = 30000,

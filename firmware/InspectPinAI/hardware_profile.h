@@ -4,7 +4,32 @@
 // Reconciled Rev E specification. Physical enabling remains gated until the
 // missing KiCad source is reviewed and the assembled nets are continuity-tested.
 namespace HardwareProfile {
-#if defined(IP_USE_REV_N_CONFIG)
+#if defined(IP_USE_SINGLE_LAYER_CONFIG)
+// Latest single-layer PCB. No PCF8574, INA219, NTC, flashlight, haptic or
+// battery ADC. Both buttons have 10k external pull-ups and short to GND.
+// D8/D9/D10 are reserved for the Sense board microSD and must not be used.
+constexpr int speakerBclkGpio = 1;     // XIAO D0, MAX98357A BCLK
+constexpr int speakerLrclkGpio = 2;    // XIAO D1, MAX98357A LRC/WS
+constexpr int speakerDataGpio = 4;     // XIAO D3, MAX98357A DIN
+constexpr int askButtonGpio = 5;       // XIAO D4, LOW pressed, deep-sleep wake (RTC GPIO)
+constexpr int ampOffGpio = 6;          // XIAO D5, HIGH = amplifier off, LOW = on
+constexpr int photoButtonGpio = 44;    // XIAO D7, LOW pressed (awake only)
+constexpr int buttonPinMode = INPUT;   // External pull-ups; no internal pull needed.
+constexpr int pcfInterruptGpio = -1;
+constexpr int batteryAdcGpio = -1;
+constexpr int pcfSdaGpio = -1;
+constexpr int pcfSclGpio = -1;
+constexpr int ntcGpio = -1;
+constexpr int flashlightGpio = -1;
+constexpr int hapticGpio = -1;
+constexpr int reservedGpio = -1;
+constexpr uint8_t pcfAddress = 0x20;
+constexpr uint8_t ina219Address = 0x40;
+// PCF8574 bit names kept only so unused modules still compile.
+constexpr uint8_t pcfFlashlight = 0, pcfVibration = 1, pcfAskButton = 2, pcfStatusLed = 2;
+constexpr uint8_t pcfPhotoButton = 3, pcfUsbPresentN = 4, pcfChargeFullN = 5, pcfChargeN = 5;
+constexpr uint8_t pcfChargeValidN = 6, pcfSpare = 7, pcfFaultLed = 7, pcfCardDetectN = 7;
+#elif defined(IP_USE_REV_N_CONFIG)
 // Rev N values reconciled against the KiCad PCB/netlist and PCBKit source
 // supplied in REV N/ on 2026-11-05. Quasi-bidirectional inputs stay HIGH.
 constexpr int askButtonGpio = -1;      // ASK is PCF8574 P1. GPIO3 is reserved.
@@ -64,10 +89,15 @@ constexpr int hapticGpio = 44;
 constexpr int reservedGpio = -1;
 #endif
 
+#if defined(IP_USE_SINGLE_LAYER_CONFIG)
+static_assert(askButtonGpio==5 && photoButtonGpio==44 && ampOffGpio==6, "Single-layer button/amp pin mismatch");
+static_assert(speakerBclkGpio==1 && speakerLrclkGpio==2 && speakerDataGpio==4, "Single-layer I2S pin mismatch");
+#else
 #if !defined(IP_USE_REV_N_CONFIG)
 static_assert(askButtonGpio != batteryAdcGpio, "ASK and battery ADC conflict");
 static_assert(pcfInterruptGpio != batteryAdcGpio, "PCF INT and battery ADC conflict");
 #endif
 static_assert(pcfSdaGpio != pcfSclGpio, "I2C SDA/SCL conflict");
+#endif
 }
 

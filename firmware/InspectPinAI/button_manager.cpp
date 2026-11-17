@@ -2,7 +2,7 @@
 #include "config.h"
 #include "pcf8574_manager.h"
 void ButtonManager::initialize(Input &input,int pin) {
-  pinMode(pin,INPUT_PULLUP);
+  pinMode(pin,Config::buttonMode);
   input.raw=input.stable=digitalRead(pin);
   input.changed=input.pressed=millis();
   input.armed=false; // A button held at startup must not trigger on release.

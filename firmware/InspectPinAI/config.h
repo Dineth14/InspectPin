@@ -1,6 +1,12 @@
 #pragma once
 #include <Arduino.h>
-#if defined(IP_USE_REV_N_CONFIG)
+#if defined(IP_USE_SINGLE_LAYER_CONFIG)
+#if __has_include("config.local.h")
+#include "config.local.h"
+#else
+#include "config.single_layer.example.h"
+#endif
+#elif defined(IP_USE_REV_N_CONFIG)
 #include "config.revn.example.h"
 #elif defined(IP_USE_REV_E_CANDIDATE_CONFIG)
 #include "config.rev_e.example.h"
@@ -111,7 +117,14 @@ constexpr int battery = HardwareProfile::batteryAdcGpio;
 constexpr int pcfInterrupt = HardwareProfile::pcfInterruptGpio;
 // Legacy direct pins exist only for old bench builds. Reconciled hardware uses
 // PCF8574 P0/P1 through fail-safe inverters and PHOTO on P3.
-constexpr int light = HardwareProfile::flashlightGpio, haptic = HardwareProfile::hapticGpio, cameraButton = 6;
+#if defined(IP_USE_SINGLE_LAYER_CONFIG)
+constexpr int cameraButton = HardwareProfile::photoButtonGpio, ampOff = HardwareProfile::ampOffGpio;
+constexpr int buttonMode = HardwareProfile::buttonPinMode;
+#else
+constexpr int cameraButton = 6, ampOff = -1;
+constexpr int buttonMode = INPUT_PULLUP;
+#endif
+constexpr int light = HardwareProfile::flashlightGpio, haptic = HardwareProfile::hapticGpio;
 constexpr int ntc = HardwareProfile::ntcGpio;
 constexpr uint32_t sampleRate = 16000;
 constexpr uint32_t recordSeconds = IP_RECORD_SECONDS;
@@ -137,5 +150,16 @@ static_assert(!(IP_PCF8574_ENABLED && IP_CAMERA_BUTTON_ENABLED),
 static_assert(button < 0, "Rev N ASK is on PCF8574; GPIO3 is reserved");
 static_assert(bclk == 43 && ws == 44 && dout == 2, "Rev N MAX98357A pin mismatch");
 static_assert(light == 4 && ntc == 1, "Rev N flashlight/NTC pin mismatch");
+#endif
+#if defined(IP_USE_SINGLE_LAYER_CONFIG)
+static_assert(button == 5 && cameraButton == 44 && ampOff == 6,
+              "Single-layer direct control pin mismatch");
+static_assert(bclk == 1 && ws == 2 && dout == 4,
+              "Single-layer MAX98357A pin mismatch");
+static_assert(sdSCK == 7 && sdMISO == 8 && sdMOSI == 9 && sdCS == 21,
+              "Sense microSD pins must remain reserved");
+static_assert(!IP_PCF8574_ENABLED && !IP_BATTERY_ENABLED &&
+              !IP_CHARGE_DECODER_ENABLED,
+              "Single-layer PCB exposes no PCF/battery/charger-status input");
 #endif
 }

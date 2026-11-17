@@ -73,15 +73,25 @@ void App::fail(const String &error,bool offline) {
 }
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
-  EventLog::begin();
-  state(AppState::INITIALIZING); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
+  Serial.println("BOOT: eventlog");EventLog::begin();Serial.println("BOOT: amp");
+  state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
+  #if defined(IP_USE_SINGLE_LAYER_CONFIG)
+  // This board revision has an approved, fixed 120-second idle policy. Do not
+  // let an older NVS value from a different prototype silently disable it.
+  Power::setIdleTimeout(IP_IDLE_TIMEOUT_MS);
+  #else
   Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
+  #endif
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
+  #if defined(IP_USE_SINGLE_LAYER_CONFIG)
+  Serial.println("Single-layer PCB: ASK=GPIO5 (D4, wake), PHOTO=GPIO44 (D7), AMP_OFF=GPIO6 (D5), I2S BCLK/LRC/DIN=GPIO1/2/4");
+  #else
   if(IP_PCF8574_ENABLED)Serial.println("Buttons: PHOTO=PCF8574 P0, ASK=PCF8574 P1; GPIO3 reserved");
   else Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Legacy bench buttons: D2/GPIO3=voice, D5/GPIO6=camera" : "ASK button: D2/GPIO3; PHOTO unavailable until PCF8574 is verified");
+  #endif
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
   Video::recoverIncomplete();
@@ -195,7 +205,12 @@ void App::handleCommand(const DeviceCommand &command) {
           Serial.printf("COMMAND_FAILED request=%s error=POWER_FEATURE_DISABLED actual=%s\n",command.requestId.c_str(),names[int(state_)]);
           EventLog::record(EventCode::OPERATION_FAILED,"POWER_FEATURE_DISABLED");
         }
-        sdReady_=Store::begin(); SettingsStore::begin();Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
+        sdReady_=Store::begin(); SettingsStore::begin();
+        #if defined(IP_USE_SINGLE_LAYER_CONFIG)
+        Power::setIdleTimeout(IP_IDLE_TIMEOUT_MS);
+        #else
+        Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
+        #endif
       }
       break;
     case CommandType::STATUS_GET: {auto video=Video::stats();Serial.printf("STATE %s heap=%u psram=%u connected=%s light=%s brightness=%u haptic=%s volume=%u video=%s frames=%lu dropped=%lu bytes=%lu\n",names[int(state_)],ESP.getFreeHeap(),ESP.getFreePsram(),runtime_.current().flags.connected?"yes":"no",Illumination::state().actual?"on":"off",Illumination::state().brightness,Feedback::hapticEnabled()?"on":"off",playbackVolume(),video.active?"recording":"idle",(unsigned long)video.frames,(unsigned long)video.dropped,(unsigned long)video.bytes);break;}
@@ -225,7 +240,7 @@ void App::tick() {
       char cmd=Serial.read();
       if(cmd=='d') {
         if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK PCF/P1=%s PHOTO PCF/P0=%s PCF_INT=%s (pressed=LOW)\n",Expander::askPressed()?"LOW":"HIGH",Expander::photoPressed()?"LOW":"HIGH",Config::pcfInterrupt<0?"not-routed":(digitalRead(Config::pcfInterrupt)?"HIGH":"LOW"));
-        else Serial.printf("Legacy buttons: D2/GPIO3=%s D5/GPIO6=%s direct-photo=%s (pressed=LOW)\n",digitalRead(Config::button)?"HIGH":"LOW",digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
+        else Serial.printf("Buttons: ASK/GPIO%d=%s PHOTO/GPIO%d=%s direct-photo=%s (pressed=LOW)\n",Config::button,digitalRead(Config::button)?"HIGH":"LOW",Config::cameraButton,digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
       }
       else handleCommand(Commands::fromSerial(cmd));
     }

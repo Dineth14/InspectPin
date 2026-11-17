@@ -3,3 +3,4 @@
 bool playWav(const String &path);
 void setPlaybackVolume(uint8_t percent);
 uint8_t playbackVolume();
+namespace Amp { void begin(); void enable(bool on); void shutdownForSleep(); }

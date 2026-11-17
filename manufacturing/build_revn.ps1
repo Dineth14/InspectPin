@@ -3,7 +3,9 @@ param(
   [string]$Output = "$PSScriptRoot\output"
 )
 $ErrorActionPreference = "Stop"
-$fqbn = "esp32:esp32:XIAO_ESP32S3:PSRAM=opi,USBMode=hwcdc,CDCOnBoot=cdc,FlashSize=8M,PartitionScheme=default_8MB"
+# In the XIAO ESP32-S3 board definition, the menu key `default` means CDC
+# enabled and `cdc` means disabled. Keep native USB diagnostics enabled.
+$fqbn = "esp32:esp32:XIAO_ESP32S3:PSRAM=opi,USBMode=hwcdc,CDCOnBoot=default,FlashSize=8M,PartitionScheme=default_8MB"
 $expectedCore = "3.3.12"
 $root = (Resolve-Path "$PSScriptRoot\..").Path
 $core = & $ArduinoCli core list | Select-String '^esp32:esp32\s+' | ForEach-Object { ($_ -split '\s+')[1] }

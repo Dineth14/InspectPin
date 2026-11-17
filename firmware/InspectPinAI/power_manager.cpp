@@ -5,6 +5,7 @@
 #include <driver/rtc_io.h>
 #include "hardware_profile.h"
 #include "pcf8574_manager.h"
+#include "audio_player.h"
 
 namespace { uint32_t lastActivity=0,idleTimeout=IP_IDLE_TIMEOUT_MS; const char *cause="power-on/reset"; }
 
@@ -24,6 +25,7 @@ bool Power::idleExpired() { return IP_POWER_MANAGEMENT_ENABLED && idleTimeout>0 
 const char *Power::wakeCause() { return cause; }
 bool Power::enterLightSleep() {
   if (!IP_POWER_MANAGEMENT_ENABLED) return false;
+  if(HardwareProfile::askButtonGpio<0)return false;
   if(digitalRead(HardwareProfile::askButtonGpio)==LOW)return false;
   gpio_wakeup_enable(gpio_num_t(HardwareProfile::askButtonGpio),GPIO_INTR_LOW_LEVEL);
   if(IP_PCF8574_ENABLED){if(!Expander::prepareForSleep()||digitalRead(HardwareProfile::pcfInterruptGpio)==LOW)return false;gpio_wakeup_enable(gpio_num_t(HardwareProfile::pcfInterruptGpio),GPIO_INTR_LOW_LEVEL);}
@@ -36,11 +38,14 @@ bool Power::enterLightSleep() {
 }
 bool Power::enterDeepSleep(const char *reason) {
   if (!IP_POWER_MANAGEMENT_ENABLED) { Serial.println("Deep sleep disabled until wake hardware is validated"); return false; }
+  if(HardwareProfile::askButtonGpio<0){Serial.println("Deep sleep unavailable: no direct ASK wake GPIO");return false;}
   WiFi.disconnect(true); WiFi.mode(WIFI_OFF);
   if(digitalRead(HardwareProfile::askButtonGpio)==LOW)return false;
   uint64_t wakeMask=1ULL<<HardwareProfile::askButtonGpio;
   if(IP_PCF8574_ENABLED){if(!Expander::prepareForSleep()||digitalRead(HardwareProfile::pcfInterruptGpio)==LOW)return false;wakeMask|=1ULL<<HardwareProfile::pcfInterruptGpio;}
   esp_sleep_enable_ext1_wakeup_io(wakeMask,ESP_EXT1_WAKEUP_ANY_LOW);
+  // Shut the MAX98357A down only after every sleep precondition passed.
+  Amp::shutdownForSleep();
   Serial.printf("Entering deep sleep: %s\n",reason?reason:"requested"); Serial.flush();
   esp_deep_sleep_start(); return true;
 }
