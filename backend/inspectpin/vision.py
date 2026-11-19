@@ -9,7 +9,7 @@ from typing import Protocol
 from PIL import Image
 
 from .errors import ServiceError
-from .llm_providers import extract_answer, messages_for, post_json
+from .llm_providers import AnthropicProvider, extract_answer, messages_for, post_json
 
 VISION_SYSTEM = (
     "You are InspectPin AI, a wearable engineering inspection assistant. "
@@ -83,10 +83,27 @@ class Vision:
                 "model": s.vision_model, "stream": False, "options": {"num_predict": 220},
                 "messages": messages}, s.request_timeout)
             return extract_answer(result, True)
-        messages[-1]["content"] = [{"type": "text", "text": question},
-                                   {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + encoded}}]
-        result = post_json("https://api.openai.com/v1/chat/completions", {
-            "model": s.vision_model, "max_completion_tokens": 300,
-            "messages": messages},
+        if s.vision_provider == "anthropic":
+            anthropic_messages = [item for item in messages[1:]
+                                  if item.get("role") in ("user", "assistant")]
+            anthropic_messages[-1]["content"] = [
+                {"type": "image", "source": {
+                    "type": "base64", "media_type": "image/jpeg", "data": encoded,
+                }},
+                {"type": "text", "text": question},
+            ]
+            result = post_json("https://api.anthropic.com/v1/messages", {
+                "model": s.vision_model, "max_tokens": 300,
+                "system": VISION_SYSTEM, "messages": anthropic_messages,
+            }, s.request_timeout, headers={
+                "x-api-key": s.anthropic_api_key,
+                "anthropic-version": "2023-06-01",
+            })
+            return AnthropicProvider.extract(result)
+        messages[-1]["content"] = [{"type": "input_text", "text": question},
+                                   {"type": "input_image", "image_url": "data:image/jpeg;base64," + encoded}]
+        result = post_json("https://api.openai.com/v1/responses", {
+            "model": s.vision_model, "max_output_tokens": 300,
+            "input": messages},
             s.request_timeout, s.openai_api_key)
         return extract_answer(result)

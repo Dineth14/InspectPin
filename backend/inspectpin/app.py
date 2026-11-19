@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from werkzeug.exceptions import HTTPException
 
 from .config import Settings
+from .ai_configuration import AIConfigurationManager
 from .errors import ServiceError
 from .job_manager import JobManager
 from .pipeline import Services
@@ -21,9 +22,13 @@ def create_app(settings=None, services=None):
     app.config.update(SETTINGS=settings, MAX_CONTENT_LENGTH=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes))
     services = services or Services.create(settings)
     app.extensions["services"] = services
-    app.extensions["jobs"] = JobManager(settings, Storage(settings.data_dir), services)
     app.extensions["product_store"] = ProductStore(settings.data_dir, settings.user_session_seconds)
-    app.extensions["product_jobs"] = ProductJobManager(app.extensions["product_store"], services, settings)
+    app.extensions["ai_configuration"] = AIConfigurationManager(
+        settings, app.extensions["product_store"], services)
+    app.extensions["jobs"] = JobManager(
+        settings, Storage(settings.data_dir), app.extensions["ai_configuration"])
+    app.extensions["product_jobs"] = ProductJobManager(
+        app.extensions["product_store"], app.extensions["ai_configuration"], settings)
     app.register_blueprint(api)
     app.register_blueprint(product)
 

@@ -27,7 +27,7 @@ class _InspectPinAppState extends State<InspectPinApp> {
   @override
   void initState() {
     super.initState();
-    Future.wait([api.restore(), storage.read(key: 'inspectpin_onboarded'), Future<void>.delayed(const Duration(milliseconds: 650))]).then((values) {
+    Future.wait([api.initialize(), storage.read(key: 'inspectpin_onboarded'), Future<void>.delayed(const Duration(milliseconds: 650))]).then((values) {
       if (mounted) setState(() { signedIn = values[0] == true; onboarded = values[1] == 'true'; loading = false; });
     });
   }

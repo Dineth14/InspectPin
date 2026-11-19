@@ -4,6 +4,9 @@
 #define IP_WIFI_SSID "YOUR_HOTSPOT"
 #define IP_WIFI_PASSWORD ""
 #define IP_SERVER_URL "http://192.168.1.2:5000"
+// For an Internet backend, use https:// and provide the server chain's trusted
+// root CA PEM as a raw string literal. Never use setInsecure() in production.
+#define IP_SERVER_CA_CERT ""
 #define IP_DEVICE_TOKEN ""
 #define IP_DEVICE_ID ""
 #define IP_RECORD_SECONDS 5

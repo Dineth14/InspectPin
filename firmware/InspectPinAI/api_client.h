@@ -14,4 +14,8 @@ bool uploadImage(const String &path, SessionContext &context, String &error);
 bool session(SessionContext &context, String &error, bool clear=false);
 bool poll(const String &job, JobResult &result, String &error);
 bool download(const String &job, const String &destination, String &error);
+bool heartbeat(const String &state, String &error);
+bool pollRemoteCommand(DeviceCommand &command, String &remoteId, bool &available, String &error);
+bool acknowledgeRemoteCommand(const String &remoteId, const String &status,
+                              const String &actualState, const String &errorCode="");
 }

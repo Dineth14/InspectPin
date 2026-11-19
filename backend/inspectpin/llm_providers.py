@@ -21,10 +21,13 @@ def messages_for(text, history=None, system=SYSTEM):
             {"role": "user", "content": text}]
 
 
-def post_json(url, payload, timeout, key=""):
-    headers = {"Authorization": "Bearer " + key} if key else {}
+def post_json(url, payload, timeout, key="", headers=None):
+    request_headers = dict(headers or {})
+    if key:
+        request_headers["Authorization"] = "Bearer " + key
     try:
-        response = requests.post(url, json=payload, headers=headers, timeout=(5, timeout), allow_redirects=False)
+        response = requests.post(url, json=payload, headers=request_headers,
+                                 timeout=(5, timeout), allow_redirects=False)
     except requests.Timeout as exc:
         raise ServiceError("PROVIDER_TIMEOUT", "AI provider timed out") from exc
     except requests.RequestException as exc:
@@ -41,7 +44,17 @@ def post_json(url, payload, timeout, key=""):
 
 def extract_answer(data, ollama=False):
     try:
-        result = data["message"]["content"] if ollama else data["choices"][0]["message"]["content"]
+        if ollama:
+            result = data["message"]["content"]
+        elif isinstance(data.get("output_text"), str):
+            result = data["output_text"]
+        elif "output" in data:
+            result = next(
+                part["text"] for item in data["output"] if item.get("type") == "message"
+                for part in item.get("content", []) if part.get("type") == "output_text"
+            )
+        else:
+            result = data["choices"][0]["message"]["content"]
         if not isinstance(result, str) or not result.strip():
             raise ValueError()
         # Hard bound on speech length in addition to the instruction and token cap.
@@ -74,16 +87,49 @@ class CloudProvider:
     def answer(self, text, history=None):
         s = self.settings
         openai = s.llm_provider == "openai"
-        url = "https://api.openai.com/v1/chat/completions" if openai else "https://api.deepseek.com/chat/completions"
-        payload = {"model": s.llm_model, "stream": False,
-                   "messages": messages_for(text, history)}
-        payload["max_completion_tokens" if openai else "max_tokens"] = 300
-        if not openai:
-            payload["thinking"] = {"type": "disabled"}
+        url = "https://api.openai.com/v1/responses" if openai else "https://api.deepseek.com/chat/completions"
+        if openai:
+            payload = {"model": s.llm_model, "input": messages_for(text, history),
+                       "max_output_tokens": 300}
+        else:
+            payload = {"model": s.llm_model, "stream": False, "max_tokens": 300,
+                       "messages": messages_for(text, history),
+                       "thinking": {"type": "disabled"}}
         return extract_answer(post_json(url, payload, s.request_timeout,
                                        s.openai_api_key if openai else s.deepseek_api_key))
 
 
+class AnthropicProvider:
+    def __init__(self, settings):
+        self.settings = settings
+
+    @staticmethod
+    def extract(data):
+        try:
+            parts = data["content"]
+            answer = "".join(part["text"] for part in parts if part.get("type") == "text").strip()
+            if not answer:
+                raise ValueError()
+            return answer[:1200]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ServiceError("PROVIDER_RESPONSE", "Anthropic returned no usable answer") from exc
+
+    def answer(self, text, history=None):
+        s = self.settings
+        messages = [item for item in messages_for(text, history)[1:]
+                    if item.get("role") in ("user", "assistant")]
+        result = post_json("https://api.anthropic.com/v1/messages", {
+            "model": s.llm_model, "max_tokens": 300,
+            "system": SYSTEM, "messages": messages,
+        }, s.request_timeout, headers={
+            "x-api-key": s.anthropic_api_key,
+            "anthropic-version": "2023-06-01",
+        })
+        return self.extract(result)
+
+
 def make_llm(settings):
     return {"mock": MockLLM, "ollama": lambda: OllamaProvider(settings),
-            "openai": lambda: CloudProvider(settings), "deepseek": lambda: CloudProvider(settings)}[settings.llm_provider]()
+            "openai": lambda: CloudProvider(settings),
+            "anthropic": lambda: AnthropicProvider(settings),
+            "deepseek": lambda: CloudProvider(settings)}[settings.llm_provider]()

@@ -22,7 +22,10 @@ class Settings:
     llm_model: str = "llama3.2:3b"
     ollama_url: str = "http://127.0.0.1:11434"
     openai_api_key: str = ""
+    anthropic_api_key: str = ""
     deepseek_api_key: str = ""
+    config_encryption_key: str = ""
+    deployment_mode: str = "development"
     tts_provider: str = "piper"
     piper_model: Path = Path("models/en_US-lessac-medium.onnx")
     tts_gain: float = 0.50
@@ -64,9 +67,9 @@ class Settings:
     def validate(self):
         for name, allowed in {
             "stt_provider": {"mock", "whisper"},
-            "llm_provider": {"mock", "ollama", "openai", "deepseek"},
+            "llm_provider": {"mock", "ollama", "openai", "anthropic", "deepseek"},
             "tts_provider": {"mock", "piper"},
-            "vision_provider": {"none", "mock", "ollama", "openai"},
+            "vision_provider": {"none", "mock", "ollama", "openai", "anthropic"},
         }.items():
             if getattr(self, name) not in allowed:
                 raise ValueError(f"Invalid {name}")
@@ -90,8 +93,12 @@ class Settings:
             raise ValueError("llama3.2 is text-only; use a vision model such as qwen2.5vl:3b")
         if self.conversation_max_turns > 20 or self.vision_max_image_bytes > 16*1024*1024 or self.vision_context_seconds > 86400:
             raise ValueError("Limits: 20 turns, 16 MiB JPEG uploads, and 86400 seconds image context")
-        if self.llm_provider in ("openai", "deepseek"):
+        if self.deployment_mode not in ("development", "production", "test"):
+            raise ValueError("DEPLOYMENT_MODE must be development, production or test")
+        if self.llm_provider in ("openai", "anthropic", "deepseek"):
             if not getattr(self, self.llm_provider + "_api_key") or self.llm_model.startswith("llama"):
                 raise ValueError("Cloud provider needs its API key and an explicit LLM_MODEL")
         if self.vision_provider == "openai" and not self.openai_api_key:
             raise ValueError("OpenAI vision needs OPENAI_API_KEY")
+        if self.vision_provider == "anthropic" and not self.anthropic_api_key:
+            raise ValueError("Anthropic vision needs ANTHROPIC_API_KEY")

@@ -76,3 +76,28 @@ class DashboardData {
   final List<DeviceSummary> devices;
   final List<InspectionSummary> inspections;
 }
+
+class AiConfiguration {
+  const AiConfiguration({
+    required this.llmProvider, required this.llmModel,
+    required this.visionProvider, required this.visionModel,
+    required this.ollamaUrl, required this.hasOpenAiKey,
+    required this.hasAnthropicKey, required this.hasDeepSeekKey,
+    required this.llmProviders, required this.visionProviders,
+  });
+  final String llmProvider, llmModel, visionProvider, visionModel, ollamaUrl;
+  final bool hasOpenAiKey, hasAnthropicKey, hasDeepSeekKey;
+  final List<String> llmProviders, visionProviders;
+  factory AiConfiguration.fromJson(Map<String, dynamic> json) => AiConfiguration(
+    llmProvider: json['llm_provider']?.toString() ?? 'ollama',
+    llmModel: json['llm_model']?.toString() ?? '',
+    visionProvider: json['vision_provider']?.toString() ?? 'none',
+    visionModel: json['vision_model']?.toString() ?? '',
+    ollamaUrl: json['ollama_url']?.toString() ?? 'http://127.0.0.1:11434',
+    hasOpenAiKey: json['has_openai_key'] == true,
+    hasAnthropicKey: json['has_anthropic_key'] == true,
+    hasDeepSeekKey: json['has_deepseek_key'] == true,
+    llmProviders: (json['supported_llm_providers'] as List? ?? const []).map((e) => e.toString()).toList(),
+    visionProviders: (json['supported_vision_providers'] as List? ?? const []).map((e) => e.toString()).toList(),
+  );
+}

@@ -140,7 +140,9 @@ class JobManager:
                     if job.get("context_id"):
                         self.conversations.check_turn(job)
 
-                result = process(job, folder, self.services, self.settings, check)
+                services = (self.services.for_device(job.get("device_id"))
+                            if hasattr(self.services, "for_device") else self.services)
+                result = process(job, folder, services, self.settings, check)
                 with self.lock:
                     check()
                     if job["status"] == "processing":

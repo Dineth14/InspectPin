@@ -16,9 +16,40 @@ class ApiException implements Exception {
 
 class ApiClient {
   ApiClient({required this.baseUrl, required this.storage});
-  final String baseUrl;
+  String baseUrl;
   final FlutterSecureStorage storage;
   String? _token;
+
+  Future<bool> initialize() async {
+    final saved = await storage.read(key: 'inspectpin_api_url');
+    if (saved != null && saved.isNotEmpty) baseUrl = saved;
+    return restore();
+  }
+
+  Future<void> configureBaseUrl(String value) async {
+    final normalized = value.trim().replaceFirst(RegExp(r'/+$'), '');
+    final uri = Uri.tryParse(normalized);
+    if (uri == null || !uri.hasAuthority || (uri.scheme != 'https' && uri.scheme != 'http')) {
+      throw const ApiException('INVALID_SERVER_URL', 'Enter a valid HTTP or HTTPS backend URL', 0);
+    }
+    if (uri.userInfo.isNotEmpty || uri.path.isNotEmpty || uri.hasQuery || uri.hasFragment) {
+      throw const ApiException('INVALID_SERVER_URL', 'Use only the backend origin, without credentials or a path', 0);
+    }
+    if (uri.scheme == 'http' && !_privateHost(uri.host)) {
+      throw const ApiException('HTTPS_REQUIRED', 'Remote backends must use HTTPS', 0);
+    }
+    baseUrl = normalized;
+    await storage.write(key: 'inspectpin_api_url', value: normalized);
+  }
+
+  static bool _privateHost(String host) {
+    if (host == 'localhost' || host == '127.0.0.1' || host == '10.0.2.2') return true;
+    final parts = host.split('.').map(int.tryParse).toList();
+    if (parts.length != 4 || parts.any((part) => part == null)) return false;
+    final first = parts[0]!, second = parts[1]!;
+    return first == 10 || first == 127 || (first == 192 && second == 168) ||
+        (first == 172 && second >= 16 && second <= 31);
+  }
 
   Future<bool> restore() async {
     _token = await storage.read(key: 'inspectpin_access_token');
@@ -59,8 +90,26 @@ class ApiClient {
       InspectionSummary.fromJson(await _json('GET', '/api/v1/inspections/$id'));
 
   Future<void> requestPhoto(String id) async {
-    await _json('POST', '/api/v1/devices/$id/commands', body: {'type': 'capture_photo', 'payload': {}});
+    await sendDeviceCommand(id, 'capture_photo');
   }
+
+  Future<Map<String, dynamic>> sendDeviceCommand(String id, String type,
+          {Map<String, dynamic> payload = const {}}) async =>
+      _json('POST', '/api/v1/devices/$id/commands', body: {
+        'type': type, 'payload': payload, 'ttl_seconds': 120,
+      });
+
+  Future<Map<String, dynamic>> commandStatus(String id) async =>
+      _json('GET', '/api/v1/commands/$id');
+
+  Future<AiConfiguration> aiConfiguration() async =>
+      AiConfiguration.fromJson(await _json('GET', '/api/v1/settings/ai'));
+
+  Future<AiConfiguration> updateAiConfiguration(Map<String, dynamic> value) async =>
+      AiConfiguration.fromJson(await _json('PATCH', '/api/v1/settings/ai', body: value));
+
+  Future<Map<String, dynamic>> testAiConfiguration() async =>
+      _json('POST', '/api/v1/settings/ai/test', body: const {});
 
   Future<Map<String, dynamic>> askInspection(String id, String question) async =>
       _json('POST', '/api/v1/inspections/$id/questions', body: {'question': question});
@@ -96,7 +145,8 @@ class ApiClient {
     final uri = Uri.parse('$baseUrl$path');
     final response = switch (method) {
       'GET' => await http.get(uri, headers: headers).timeout(const Duration(seconds: 15)),
-      'POST' => await http.post(uri, headers: headers, body: body == null ? null : jsonEncode(body)).timeout(const Duration(seconds: 15)),
+      'POST' => await http.post(uri, headers: headers, body: body == null ? null : jsonEncode(body)).timeout(const Duration(seconds: 65)),
+      'PATCH' => await http.patch(uri, headers: headers, body: jsonEncode(body ?? const {})).timeout(const Duration(seconds: 20)),
       _ => throw ArgumentError('Unsupported HTTP method'),
     };
     Map<String, dynamic> value = {};

@@ -19,7 +19,8 @@ class App {
   uint32_t contextAt_=0;
   bool imagePending_=false;
   bool sdReady_=false;
-  uint32_t lastPoll_=0,jobStart_=0,retryAt_=0,lastBattery_=0;
+  uint32_t lastPoll_=0,jobStart_=0,retryAt_=0,lastBattery_=0,lastHeartbeat_=0,lastRemotePoll_=0;
+  String remoteOperationId_;
   unsigned attempts_=0;
   void state(AppState value);
   void fail(const String &error, bool offline=false);
@@ -28,6 +29,6 @@ class App {
   void syncContext(bool clear=false);
   void useContext(const SessionContext &context);
   bool idle() const;
-  void handleCommand(const DeviceCommand &command);
+  bool handleCommand(const DeviceCommand &command);
   void updateRuntimeState(AppState value);
 };

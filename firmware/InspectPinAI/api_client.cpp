@@ -3,17 +3,25 @@
 #include "wav_utils.h"
 #include <HTTPClient.h>
 #include <WiFi.h>
+#include <WiFiClientSecure.h>
 #include <ArduinoJson.h>
 #include <SD.h>
+#include "battery_monitor.h"
+#include "charge_status.h"
 namespace {
-bool start(HTTPClient &http, WiFiClient &client, const String &route) {
+struct RequestClient { WiFiClient plain; WiFiClientSecure secure; };
+bool start(HTTPClient &http, RequestClient &client, const String &route) {
   String base=IP_SERVER_URL;
-  // Trusted LAN HTTP only; no silent downgrade or insecure cloud TLS.
-  if (!base.startsWith("http://")) return false;
+  const bool tls=base.startsWith("https://");
+  if (!tls && !base.startsWith("http://")) return false;
   while (base.endsWith("/")) base.remove(base.length()-1);
   http.setConnectTimeout(Config::httpTimeoutMs); http.setTimeout(Config::httpTimeoutMs);
   http.useHTTP10(true); http.setReuse(false);
-  if (!http.begin(client,base+route)) return false;
+  if(tls){
+    if(strlen(IP_SERVER_CA_CERT)<100)return false;
+    client.secure.setCACert(IP_SERVER_CA_CERT);
+    if(!http.begin(client.secure,base+route))return false;
+  } else if (!http.begin(client.plain,base+route)) return false;
   http.addHeader("X-Device-Token",IP_DEVICE_TOKEN);
   http.addHeader("X-Device-ID",Api::deviceId()); return true;
 }
@@ -53,7 +61,7 @@ String Api::deviceId() {
 bool Api::uploadImage(const String &path, SessionContext &context, String &error) {
   File f=SD.open(path,FILE_READ);
   if (!f || !f.size() || f.size()>2097152) { f.close(); error="INVALID_IMAGE_FILE"; return false; }
-  WiFiClient client; HTTPClient http;
+  RequestClient client; HTTPClient http;
   if (!start(http,client,"/api/v1/images")) { f.close(); error="INVALID_SERVER_URL"; return false; }
   http.addHeader("Content-Type","image/jpeg");
   Serial.printf("JPEG streaming upload: %lu bytes\n",(unsigned long)f.size());
@@ -65,7 +73,7 @@ bool Api::uploadImage(const String &path, SessionContext &context, String &error
   http.end(); return ok;
 }
 bool Api::session(SessionContext &context, String &error, bool clear) {
-  WiFiClient client; HTTPClient http;
+  RequestClient client; HTTPClient http;
   if (!start(http,client,"/api/v1/session")) { error="INVALID_SERVER_URL"; return false; }
   int code=clear?http.sendRequest("DELETE"):http.GET();
   JsonDocument doc; bool ok=false;
@@ -84,7 +92,7 @@ bool Api::upload(const String &path, String &job, String &error,
   if ((imageId.length() && !validJob(imageId)) || (contextId.length() && !validJob(contextId))) {
     f.close(); error="INVALID_CONTEXT_ID"; return false;
   }
-  WiFiClient client; HTTPClient http;
+  RequestClient client; HTTPClient http;
   String route=String("/api/v1/jobs/")+(image?"image":"voice");
   if (!image) {
     route+="?";
@@ -108,7 +116,7 @@ bool Api::upload(const String &path, String &job, String &error,
 }
 bool Api::poll(const String &job, JobResult &result, String &error) {
   if (!validJob(job)) { error="INVALID_JOB_ID"; return false; }
-  WiFiClient client; HTTPClient http;
+  RequestClient client; HTTPClient http;
   if (!start(http,client,"/api/v1/jobs/"+job)) { error="INVALID_SERVER_URL"; return false; }
   int code=http.GET(); JsonDocument doc; bool ok=code==200 && jsonReply(http,doc);
   if (ok) {
@@ -139,7 +147,7 @@ bool Api::poll(const String &job, JobResult &result, String &error) {
 }
 bool Api::download(const String &job, const String &destination, String &error) {
   if (!validJob(job)) { error="INVALID_JOB_ID"; return false; }
-  WiFiClient client; HTTPClient http;
+  RequestClient client; HTTPClient http;
   if (!start(http,client,"/api/v1/jobs/"+job+"/audio")) { error="INVALID_SERVER_URL"; return false; }
   const char *keys[]={"Content-Type"}; http.collectHeaders(keys,1);
   int code=http.GET(),length=http.getSize();
@@ -166,4 +174,55 @@ bool Api::download(const String &job, const String &destination, String &error) 
   if (!ok) { SD.remove(partial); error="AUDIO_DOWNLOAD_INCOMPLETE_OR_INVALID"; }
   else Serial.printf("Answer audio downloaded: %lu bytes\n",(unsigned long)total);
   return ok;
+}
+bool Api::heartbeat(const String &state, String &error) {
+  RequestClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/device/heartbeat")) { error="INVALID_SERVER_URL"; return false; }
+  JsonDocument payload;
+  auto battery=Battery::latest(); auto charge=ChargeStatus::latest();
+  if(battery.valid){payload["battery_percent"]=battery.percent;payload["battery_voltage"]=battery.volts;}
+  else {payload["battery_percent"]=nullptr;payload["battery_voltage"]=nullptr;}
+  payload["battery_estimated"]=true;
+  const char *chargeName=ChargeStatus::name(charge.state);
+  payload["charge_state"]=String(chargeName)=="fault_unsupported"?"fault":chargeName;
+  payload["storage_total"]=uint64_t(SD.cardSize());
+  payload["storage_free"]=uint64_t(SD.cardSize()-SD.usedBytes());
+  payload["sd_present"]=SD.cardType()!=CARD_NONE;
+  payload["wifi_rssi"]=WiFi.RSSI(); payload["connection"]="wifi";
+  payload["state"]=state; payload["firmware_version"]="1.0.0";
+  String body; serializeJson(payload,body); http.addHeader("Content-Type","application/json");
+  int code=http.POST(body); JsonDocument reply;
+  bool ok=code==200&&jsonReply(http,reply)&&(reply["accepted"]|false);
+  if(!ok)error=responseError(http,code); http.end(); return ok;
+}
+bool Api::pollRemoteCommand(DeviceCommand &command, String &remoteId, bool &available, String &error) {
+  available=false; remoteId=""; command=DeviceCommand{};
+  RequestClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/device/commands")) { error="INVALID_SERVER_URL"; return false; }
+  int code=http.GET(); JsonDocument doc; bool ok=code==200&&jsonReply(http,doc);
+  if(!ok){error=responseError(http,code);http.end();return false;}
+  JsonArray items=doc["items"].as<JsonArray>();
+  if(items.size()==0){http.end();return true;}
+  JsonObject item=items[0].as<JsonObject>(); JsonObject payload=item["payload"].as<JsonObject>();
+  remoteId=item["id"].as<String>(); String type=item["command_type"].as<String>();
+  if(!validJob(remoteId)){error="INVALID_REMOTE_COMMAND_ID";http.end();return false;}
+  command.source=CommandSource::HTTP;command.requestId=String("remote-")+remoteId;
+  if(type=="capture_photo")command.type=CommandType::PHOTO_CAPTURE;
+  else if(type=="retry_upload")command.type=CommandType::RETRY;
+  else if(type=="status")command.type=CommandType::STATUS_GET;
+  else if(type=="set_flashlight") {command.type=CommandType::LIGHT_SET;command.boolValue=payload["enabled"]|false;command.intValue=payload["brightness"]|0;}
+  else if(type=="set_volume") {command.type=CommandType::VOLUME_SET;command.intValue=payload["percent"]|-1;}
+  else if(type=="vibrate") {command.type=CommandType::HAPTIC_SET;command.boolValue=payload["enabled"]|true;command.intValue=payload["intensity"]|128;}
+  else {error="UNSUPPORTED_REMOTE_COMMAND";http.end();return false;}
+  available=true;http.end();return true;
+}
+bool Api::acknowledgeRemoteCommand(const String &remoteId, const String &status,
+                                   const String &actualState, const String &errorCode) {
+  if(!validJob(remoteId))return false;
+  RequestClient client; HTTPClient http;
+  if(!start(http,client,"/api/v1/device/commands/"+remoteId+"/ack"))return false;
+  JsonDocument payload;payload["status"]=status;payload["result"]["actual_state"]=actualState;
+  if(errorCode.length())payload["result"]["error"]=errorCode;
+  String body;serializeJson(payload,body);http.addHeader("Content-Type","application/json");
+  int code=http.POST(body);http.end();return code==200;
 }

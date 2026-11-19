@@ -6,7 +6,7 @@ import requests
 
 from inspectpin.config import Settings
 from inspectpin.errors import ServiceError
-from inspectpin.llm_providers import CloudProvider, OllamaProvider, post_json
+from inspectpin.llm_providers import AnthropicProvider, CloudProvider, OllamaProvider, post_json
 from inspectpin.stt import WhisperSTT
 from inspectpin.speech_text import normalize_for_speech
 from inspectpin.tts import PiperTTS
@@ -37,16 +37,36 @@ def test_provider_request_format(monkeypatch, settings, provider):
     observed = {}
     def fake(url, **kwargs):
         observed.update(url=url, **kwargs)
-        return SimpleNamespace(status_code=200, json=lambda: {"message": {"content": "Answer"}, "choices": [{"message": {"content": "Answer"}}]})
+        return SimpleNamespace(status_code=200, json=lambda: {"message": {"content": "Answer"}, "output_text": "Answer", "choices": [{"message": {"content": "Answer"}}]})
     monkeypatch.setattr(requests, "post", fake)
     s = replace(settings, llm_provider=provider, openai_api_key="test", deepseek_api_key="test")
     p = OllamaProvider(s) if provider == "ollama" else CloudProvider(s)
     assert p.answer("Question") == "Answer"
-    assert observed["json"]["messages"][1]["content"] == "Question"
+    request_messages = observed["json"]["input"] if provider == "openai" else observed["json"]["messages"]
+    assert request_messages[1]["content"] == "Question"
     assert observed["timeout"] == (5, 60)
     assert observed["allow_redirects"] is False
     if provider != "ollama":
         assert observed["headers"]["Authorization"] == "Bearer test"
+
+
+def test_anthropic_text_request_format(monkeypatch, settings):
+    observed = {}
+    def fake(url, **kwargs):
+        observed.update(url=url, **kwargs)
+        return SimpleNamespace(status_code=200, json=lambda: {
+            "content": [{"type": "text", "text": "Claude answer"}],
+        })
+    monkeypatch.setattr(requests, "post", fake)
+    provider = AnthropicProvider(replace(
+        settings, llm_provider="anthropic", llm_model="claude-test",
+        anthropic_api_key="anthropic-secret"))
+    assert provider.answer("Question") == "Claude answer"
+    assert observed["url"] == "https://api.anthropic.com/v1/messages"
+    assert observed["headers"]["x-api-key"] == "anthropic-secret"
+    assert observed["headers"]["anthropic-version"] == "2023-06-01"
+    assert observed["json"]["system"]
+    assert observed["json"]["messages"][-1] == {"role": "user", "content": "Question"}
 
 
 def test_whisper_consumes_generator(settings):
@@ -91,6 +111,42 @@ def test_vision_sends_pixels(monkeypatch, settings, tmp_path):
     vision = Vision(replace(settings, vision_provider="ollama", vision_model="explicit-vision-model"))
     assert vision.analyze(path, "Describe") == "Uncertain"
     assert captured["json"]["messages"][1]["images"][0].startswith("/9j/")
+
+
+def test_openai_vision_uses_responses_api(monkeypatch, settings, tmp_path):
+    captured = {}
+    def fake(url, **kwargs):
+        captured.update(url=url, **kwargs)
+        return SimpleNamespace(status_code=200, json=lambda: {"output_text": "Visible rating"})
+    monkeypatch.setattr(requests, "post", fake)
+    path = tmp_path / "image.jpg"
+    path.write_bytes(jpeg())
+    vision = Vision(replace(settings, vision_provider="openai", vision_model="gpt-vision-test",
+                            openai_api_key="openai-secret"))
+    assert vision.analyze(path, "Read it") == "Visible rating"
+    assert captured["url"] == "https://api.openai.com/v1/responses"
+    content = captured["json"]["input"][-1]["content"]
+    assert content[0]["type"] == "input_text"
+    assert content[1]["type"] == "input_image"
+
+
+def test_anthropic_vision_sends_base64_image(monkeypatch, settings, tmp_path):
+    captured = {}
+    def fake(url, **kwargs):
+        captured.update(url=url, **kwargs)
+        return SimpleNamespace(status_code=200, json=lambda: {
+            "content": [{"type": "text", "text": "Visible label"}],
+        })
+    monkeypatch.setattr(requests, "post", fake)
+    path = tmp_path / "image.jpg"
+    path.write_bytes(jpeg())
+    vision = Vision(replace(settings, vision_provider="anthropic", vision_model="claude-vision-test",
+                            anthropic_api_key="anthropic-secret"))
+    assert vision.analyze(path, "Read it") == "Visible label"
+    content = captured["json"]["messages"][-1]["content"]
+    assert content[0]["type"] == "image"
+    assert content[0]["source"]["media_type"] == "image/jpeg"
+    assert content[0]["source"]["data"].startswith("/9j/")
 
 
 @pytest.mark.parametrize("changes", [{"queue_size": 0}, {"job_timeout": -1}, {"tts_gain": 2}, {"host": "0.0.0.0"},

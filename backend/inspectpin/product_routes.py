@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import io
+import hmac
 import json
 import re
 import time
@@ -44,7 +45,16 @@ def user_id() -> str:
 def device_auth() -> dict:
     ident = request.headers.get("X-Device-ID", "")
     token = request.headers.get("X-Device-Token", "")
-    return store().authenticate_device(ident, token)
+    try:
+        return store().authenticate_device(ident, token)
+    except ServiceError:
+        settings = current_app.config["SETTINGS"]
+        # Development bridge for the already-deployed shared-token firmware.
+        # Production requires the unique token returned by pairing/provisioning.
+        if (settings.deployment_mode == "development" and settings.device_token and
+                hmac.compare_digest(token.encode(), settings.device_token.encode())):
+            return store().registered_device(ident)
+        raise
 
 
 @product.get("/api/v1/health")
@@ -92,6 +102,21 @@ def logout():
 @product.get("/api/v1/auth/me")
 def me():
     return jsonify(store().user(user_id()))
+
+
+@product.get("/api/v1/settings/ai")
+def ai_configuration():
+    return jsonify(current_app.extensions["ai_configuration"].public(user_id()))
+
+
+@product.patch("/api/v1/settings/ai")
+def update_ai_configuration():
+    return jsonify(current_app.extensions["ai_configuration"].update(user_id(), json_body()))
+
+
+@product.post("/api/v1/settings/ai/test")
+def test_ai_configuration():
+    return jsonify(current_app.extensions["ai_configuration"].test_connection(user_id()))
 
 
 @product.post("/api/v1/devices/pair")
@@ -146,6 +171,23 @@ def issue_command(ident):
     return jsonify(store().create_command(owner, ident, str(data.get("type", "")),
                                           data.get("payload") if isinstance(data.get("payload"), dict) else {},
                                           int(data.get("ttl_seconds", 120)))), 201
+
+
+@product.get("/api/v1/devices/<ident>/commands")
+def device_commands(ident):
+    owner = user_id()
+    store().device(owner, ident)
+    limit = max(1, min(int(request.args.get("limit", 50)), 100))
+    rows = store().db.execute(
+        "SELECT * FROM device_commands WHERE device_id=? AND owner_id=? ORDER BY created_at DESC LIMIT ?",
+        (ident, owner, limit),
+    ).fetchall()
+    return jsonify(items=[store()._command(row) for row in rows])
+
+
+@product.get("/api/v1/commands/<ident>")
+def command_status(ident):
+    return jsonify(store().command(user_id(), ident))
 
 
 @product.post("/api/v1/device/heartbeat")

@@ -19,6 +19,11 @@
 #ifndef IP_DEVICE_ID
 #define IP_DEVICE_ID ""
 #endif
+#ifndef IP_SERVER_CA_CERT
+// Required when IP_SERVER_URL uses HTTPS. Supply a trusted PEM root CA in
+// private configuration; the firmware never silently disables verification.
+#define IP_SERVER_CA_CERT ""
+#endif
 #ifndef IP_CAMERA_BUTTON_ENABLED
 #define IP_CAMERA_BUTTON_ENABLED false
 #endif

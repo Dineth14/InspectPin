@@ -76,6 +76,21 @@ def image_upload():
     data = body_bytes("image/jpeg", s.vision_max_image_bytes)
     info = validate_jpeg(data)
     result = current_app.extensions["jobs"].conversations.upload(owner, data, info)
+    product_store = current_app.extensions["product_store"]
+    product_owner = product_store.owner_for_device(owner)
+    if product_owner:
+        inspection = product_store.create_inspection(product_owner, owner, "InspectPin camera capture")
+        product_store.save_media(product_owner, inspection["id"], "image", "image/jpeg", data)
+        try:
+            current_app.extensions["product_jobs"].submit_analysis(
+                product_owner, inspection["id"], "Describe the visible equipment and state uncertainty.",
+                "camera-" + result["image_id"],
+            )
+        except ServiceError:
+            # Conversation capture remains valid even if the product-analysis
+            # queue is full; the app can retry analysis explicitly.
+            pass
+        result["inspection_id"] = inspection["id"]
     response = jsonify(result)
     response.status_code = 201
     response.headers["Location"] = "/api/v1/images/" + result["image_id"]

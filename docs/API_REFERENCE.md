@@ -13,10 +13,44 @@ command must carry a non-empty `request_id`. Required types include
 The result schema contains `request_id`, `status`, `error_code`, and
 `actual_state`. Current deterministic rejections include
 `REQUEST_ID_REQUIRED`, `INITIALIZING`, `CRITICAL_BATTERY`, `DEVICE_BUSY`,
-`SLEEP_DEFERRED`, and `VIDEO_NOT_RECORDING`. The future authenticated HTTP
-endpoint must use this same contract; Phase 1 does not claim that endpoint or
-mutating-command idempotency exists yet. Free-form AI output never enters the
+`SLEEP_DEFERRED`, and `VIDEO_NOT_RECORDING`. The authenticated product API now
+queues the allow-listed subset described below. Firmware polls, validates each
+typed command again, and acknowledges it. Free-form AI output never enters the
 dispatcher.
+
+## Account, remote-control and AI configuration API
+
+User routes use `Authorization: Bearer <access token>`. Device routes use a
+stable `X-Device-ID` and unique `X-Device-Token`. Development mode temporarily
+accepts the configured shared token for an already registered device;
+production mode does not.
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/v1/auth/register` | Create workspace account and session |
+| POST | `/api/v1/auth/login` | Create authenticated session |
+| GET | `/api/v1/auth/me` | Read current account |
+| POST | `/api/v1/devices/pair` | Register a device; returns its credential once |
+| GET | `/api/v1/devices` | Device presence and telemetry |
+| POST | `/api/v1/device/heartbeat` | Device telemetry; expected every 30 seconds |
+| POST | `/api/v1/devices/{id}/commands` | Queue an allow-listed remote command |
+| GET | `/api/v1/commands/{id}` | Poll command acknowledgement/result |
+| GET | `/api/v1/device/commands` | Device polls pending commands |
+| POST | `/api/v1/device/commands/{id}/ack` | Device accepts/completes/rejects a command |
+| GET | `/api/v1/settings/ai` | Read provider/model selection and key-presence flags |
+| PATCH | `/api/v1/settings/ai` | Change text/vision provider, model and optional secret |
+| POST | `/api/v1/settings/ai/test` | Make one explicit text-provider connectivity test |
+
+Remote command types are `capture_photo`, `retry_upload`, `status`,
+`set_flashlight`, `set_volume`, and `vibrate`. A paired camera upload is also
+mirrored into the owner's inspection library and queued for visual analysis.
+
+AI configuration supports Ollama, OpenAI API, Anthropic Claude API and DeepSeek
+for text; vision supports Ollama, OpenAI and Anthropic. Provider secrets are
+write-only: responses expose only key-presence booleans. They are encrypted
+with Fernet. Production startup requires `CONFIG_ENCRYPTION_KEY`; development
+creates a local key under `DATA_DIR`. Changes affect subsequent jobs without a
+backend restart.
 
 ### Deterministic voice routing
 

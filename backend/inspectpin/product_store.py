@@ -134,12 +134,22 @@ class ProductStore:
                     target_type TEXT NOT NULL, target_id TEXT, created_at REAL NOT NULL,
                     metadata TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS ai_configurations (
+                    owner_id TEXT PRIMARY KEY,
+                    llm_provider TEXT NOT NULL, llm_model TEXT NOT NULL,
+                    vision_provider TEXT NOT NULL, vision_model TEXT NOT NULL,
+                    ollama_url TEXT NOT NULL,
+                    openai_key BLOB, anthropic_key BLOB, deepseek_key BLOB,
+                    updated_at REAL NOT NULL,
+                    FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE CASCADE
+                );
                 CREATE INDEX IF NOT EXISTS ix_devices_owner ON devices(owner_id);
                 CREATE INDEX IF NOT EXISTS ix_devices_last_seen ON devices(last_seen);
                 CREATE INDEX IF NOT EXISTS ix_inspections_owner_created ON inspections(owner_id, created_at DESC);
                 CREATE INDEX IF NOT EXISTS ix_media_inspection ON media(inspection_id);
                 CREATE INDEX IF NOT EXISTS ix_commands_device_status ON device_commands(device_id, status, created_at);
                 INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(1, strftime('%s','now'));
+                INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(2, strftime('%s','now'));
                 """
             )
 
@@ -208,6 +218,45 @@ class ProductStore:
         result["preferences"] = json.loads(result["preferences"])
         return result
 
+    def ai_configuration(self, owner_id: str) -> dict | None:
+        with self.lock:
+            self.user(owner_id)
+            row = self.db.execute("SELECT * FROM ai_configurations WHERE owner_id=?", (owner_id,)).fetchone()
+            return dict(row) if row else None
+
+    def save_ai_configuration(self, owner_id: str, value: dict) -> dict:
+        with self.lock, self.db:
+            self.user(owner_id)
+            self.db.execute(
+                """INSERT INTO ai_configurations
+                   (owner_id,llm_provider,llm_model,vision_provider,vision_model,ollama_url,
+                    openai_key,anthropic_key,deepseek_key,updated_at)
+                   VALUES(?,?,?,?,?,?,?,?,?,?)
+                   ON CONFLICT(owner_id) DO UPDATE SET
+                    llm_provider=excluded.llm_provider,llm_model=excluded.llm_model,
+                    vision_provider=excluded.vision_provider,vision_model=excluded.vision_model,
+                    ollama_url=excluded.ollama_url,openai_key=excluded.openai_key,
+                    anthropic_key=excluded.anthropic_key,deepseek_key=excluded.deepseek_key,
+                    updated_at=excluded.updated_at""",
+                (owner_id, value["llm_provider"], value["llm_model"], value["vision_provider"],
+                 value["vision_model"], value["ollama_url"], value.get("openai_key"),
+                 value.get("anthropic_key"), value.get("deepseek_key"), _now()),
+            )
+            self.audit(owner_id, "ai.configuration.update", "user", owner_id, {
+                "llm_provider": value["llm_provider"], "llm_model": value["llm_model"],
+                "vision_provider": value["vision_provider"], "vision_model": value["vision_model"],
+            })
+            return dict(self.db.execute("SELECT * FROM ai_configurations WHERE owner_id=?", (owner_id,)).fetchone())
+
+    def owner_for_device(self, device_id: str | None) -> str | None:
+        if not device_id:
+            return None
+        with self.lock:
+            row = self.db.execute(
+                "SELECT owner_id FROM devices WHERE id=? AND revoked_at IS NULL", (device_id,)
+            ).fetchone()
+            return row["owner_id"] if row else None
+
     def pair_device(self, owner_id: str, device_id: str, name: str, model: str,
                     hardware_revision: str, firmware_version: str) -> dict:
         if not device_id or len(device_id) > 64 or not all(c.isalnum() or c in "-_" for c in device_id):
@@ -232,6 +281,13 @@ class ProductStore:
             row = self.db.execute("SELECT * FROM devices WHERE id=? AND revoked_at IS NULL", (device_id,)).fetchone()
             if row is None or not secrets.compare_digest(row["token_hash"], self._token_hash(token)):
                 raise ServiceError("DEVICE_UNAUTHORIZED", "Valid per-device credentials required", 401)
+            return dict(row)
+
+    def registered_device(self, device_id: str) -> dict:
+        with self.lock:
+            row = self.db.execute("SELECT * FROM devices WHERE id=? AND revoked_at IS NULL", (device_id,)).fetchone()
+            if row is None:
+                raise ServiceError("DEVICE_NOT_FOUND", "Device was not found", 404)
             return dict(row)
 
     @staticmethod

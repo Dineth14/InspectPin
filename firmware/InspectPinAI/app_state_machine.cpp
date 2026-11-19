@@ -18,6 +18,7 @@
 #include "media_catalog.h"
 #include "pcf8574_manager.h"
 #include "ntc_monitor.h"
+#include <WiFi.h>
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","VIDEO_RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 void App::updateRuntimeState(AppState value) {
   TopLevelState top=TopLevelState::ACTIVE;
@@ -70,6 +71,7 @@ void App::fail(const String &error,bool offline) {
   Serial.printf("Error: %s. Captures retained on SD; 'r' retries pending work.\n",error.c_str());
   EventLog::record(EventCode::OPERATION_FAILED,error);
   operation_.end(); state(offline?AppState::OFFLINE:AppState::ERROR); Feedback::signal(Feedback::Event::ERROR);
+  if(remoteOperationId_.length()){Api::acknowledgeRemoteCommand(remoteOperationId_,"failed",names[int(state_)],error);remoteOperationId_="";}
 }
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
@@ -145,14 +147,14 @@ void App::retry() {
   Serial.printf("Retrying saved input: %s\n",path_.c_str());
   state(job_.length()?AppState::WAITING_FOR_AI:AppState::UPLOADING);
 }
-void App::handleCommand(const DeviceCommand &command) {
+bool App::handleCommand(const DeviceCommand &command) {
   DispatchDecision decision=CommandDispatcher::validate(command,runtime_.current(),operation_);
   if(!decision.accepted) {
     if(command.type!=CommandType::NONE) {
       Serial.printf("COMMAND_REJECTED request=%s error=%s actual=%s\n",command.requestId.c_str(),decision.errorCode,names[int(state_)]);
       EventLog::record(EventCode::COMMAND_REJECTED,String(Commands::name(command.type))+" "+decision.errorCode);
     }
-    return;
+    return false;
   }
   Power::noteActivity(); Serial.printf("COMMAND %s source=%u request=%s\n",Commands::name(command.type),unsigned(command.source),command.requestId.c_str());
   EventLog::record(EventCode::COMMAND_ACCEPTED,String(Commands::name(command.type))+" "+command.requestId);
@@ -216,6 +218,7 @@ void App::handleCommand(const DeviceCommand &command) {
     case CommandType::STATUS_GET: {auto video=Video::stats();Serial.printf("STATE %s heap=%u psram=%u connected=%s light=%s brightness=%u haptic=%s volume=%u video=%s frames=%lu dropped=%lu bytes=%lu\n",names[int(state_)],ESP.getFreeHeap(),ESP.getFreePsram(),runtime_.current().flags.connected?"yes":"no",Illumination::state().actual?"on":"off",Illumination::state().brightness,Feedback::hapticEnabled()?"on":"off",playbackVolume(),video.active?"recording":"idle",(unsigned long)video.frames,(unsigned long)video.dropped,(unsigned long)video.bytes);break;}
     default: Serial.printf("Command unsupported in current phase: %s\n",Commands::name(command.type)); break;
   }
+  return true;
 }
 void App::tick() {
   Feedback::tick();
@@ -225,6 +228,12 @@ void App::tick() {
   runtime_.flags().lightOn=Illumination::state().actual;
   runtime_.flags().hapticEnabled=Feedback::hapticEnabled();
   ButtonAction action=button_.update();
+  if(WiFi.status()==WL_CONNECTED && state_!=AppState::RECORDING && state_!=AppState::SAVING &&
+     state_!=AppState::UPLOADING && state_!=AppState::DOWNLOADING && state_!=AppState::PLAYING &&
+     millis()-lastHeartbeat_>=30000){
+    lastHeartbeat_=millis();String heartbeatError;
+    if(!Api::heartbeat(names[int(state_)],heartbeatError)&&IP_DEBUG)Serial.printf("Heartbeat failed: %s\n",heartbeatError.c_str());
+  }
   if(Video::active()) {
     if(IP_BATTERY_ENABLED&&millis()-lastBattery_>1000){lastBattery_=millis();Battery::sample();}
     Video::tick(Battery::latest().critical);
@@ -234,6 +243,15 @@ void App::tick() {
     return;
   }
   if (idle()) {
+    if(WiFi.status()==WL_CONNECTED&&millis()-lastRemotePoll_>=5000){
+      lastRemotePoll_=millis();DeviceCommand remote;String remoteId,remoteError;bool available=false;
+      if(Api::pollRemoteCommand(remote,remoteId,available,remoteError)&&available){
+        bool accepted=handleCommand(remote);
+        const bool asynchronous=remote.type==CommandType::PHOTO_CAPTURE||remote.type==CommandType::RETRY;
+        if(accepted&&asynchronous){remoteOperationId_=remoteId;Api::acknowledgeRemoteCommand(remoteId,"accepted",names[int(state_)]);}
+        else Api::acknowledgeRemoteCommand(remoteId,accepted?"completed":"rejected",names[int(state_)],accepted?"":"COMMAND_REJECTED");
+      } else if(remoteError.length()&&IP_DEBUG)Serial.printf("Remote command poll failed: %s\n",remoteError.c_str());
+    }
     if (action==ButtonAction::VOICE) handleCommand({CommandType::VOICE_START,CommandSource::BUTTON,String("button-")+millis()});
     else if (action==ButtonAction::CAMERA) handleCommand({CommandType::PHOTO_CAPTURE,CommandSource::BUTTON,String("button-")+millis()});
     if (idle() && Serial.available()) {
@@ -261,6 +279,7 @@ void App::tick() {
         return;
       }
       useContext(current); imagePending_=false; Store::complete(path_);
+      if(remoteOperationId_.length()){Api::acknowledgeRemoteCommand(remoteOperationId_,"completed","READY");remoteOperationId_="";}
       Serial.println("Image registered. Short press or send v, then ask a question about this image.");
       Feedback::pulse(); state(AppState::READY); return;
     }

@@ -58,16 +58,20 @@ class ProductJobManager:
                 job = self.store.processing_job_internal(job_id)
                 self.store.start_processing_job(job_id)
                 item = self.store.inspection(job["owner_id"], inspection_id)
+                services = (self.services.for_owner(job["owner_id"])
+                            if hasattr(self.services, "for_owner") else self.services)
                 if item.get("image_media_id"):
                     pixels, content_type = self.store.media(job["owner_id"], item["image_media_id"], content=True)
                     if content_type != "image/jpeg":
                         raise ServiceError("INVALID_IMAGE", "Inspection image is not a JPEG")
-                    answer = self.services.vision.answer(pixels, question)
+                    answer = services.vision.answer(pixels, question)
                 elif operation == "assistant":
-                    answer = self.services.llm.answer(question)
+                    answer = services.llm.answer(question)
                 else:
                     raise ServiceError("IMAGE_REQUIRED", "Upload an inspection JPEG before analysis", 409)
-                mock = self.settings.vision_provider == "mock"
+                active_settings = (self.services.settings_for_owner(job["owner_id"])
+                                   if hasattr(self.services, "settings_for_owner") else self.settings)
+                mock = active_settings.vision_provider == "mock"
                 findings = [{
                     "category": "visual_observation",
                     "description": answer,
@@ -77,8 +81,8 @@ class ProductJobManager:
                 }]
                 if operation == "analysis":
                     self.store.update_inspection(job["owner_id"], inspection_id, "completed", answer,
-                                                 findings, {"vision_provider": self.settings.vision_provider,
-                                                            "vision_model": self.settings.vision_model,
+                                                 findings, {"vision_provider": active_settings.vision_provider,
+                                                            "vision_model": active_settings.vision_model,
                                                             "simulated_result": mock,
                                                             "completed_at": time.time()})
                 elif interaction_id:
