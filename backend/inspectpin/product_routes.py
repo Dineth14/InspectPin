@@ -176,13 +176,8 @@ def issue_command(ident):
 @product.get("/api/v1/devices/<ident>/commands")
 def device_commands(ident):
     owner = user_id()
-    store().device(owner, ident)
     limit = max(1, min(int(request.args.get("limit", 50)), 100))
-    rows = store().db.execute(
-        "SELECT * FROM device_commands WHERE device_id=? AND owner_id=? ORDER BY created_at DESC LIMIT ?",
-        (ident, owner, limit),
-    ).fetchall()
-    return jsonify(items=[store()._command(row) for row in rows])
+    return jsonify(items=store().commands(owner, ident, limit))
 
 
 @product.get("/api/v1/commands/<ident>")

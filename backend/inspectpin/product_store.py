@@ -359,6 +359,15 @@ class ProductStore:
             raise ServiceError("COMMAND_NOT_FOUND", "Command was not found", 404)
         return self._command(row)
 
+    def commands(self, owner_id: str, device_id: str, limit: int = 50) -> list[dict]:
+        with self.lock:
+            self.device(owner_id, device_id)
+            rows = self.db.execute(
+                "SELECT * FROM device_commands WHERE device_id=? AND owner_id=? ORDER BY created_at DESC LIMIT ?",
+                (device_id, owner_id, max(1, min(limit, 100))),
+            ).fetchall()
+            return [self._command(row) for row in rows]
+
     def pending_commands(self, device_id: str) -> list[dict]:
         with self.lock, self.db:
             now = _now()
