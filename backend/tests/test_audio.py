@@ -5,7 +5,7 @@ import wave
 import numpy as np
 import pytest
 
-from inspectpin.audio_processing import normalize_wav, parse_wav, tone, wav_bytes
+from inspectpin.audio_processing import TTS_PEAK_LIMIT, normalize_wav, parse_wav, tone, wav_bytes
 from inspectpin.errors import ServiceError
 
 
@@ -45,7 +45,8 @@ def test_resample_stereo_and_limit(tmp_path, rate):
     normalize_wav(source, dest, gain=0.9)
     result = parse_wav(dest.read_bytes())
     assert result["bytes"] == 32044
-    assert result["peak"] <= 32700
+    assert result["peak"] <= TTS_PEAK_LIMIT
+    assert result["peak"] >= TTS_PEAK_LIMIT - 2
     spectrum = np.abs(np.fft.rfft(result["samples"]))
     assert abs(np.argmax(spectrum) - 1000) <= 1
 

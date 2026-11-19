@@ -77,7 +77,7 @@ void App::begin() {
   state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
   #if defined(IP_USE_SINGLE_LAYER_CONFIG)
-  // This board revision has an approved, fixed 120-second idle policy. Do not
+  // This board revision has an approved, fixed five-minute idle policy. Do not
   // let an older NVS value from a different prototype silently disable it.
   Power::setIdleTimeout(IP_IDLE_TIMEOUT_MS);
   #else

@@ -19,4 +19,4 @@
 #define IP_LOW_BATTERY_VOLTS 3.4f
 #define IP_POWER_MANAGEMENT_ENABLED true
 #define IP_DEEP_SLEEP_ENABLED true      // ASK (GPIO5) wakes from deep sleep
-#define IP_IDLE_TIMEOUT_MS 120000UL     // 120 s inactivity
+#define IP_IDLE_TIMEOUT_MS 300000UL     // 300 s / 5 min inactivity

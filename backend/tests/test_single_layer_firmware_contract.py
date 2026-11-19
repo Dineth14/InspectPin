@@ -43,5 +43,5 @@ def test_amplifier_polarity_and_sleep_wake_contract():
     assert "digitalWrite(Config::ampOff,on?LOW:HIGH)" in audio
     assert "Amp::shutdownForSleep();" in power
     assert "ESP_EXT1_WAKEUP_ANY_LOW" in power
-    assert "#define IP_IDLE_TIMEOUT_MS 120000UL" in profile_config
+    assert "#define IP_IDLE_TIMEOUT_MS 300000UL" in profile_config
 

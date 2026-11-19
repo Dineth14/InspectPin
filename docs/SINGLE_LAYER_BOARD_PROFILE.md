@@ -19,7 +19,7 @@ This PCB has no firmware-accessible battery measurement, USB/charger status, PCF
 
 ## Power behavior
 
-After 120 seconds without a button, serial or accepted command, the application:
+After 300 seconds (five minutes) without a button, serial or accepted command, the application:
 
 1. verifies that no capture, SD write, upload, download or playback is active;
 2. closes SD and settings storage;
@@ -54,5 +54,5 @@ For Espressif Arduino core 3.3.12's XIAO definition, `CDCOnBoot=default` is the 
 6. Run PHOTO and ASK against a reachable backend.
 7. Confirm GPIO6 is HIGH when idle, LOW only during speaker playback and HIGH afterward.
 8. Send `z`, confirm current drops, then press ASK and confirm the wake cause is the external button.
-9. Finally verify automatic sleep after 120 seconds and repeat wake at least 20 times before treating deep sleep as validated.
+9. Finally verify automatic sleep after 300 seconds and repeat wake at least 20 times before treating deep sleep as validated.
 

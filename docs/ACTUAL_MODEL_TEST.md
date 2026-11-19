@@ -3,7 +3,7 @@
 > Historical evidence: D5/GPIO6 was a direct camera button during these tests.
 > Final hardware assigns GPIO6 to battery ADC and PHOTO to PCF8574 P3.
 
-**2026-10-26 maximum-volume configuration:** Firmware playback remains at unity. Backend TTS gain is now 1.00 and its peak limit is 32700, providing approximately 6 dB above the prior 50% setting while retaining a small PCM overflow margin. Physical listening, distortion and temperature validation remain required.
+**2026-11-19 clean-speech configuration:** Firmware playback remains at unity. Near-full-scale speech (`TTS_GAIN=1.00`, peak limit 32700) was reported as very noisy on the final 8 ohm / 0.5 W speaker. After stale duplicate receivers were removed, gain 0.35 with an approximately 11500-count result was physically confirmed clear but too quiet. Backend TTS gain is now 0.50 with a hard 16000-count ceiling as the next conservative step. Final listening and temperature validation remain required.
 
 ## Latest observed results after wiring confirmation
 
