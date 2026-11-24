@@ -123,7 +123,7 @@ class AnthropicProvider:
             "system": SYSTEM, "messages": messages,
         }, s.request_timeout, headers={
             "x-api-key": s.anthropic_api_key,
-            "anthropic-version": "2023-06-01",
+            "anthropic-version": "2026-10-21",
         })
         return self.extract(result)
 

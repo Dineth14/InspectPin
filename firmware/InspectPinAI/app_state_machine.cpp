@@ -78,13 +78,7 @@ void App::begin() {
   Serial.println("BOOT: eventlog");EventLog::begin();Serial.println("BOOT: amp");
   state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
-  #if defined(IP_USE_SINGLE_LAYER_CONFIG)
-  // This board revision has an approved, fixed five-minute idle policy. Do not
-  // let an older NVS value from a different prototype silently disable it.
-  Power::setIdleTimeout(IP_IDLE_TIMEOUT_MS);
-  #else
   Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
-  #endif
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
@@ -158,17 +152,18 @@ bool App::handleCommand(const DeviceCommand &command) {
   }
   Power::noteActivity(); Serial.printf("COMMAND %s source=%u request=%s\n",Commands::name(command.type),unsigned(command.source),command.requestId.c_str());
   EventLog::record(EventCode::COMMAND_ACCEPTED,String(Commands::name(command.type))+" "+command.requestId);
+  bool succeeded=true;
   switch(command.type) {
     case CommandType::VOICE_START: capture(false); break;
     case CommandType::PHOTO_CAPTURE: capture(true); break;
     case CommandType::VIDEO_START:
-      if(!operation_.begin(OperationClass::VIDEO)){fail("DEVICE_BUSY");break;}
+      if(!operation_.begin(OperationClass::VIDEO)){succeeded=false;fail("DEVICE_BUSY");break;}
       path_=Store::newVideoPath();
       if(Video::begin(path_)){state(AppState::VIDEO_RECORDING);Feedback::signal(Feedback::Event::VIDEO_STARTED);}
-      else {Serial.printf("Video start failed: %s\n",Video::stats().error.c_str());fail(Video::stats().error);}
+      else {succeeded=false;Serial.printf("Video start failed: %s\n",Video::stats().error.c_str());fail(Video::stats().error);}
       break;
     case CommandType::VIDEO_STOP:
-      if(Video::stop("command")){Feedback::signal(Feedback::Event::VIDEO_STOPPED);state(AppState::READY);}else fail("VIDEO_STOP_FAILED");
+      if(Video::stop("command")){Feedback::signal(Feedback::Event::VIDEO_STOPPED);state(AppState::READY);}else {succeeded=false;fail("VIDEO_STOP_FAILED");}
       break;
     case CommandType::RETRY: retry(); break;
     case CommandType::CONTEXT_GET: syncContext(); break;
@@ -182,21 +177,28 @@ bool App::handleCommand(const DeviceCommand &command) {
     case CommandType::TONE_PLAY: state(AppState::PLAYING); if(playWav("/tone.wav")) state(AppState::READY); else fail("TONE_PLAYBACK_FAILED"); break;
     case CommandType::LIGHT_SET: {
       Illumination::Error lightError;
-      if(!Illumination::set(command.boolValue,command.intValue,IP_LIGHT_TIMEOUT_MS,Battery::latest().low,lightError))
-        Serial.printf("COMMAND_FAILED request=%s error=%s actual_light=%s\n",command.requestId.c_str(),Illumination::errorName(lightError),Illumination::state().actual?"on":"off");
-      else Serial.printf("COMMAND_COMPLETED request=%s actual_light=%s brightness=%u\n",command.requestId.c_str(),Illumination::state().actual?"on":"off",Illumination::state().brightness);
+      if(!Illumination::set(command.boolValue,command.intValue,IP_LIGHT_TIMEOUT_MS,Battery::latest().low,lightError)){
+        succeeded=false;Serial.printf("COMMAND_FAILED request=%s error=%s actual_light=%s\n",command.requestId.c_str(),Illumination::errorName(lightError),Illumination::state().actual?"on":"off");}
+      else {DeviceSettings settings=SettingsStore::get();settings.lightBrightness=uint8_t(command.intValue);SettingsStore::update(settings);Serial.printf("COMMAND_COMPLETED request=%s actual_light=%s brightness=%u\n",command.requestId.c_str(),Illumination::state().actual?"on":"off",Illumination::state().brightness);}
       break;
     }
     case CommandType::VOLUME_SET: {
-      if(command.intValue<0||command.intValue>100) { Serial.printf("COMMAND_FAILED request=%s error=INVALID_VOLUME\n",command.requestId.c_str()); break; }
+      if(command.intValue<0||command.intValue>100) { succeeded=false;Serial.printf("COMMAND_FAILED request=%s error=INVALID_VOLUME\n",command.requestId.c_str()); break; }
       setPlaybackVolume(uint8_t(command.intValue));
       DeviceSettings settings=SettingsStore::get();settings.volumePercent=playbackVolume();SettingsStore::update(settings);
       Serial.printf("COMMAND_COMPLETED request=%s volume=%u\n",command.requestId.c_str(),playbackVolume());break;
     }
     case CommandType::HAPTIC_SET: {
-      if(command.intValue<0||command.intValue>255){Serial.printf("COMMAND_FAILED request=%s error=INVALID_HAPTIC_INTENSITY\n",command.requestId.c_str());break;}
+      if(command.intValue<0||command.intValue>255){succeeded=false;Serial.printf("COMMAND_FAILED request=%s error=INVALID_HAPTIC_INTENSITY\n",command.requestId.c_str());break;}
       Feedback::setHaptic(command.boolValue,uint8_t(command.intValue));
+      {DeviceSettings settings=SettingsStore::get();settings.hapticEnabled=command.boolValue;SettingsStore::update(settings);}
       Serial.printf("COMMAND_COMPLETED request=%s haptic=%s intensity=%u\n",command.requestId.c_str(),Feedback::hapticEnabled()?"on":"off",Feedback::hapticIntensity());break;
+    }
+    case CommandType::SETTINGS_PATCH: {
+      if(command.intValue<30000||command.intValue>3600000){succeeded=false;Serial.printf("COMMAND_FAILED request=%s error=INVALID_IDLE_TIMEOUT\n",command.requestId.c_str());break;}
+      DeviceSettings settings=SettingsStore::get();settings.idleTimeoutMs=uint32_t(command.intValue);
+      SettingsStore::update(settings);Power::setIdleTimeout(settings.idleTimeoutMs);
+      Serial.printf("COMMAND_COMPLETED request=%s idle_timeout_ms=%lu\n",command.requestId.c_str(),(unsigned long)settings.idleTimeoutMs);break;
     }
     case CommandType::RESTART: Serial.printf("COMMAND_COMPLETED request=%s actual=RESTARTING\n",command.requestId.c_str());Serial.flush();ESP.restart();break;
     case CommandType::SLEEP:
@@ -208,17 +210,13 @@ bool App::handleCommand(const DeviceCommand &command) {
           EventLog::record(EventCode::OPERATION_FAILED,"POWER_FEATURE_DISABLED");
         }
         sdReady_=Store::begin(); SettingsStore::begin();
-        #if defined(IP_USE_SINGLE_LAYER_CONFIG)
-        Power::setIdleTimeout(IP_IDLE_TIMEOUT_MS);
-        #else
         Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
-        #endif
       }
       break;
     case CommandType::STATUS_GET: {auto video=Video::stats();Serial.printf("STATE %s heap=%u psram=%u connected=%s light=%s brightness=%u haptic=%s volume=%u video=%s frames=%lu dropped=%lu bytes=%lu\n",names[int(state_)],ESP.getFreeHeap(),ESP.getFreePsram(),runtime_.current().flags.connected?"yes":"no",Illumination::state().actual?"on":"off",Illumination::state().brightness,Feedback::hapticEnabled()?"on":"off",playbackVolume(),video.active?"recording":"idle",(unsigned long)video.frames,(unsigned long)video.dropped,(unsigned long)video.bytes);break;}
     default: Serial.printf("Command unsupported in current phase: %s\n",Commands::name(command.type)); break;
   }
-  return true;
+  return succeeded;
 }
 void App::tick() {
   Feedback::tick();

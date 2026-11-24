@@ -38,14 +38,6 @@ def classify(text: str) -> RoutedCommand | None:
         "record video": ("VIDEO_START", {}, "Starting video recording."),
         "stop video": ("VIDEO_STOP", {}, "Stopping video recording."),
         "stop recording": ("VIDEO_STOP", {}, "Stopping video recording."),
-        "light on": ("LIGHT_SET", {"enabled": True, "brightness": 255}, "Turning the light on."),
-        "turn on light": ("LIGHT_SET", {"enabled": True, "brightness": 255}, "Turning the light on."),
-        "light off": ("LIGHT_SET", {"enabled": False, "brightness": 0}, "Turning the light off."),
-        "turn off light": ("LIGHT_SET", {"enabled": False, "brightness": 0}, "Turning the light off."),
-        "haptic on": ("HAPTIC_SET", {"enabled": True, "intensity": 180}, "Enabling haptic feedback."),
-        "vibration on": ("HAPTIC_SET", {"enabled": True, "intensity": 180}, "Enabling haptic feedback."),
-        "haptic off": ("HAPTIC_SET", {"enabled": False, "intensity": 0}, "Disabling haptic feedback."),
-        "vibration off": ("HAPTIC_SET", {"enabled": False, "intensity": 0}, "Disabling haptic feedback."),
         "cancel": ("CANCEL", {}, "Cancelling the active operation."),
         "cancel operation": ("CANCEL", {}, "Cancelling the active operation."),
         "confirm sleep": ("SLEEP", {"confirmed": True}, "Entering sleep if the device is idle."),
@@ -63,12 +55,5 @@ def classify(text: str) -> RoutedCommand | None:
         if not 0 <= percent <= 100:
             return RoutedCommand(None, {}, "Volume must be between zero and one hundred percent.")
         return RoutedCommand("VOLUME_SET", {"percent": percent}, f"Setting volume to {percent} percent.")
-    brightness = re.fullmatch(r"(?:set )?light(?: brightness)?(?: to)? (\d{1,3})(?: percent)?", value)
-    if brightness:
-        percent = int(brightness.group(1))
-        if not 0 <= percent <= 100:
-            return RoutedCommand(None, {}, "Light brightness must be between zero and one hundred percent.")
-        return RoutedCommand("LIGHT_SET", {"enabled": percent > 0, "brightness": round(percent * 2.55)},
-                             f"Setting light brightness to {percent} percent.")
     return None
 

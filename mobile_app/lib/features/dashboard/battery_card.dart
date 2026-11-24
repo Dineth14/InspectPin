@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'battery_status.dart';
 
@@ -18,7 +18,8 @@ class BatteryCard extends StatelessWidget {
     final warning = switch (status.warning) {
       BatteryWarning.critical => 'Critically low — finish work and recharge',
       BatteryWarning.low => 'Low battery — recharge soon',
-      BatteryWarning.unavailable => 'Battery sensor not verified or disconnected',
+      BatteryWarning.unavailable =>
+        'Battery sensor not verified or disconnected',
       BatteryWarning.none => 'Battery estimate is within configured limits',
     };
     final charging = status.chargeValid
@@ -28,7 +29,8 @@ class BatteryCard extends StatelessWidget {
             ChargeState.battery => 'Running on battery',
             ChargeState.usbIdle => 'USB connected, not charging',
             ChargeState.fault => 'Charging fault reported',
-            ChargeState.faultUnsupported => 'Charger fault detection unsupported',
+            ChargeState.faultUnsupported =>
+              'Charger fault detection unsupported',
             ChargeState.unknown => 'Charger state unknown',
           }
         : 'Charger state unknown (not inferred from voltage)';
@@ -54,4 +56,3 @@ class BatteryCard extends StatelessWidget {
     );
   }
 }
-

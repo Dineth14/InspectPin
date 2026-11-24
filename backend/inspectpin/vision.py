@@ -97,7 +97,7 @@ class Vision:
                 "system": VISION_SYSTEM, "messages": anthropic_messages,
             }, s.request_timeout, headers={
                 "x-api-key": s.anthropic_api_key,
-                "anthropic-version": "2023-06-01",
+                "anthropic-version": "2026-10-21",
             })
             return AnthropicProvider.extract(result)
         messages[-1]["content"] = [{"type": "input_text", "text": question},

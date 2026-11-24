@@ -1,6 +1,14 @@
 enum BatteryWarning { none, low, critical, unavailable }
 
-enum ChargeState { unknown, charging, full, battery, usbIdle, fault, faultUnsupported }
+enum ChargeState {
+  unknown,
+  charging,
+  full,
+  battery,
+  usbIdle,
+  fault,
+  faultUnsupported
+}
 
 class BatteryStatus {
   const BatteryStatus({
@@ -44,16 +52,21 @@ class BatteryStatus {
       _ => ChargeState.unknown,
     };
     return BatteryStatus(
-      voltage: ((json['voltage_v'] ?? json['battery_voltage']) as num?)?.toDouble(),
-      estimatedPercent: ((json['estimated_percent'] ?? json['battery_percent']) as num?)?.toDouble(),
+      voltage:
+          ((json['voltage_v'] ?? json['battery_voltage']) as num?)?.toDouble(),
+      estimatedPercent:
+          ((json['estimated_percent'] ?? json['battery_percent']) as num?)
+              ?.toDouble(),
       uncertaintyVolts: (json['uncertainty_v'] as num?)?.toDouble() ?? 0,
       valid: json['valid'] == true || json['battery_percent'] is num,
       low: json['low'] == true,
       critical: json['critical'] == true,
       chargeState: charge,
-      chargeValid: json['charge_valid'] == true || const {'charging', 'full', 'battery', 'usb_idle', 'fault'}.contains(json['charge_state']),
+      chargeValid: json.containsKey('charge_valid')
+          ? json['charge_valid'] == true
+          : const {'charging', 'full', 'battery', 'usb_idle', 'fault'}
+              .contains(json['charge_state']),
       sampleAgeMs: (json['sample_age_ms'] as num?)?.toInt() ?? 0,
     );
   }
 }
-

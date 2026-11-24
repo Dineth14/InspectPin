@@ -114,6 +114,14 @@ def test_ownership_and_validation(factory):
     }, json={}).status_code == 401
     assert client.post("/api/v1/devices/private-device/commands", headers=owner,
                        json={"type": "erase_all", "payload": {}}).status_code == 400
+    assert client.post("/api/v1/devices/private-device/commands", headers=owner,
+                       json={"type": "set_volume", "payload": {"percent": 101}}).status_code == 400
+    assert client.post("/api/v1/devices/private-device/commands", headers=owner,
+                       json={"type": "set_flashlight", "payload": {"enabled": True, "brightness": 255}}).status_code == 400
+    assert client.post("/api/v1/devices/private-device/commands", headers=owner,
+                       json={"type": "vibrate", "payload": {"enabled": True, "intensity": 128}}).status_code == 400
+    assert client.post("/api/v1/devices/private-device/commands", headers=owner,
+                       json={"type": "set_idle_timeout", "payload": {"seconds": 300}}).status_code == 201
 
 
 def test_session_logout(factory):
@@ -123,6 +131,21 @@ def test_session_logout(factory):
     assert client.get("/api/v1/auth/me", headers=headers).status_code == 200
     assert client.post("/api/v1/auth/logout", headers=headers).status_code == 204
     assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
+
+
+def test_browser_cors_allows_only_configured_origin(factory):
+    client = factory().test_client()
+    allowed = client.options("/api/v1/auth/login", headers={
+        "Origin": "http://127.0.0.1:5173",
+        "Access-Control-Request-Method": "POST",
+    })
+    assert allowed.headers["Access-Control-Allow-Origin"] == "http://127.0.0.1:5173"
+    assert "Authorization" in allowed.headers["Access-Control-Allow-Headers"]
+    rejected = client.options("/api/v1/auth/login", headers={
+        "Origin": "https://untrusted.example",
+        "Access-Control-Request-Method": "POST",
+    })
+    assert "Access-Control-Allow-Origin" not in rejected.headers
 
 
 def test_resumable_upload_checksum_idempotency(factory):

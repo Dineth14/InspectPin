@@ -31,4 +31,3 @@ void main() {
     expect(status.chargeValid, isFalse);
   });
 }
-

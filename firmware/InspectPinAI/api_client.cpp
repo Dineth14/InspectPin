@@ -130,14 +130,7 @@ bool Api::poll(const String &job, JobResult &result, String &error) {
       result.command.source=CommandSource::VOICE;
       result.command.requestId=String("voice-")+job;
       JsonObject parameters=command["parameters"].as<JsonObject>();
-      if(result.command.type==CommandType::LIGHT_SET) {
-        result.command.boolValue=parameters["enabled"] | false;
-        result.command.intValue=parameters["brightness"] | 0;
-      } else if(result.command.type==CommandType::VOLUME_SET) result.command.intValue=parameters["percent"] | -1;
-      else if(result.command.type==CommandType::HAPTIC_SET) {
-        result.command.boolValue=parameters["enabled"] | false;
-        result.command.intValue=parameters["intensity"] | 0;
-      }
+      if(result.command.type==CommandType::VOLUME_SET) result.command.intValue=parameters["percent"] | -1;
       result.hasCommand=result.command.type!=CommandType::NONE;
     }
     ok=result.status=="queued" || result.status=="processing" || result.status=="completed" || result.status=="failed";
@@ -210,9 +203,8 @@ bool Api::pollRemoteCommand(DeviceCommand &command, String &remoteId, bool &avai
   if(type=="capture_photo")command.type=CommandType::PHOTO_CAPTURE;
   else if(type=="retry_upload")command.type=CommandType::RETRY;
   else if(type=="status")command.type=CommandType::STATUS_GET;
-  else if(type=="set_flashlight") {command.type=CommandType::LIGHT_SET;command.boolValue=payload["enabled"]|false;command.intValue=payload["brightness"]|0;}
   else if(type=="set_volume") {command.type=CommandType::VOLUME_SET;command.intValue=payload["percent"]|-1;}
-  else if(type=="vibrate") {command.type=CommandType::HAPTIC_SET;command.boolValue=payload["enabled"]|true;command.intValue=payload["intensity"]|128;}
+  else if(type=="set_idle_timeout") {command.type=CommandType::SETTINGS_PATCH;command.intValue=(payload["seconds"]|0)*1000;}
   else {error="UNSUPPORTED_REMOTE_COMMAND";http.end();return false;}
   available=true;http.end();return true;
 }

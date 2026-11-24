@@ -335,9 +335,14 @@ class ProductStore:
 
     def create_command(self, owner_id: str, device_id: str, command_type: str,
                        payload: dict, ttl: int = 120) -> dict:
-        allowed = {"capture_photo", "retry_upload", "status", "set_flashlight", "set_volume", "vibrate"}
+        allowed = {"capture_photo", "retry_upload", "status", "set_volume", "set_idle_timeout"}
         if command_type not in allowed:
             raise ServiceError("INVALID_COMMAND", "Command is not allow-listed", 400)
+        if command_type == "set_volume" and (not isinstance(payload.get("percent"), int) or not 0 <= payload["percent"] <= 100):
+            raise ServiceError("INVALID_COMMAND_PAYLOAD", "Volume percent must be an integer from 0 to 100", 400)
+        if command_type == "set_idle_timeout" and (
+                not isinstance(payload.get("seconds"), int) or not 30 <= payload["seconds"] <= 3600):
+            raise ServiceError("INVALID_COMMAND_PAYLOAD", "Idle timeout must be 30..3600 seconds", 400)
         self.device(owner_id, device_id)
         now, ident = _now(), _id()
         with self.lock, self.db:

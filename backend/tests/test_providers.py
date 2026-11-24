@@ -64,7 +64,7 @@ def test_anthropic_text_request_format(monkeypatch, settings):
     assert provider.answer("Question") == "Claude answer"
     assert observed["url"] == "https://api.anthropic.com/v1/messages"
     assert observed["headers"]["x-api-key"] == "anthropic-secret"
-    assert observed["headers"]["anthropic-version"] == "2023-06-01"
+    assert observed["headers"]["anthropic-version"] == "2026-10-21"
     assert observed["json"]["system"]
     assert observed["json"]["messages"][-1] == {"role": "user", "content": "Question"}
 

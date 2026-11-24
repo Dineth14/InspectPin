@@ -8,8 +8,6 @@ from inspectpin.command_router import classify
     ("capture image", "PHOTO_CAPTURE"),
     ("start video", "VIDEO_START"),
     ("stop recording", "VIDEO_STOP"),
-    ("turn on light", "LIGHT_SET"),
-    ("vibration off", "HAPTIC_SET"),
     ("battery level", "BATTERY_GET"),
     ("device status", "STATUS_GET"),
     ("set volume to 73 percent", "VOLUME_SET"),
@@ -27,6 +25,9 @@ def test_supported_aliases_are_typed(phrase, command):
     "Explain video compression",
     "What is the battery chemistry?",
     "Could this motor restart unexpectedly?",
+    "turn on light",
+    "vibration off",
+    "light brightness 50",
 ])
 def test_general_questions_do_not_operate_hardware(phrase):
     assert classify(phrase) is None
@@ -43,5 +44,4 @@ def test_disruptive_commands_require_explicit_confirmation():
 def test_parameters_are_bounded_and_ambiguous_phrases_are_not_commands():
     assert classify("volume 101").command is None
     assert classify("volume 100").parameters == {"percent": 100}
-    assert classify("light brightness 50").parameters == {"enabled": True, "brightness": 127}
     assert classify("delete it") is None

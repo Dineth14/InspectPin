@@ -14,8 +14,9 @@ def test_firmware_polls_authenticated_remote_control_plane():
     config = source("firmware/InspectPinAI/config.h")
     for route in ("/api/v1/device/heartbeat", "/api/v1/device/commands", "/ack"):
         assert route in api
-    for command in ("capture_photo", "retry_upload", "set_flashlight", "set_volume", "vibrate"):
+    for command in ("capture_photo", "retry_upload", "set_volume", "set_idle_timeout"):
         assert command in api
+    assert "set_flashlight" not in api and "vibrate" not in api
     assert "lastHeartbeat_" in app and "lastRemotePoll_" in app
     assert "IP_SERVER_CA_CERT" in config
     assert "setInsecure" not in api
@@ -31,4 +32,5 @@ def test_mobile_exposes_remote_controls_and_ai_configuration():
     assert "configureBaseUrl" in client and "HTTPS_REQUIRED" in client
     assert "AiConfigurationScreen" in home and "DeviceControlScreen" in home
     assert "Anthropic Claude" in ai and "OpenAI API" in ai and "Ollama (local)" in ai
-    assert "capture_photo" in controls and "set_volume" in controls
+    assert "capture_photo" in controls and "set_volume" in controls and "set_idle_timeout" in controls
+    assert "set_flashlight" not in controls and "vibrate" not in controls

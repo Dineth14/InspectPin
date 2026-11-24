@@ -6,7 +6,7 @@ All local sources use one typed contract before execution. `source` is one of
 `BUTTON`, `SERIAL_CONSOLE`, `VOICE`, `BLE`, `HTTP`, or `INTERNAL`; every valid
 command must carry a non-empty `request_id`. Required types include
 `STATUS_GET`, `VOICE_START`, `CANCEL`, `PHOTO_CAPTURE`, `VIDEO_START`,
-`VIDEO_STOP`, `LIGHT_SET`, `VOLUME_SET`, `HAPTIC_SET`, `BATTERY_GET`,
+`VIDEO_STOP`, `VOLUME_SET`, `BATTERY_GET`,
 `MEDIA_LIST`, `MEDIA_DELETE`, `SLEEP`, `RESTART`, `SETTINGS_GET`, and
 `SETTINGS_PATCH`.
 
@@ -42,8 +42,10 @@ production mode does not.
 | POST | `/api/v1/settings/ai/test` | Make one explicit text-provider connectivity test |
 
 Remote command types are `capture_photo`, `retry_upload`, `status`,
-`set_flashlight`, `set_volume`, and `vibrate`. A paired camera upload is also
-mirrored into the owner's inspection library and queued for visual analysis.
+`set_volume`, and `set_idle_timeout`. The current product has no flashlight or
+vibration actuator, and those commands are rejected. A paired camera upload is
+also mirrored into the owner's inspection library and queued for visual
+analysis.
 
 AI configuration supports Ollama, OpenAI API, Anthropic Claude API and DeepSeek
 for text; vision supports Ollama, OpenAI and Anthropic. Provider secrets are
@@ -55,7 +57,7 @@ backend restart.
 ### Deterministic voice routing
 
 After Whisper, explicit allow-listed phrases such as “take a photo,” “battery
-status,” “turn off light,” “set volume to 70 percent,” and “stop video” produce
+status,” “set volume to 70 percent,” and “stop video” produce
 a `device_command` object in the completed job. The firmware validates it again
 after speaking the acknowledgment. Sleep and restart require `confirm sleep`
 or `confirm restart`. Unmatched speech has no command object and continues to

@@ -10,8 +10,9 @@ from valid charger-state hardware.
 
 ## Commands
 
-The allow-list is `capture_photo`, `retry_upload`, `status`, `set_flashlight`,
-`set_volume` and `vibrate`. Each command has an ID, expiry, status,
+The allow-list is `capture_photo`, `retry_upload`, `status`, `set_volume` and
+`set_idle_timeout`. The current product has no flashlight or vibration
+actuator, so those command names are not accepted. Each command has an ID, expiry, status,
 acknowledgement time and result. Devices poll rather than requiring a permanent
 socket. Unsupported commands are rejected before persistence.
 
@@ -26,7 +27,7 @@ physical behavior.
 ## Integrated polling and Internet transport
 
 The application firmware sends a heartbeat every 30 seconds and polls every
-five seconds while idle. PHOTO, retry, status, flashlight, volume and haptic
+five seconds while idle. PHOTO, retry, status, volume and idle-timeout
 commands enter the same dispatcher used by buttons, serial and voice. Remote
 PHOTO is acknowledged as accepted and marked completed after the JPEG is stored
 and registered; capture failures return a failed acknowledgement. Deep sleep

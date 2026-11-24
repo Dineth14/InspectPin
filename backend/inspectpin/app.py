@@ -1,6 +1,6 @@
 import logging
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from werkzeug.exceptions import HTTPException
 
 from .config import Settings
@@ -49,6 +49,20 @@ def create_app(settings=None, services=None):
     def headers(response):
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        origin = request.headers.get("Origin", "")
+        allowed_origins = {
+            item.strip() for item in settings.cors_origin.split(",") if item.strip()
+        }
+        if origin in allowed_origins:
+            response.headers["Access-Control-Allow-Origin"] = origin
+            response.headers["Access-Control-Allow-Headers"] = (
+                "Authorization, Content-Type, Idempotency-Key, "
+                "X-Device-ID, X-Device-Token"
+            )
+            response.headers["Access-Control-Allow-Methods"] = (
+                "GET, POST, PATCH, PUT, DELETE, OPTIONS"
+            )
+            response.headers.add("Vary", "Origin")
         return response
 
     return app

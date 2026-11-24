@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'features/auth/login_screen.dart';
@@ -18,7 +18,8 @@ class InspectPinApp extends StatefulWidget {
 class _InspectPinAppState extends State<InspectPinApp> {
   static const storage = FlutterSecureStorage();
   final api = ApiClient(
-    baseUrl: const String.fromEnvironment('INSPECTPIN_API_URL', defaultValue: 'http://10.0.2.2:5000'),
+    baseUrl: const String.fromEnvironment('INSPECTPIN_API_URL',
+        defaultValue: 'http://10.0.2.2:5000'),
     storage: storage,
   );
   bool loading = true, signedIn = false, onboarded = false;
@@ -27,8 +28,18 @@ class _InspectPinAppState extends State<InspectPinApp> {
   @override
   void initState() {
     super.initState();
-    Future.wait([api.initialize(), storage.read(key: 'inspectpin_onboarded'), Future<void>.delayed(const Duration(milliseconds: 650))]).then((values) {
-      if (mounted) setState(() { signedIn = values[0] == true; onboarded = values[1] == 'true'; loading = false; });
+    Future.wait<Object?>([
+      api.initialize(),
+      storage.read(key: 'inspectpin_onboarded'),
+      Future<void>.delayed(const Duration(milliseconds: 650))
+    ]).then((values) {
+      if (mounted) {
+        setState(() {
+          signedIn = values[0] as bool;
+          onboarded = values[1] == 'true';
+          loading = false;
+        });
+      }
     });
   }
 
@@ -42,10 +53,20 @@ class _InspectPinAppState extends State<InspectPinApp> {
         home: loading
             ? const SplashScreen()
             : !onboarded
-                ? OnboardingScreen(onComplete: () async { await storage.write(key: 'inspectpin_onboarded', value: 'true'); if (mounted) setState(() => onboarded = true); })
+                ? OnboardingScreen(onComplete: () async {
+                    await storage.write(
+                        key: 'inspectpin_onboarded', value: 'true');
+                    if (mounted) setState(() => onboarded = true);
+                  })
                 : signedIn
-                ? HomeShell(api: api, themeMode: themeMode, onThemeChanged: (value) => setState(() => themeMode = value), onSignedOut: () => setState(() => signedIn = false))
-                : LoginScreen(api: api, onSignedIn: () => setState(() => signedIn = true)),
+                    ? HomeShell(
+                        api: api,
+                        themeMode: themeMode,
+                        onThemeChanged: (value) =>
+                            setState(() => themeMode = value),
+                        onSignedOut: () => setState(() => signedIn = false))
+                    : LoginScreen(
+                        api: api,
+                        onSignedIn: () => setState(() => signedIn = true)),
       );
 }
-
