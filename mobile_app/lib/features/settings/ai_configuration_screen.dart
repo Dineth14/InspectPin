@@ -21,6 +21,7 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
   final anthropicKey = TextEditingController();
   final deepSeekKey = TextEditingController();
   String llmProvider = 'ollama', visionProvider = 'ollama';
+  String mode = 'automatic';
   bool loading = true, saving = false;
   String? message;
 
@@ -47,6 +48,7 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
       if (!mounted) return;
       setState(() {
         config = value;
+        mode = value.mode;
         llmProvider = value.llmProvider;
         visionProvider = value.visionProvider;
         llmModel.text = value.llmModel;
@@ -71,6 +73,7 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
     });
     try {
       final payload = <String, dynamic>{
+        'mode': mode,
         'llm_provider': llmProvider,
         'llm_model': llmModel.text.trim(),
         'vision_provider': visionProvider,
@@ -138,11 +141,23 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
+                  if (config != null) DropdownButtonFormField<String>(
+                    initialValue: mode,
+                    decoration: const InputDecoration(labelText: 'AI operating mode'),
+                    items: const [
+                      DropdownMenuItem(value: 'automatic', child: Text('Automatic by task')),
+                      DropdownMenuItem(value: 'cloud', child: Text('Manual cloud models')),
+                      DropdownMenuItem(value: 'local', child: Text('Local Ollama')),
+                      DropdownMenuItem(value: 'offline', child: Text('Offline recording')),
+                    ],
+                    onChanged: saving ? null : (v) => setState(() => mode = v!),
+                  ),
                   if (message != null)
                     IpNotice(
                         text: message!,
                         error: message!.toLowerCase().contains('error')),
-                  IpPanel(
+                  if (config == null) OutlinedButton(onPressed: load, child: const Text('Retry settings')),
+                  if (config != null) ...[IpPanel(
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
@@ -269,7 +284,7 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                       textAlign: TextAlign.center,
                       style: const TextStyle(
                           fontSize: 10, color: IpColors.textMuted)),
-                ],
+                ]],
               ),
       );
 }

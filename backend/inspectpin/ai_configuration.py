@@ -90,6 +90,7 @@ class AIConfigurationManager:
     def public(self, owner_id: str) -> dict:
         record = self._record(owner_id)
         return {
+            "mode": record.get("mode", "automatic"),
             "llm_provider": record["llm_provider"],
             "llm_model": record["llm_model"],
             "vision_provider": record["vision_provider"],
@@ -121,13 +122,24 @@ class AIConfigurationManager:
 
     def update(self, owner_id: str, data: dict) -> dict:
         current = self._record(owner_id)
+        mode = self._text(data, "mode", current.get("mode", "automatic"))
+        if mode not in {"automatic", "cloud", "local", "offline"}:
+            raise ServiceError("INVALID_MODE", "Unknown AI operating mode", 400)
         llm_provider = self._text(data, "llm_provider", current["llm_provider"])
         vision_provider = self._text(data, "vision_provider", current["vision_provider"])
         llm_model = self._text(data, "llm_model", current["llm_model"])
         vision_model = self._text(data, "vision_model", current["vision_model"])
         ollama_url = self._validate_url(self._text(data, "ollama_url", current["ollama_url"]))
+        if self.settings.deployment_mode == "production" and ollama_url != self.settings.ollama_url.rstrip("/"):
+            raise ServiceError("INVALID_OLLAMA_URL", "Use the private model server configured by the operator", 400)
+        if vision_provider == "ollama" and vision_model.split(":")[0] == "llama3.2":
+            raise ServiceError("VISION_MODEL_REQUIRED", "Choose a vision-capable model", 400)
         if llm_provider not in PROVIDERS or vision_provider not in VISION_PROVIDERS:
             raise ServiceError("INVALID_AI_PROVIDER", "Choose a supported text and vision provider", 400)
+        if mode == "local" and (llm_provider != "ollama" or vision_provider not in {"none", "ollama"}):
+            raise ServiceError("LOCAL_PROVIDER_REQUIRED", "Select Ollama for text and Ollama or disabled for vision", 400)
+        if mode == "cloud" and (llm_provider == "ollama" or vision_provider == "ollama"):
+            raise ServiceError("CLOUD_PROVIDER_REQUIRED", "Select authorized cloud models or disable vision", 400)
         if not MODEL.fullmatch(llm_model) or (vision_provider != "none" and not MODEL.fullmatch(vision_model)):
             raise ServiceError("INVALID_AI_MODEL", "Model IDs may contain letters, numbers, dot, dash, slash, underscore and colon", 400)
 
@@ -154,6 +166,7 @@ class AIConfigurationManager:
                 raise ServiceError("PROVIDER_KEY_REQUIRED", f"A {provider.title()} API key is required", 400)
 
         self.store.save_ai_configuration(owner_id, {
+            "mode": mode,
             "llm_provider": llm_provider, "llm_model": llm_model,
             "vision_provider": vision_provider, "vision_model": vision_model,
             "ollama_url": ollama_url, **encrypted,
@@ -178,6 +191,8 @@ class AIConfigurationManager:
         if not owner_id:
             return self.default_services
         record = self._record(owner_id)
+        if record.get("mode") == "offline":
+            raise ServiceError("OFFLINE_MODE", "AI processing paused by the owner", 409)
         stamp = float(record.get("updated_at", 0.0))
         with self.lock:
             cached = self.cache.get(owner_id)

@@ -10,6 +10,7 @@ from waitress import serve
 from inspectpin.app import create_app
 from inspectpin.audio_processing import TTS_PEAK_LIMIT
 from inspectpin.config import Settings
+from inspectpin.recordings import MAX_RECORDING_BYTES
 
 
 def refuse_duplicate_server(host, port):
@@ -36,7 +37,7 @@ def main():
                  settings.tts_gain, TTS_PEAK_LIMIT, settings.vision_provider)
     try:
         serve(app, host=settings.host, port=settings.port, threads=4,
-              max_request_body_size=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes),
+              max_request_body_size=max(MAX_RECORDING_BYTES, settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes),
               channel_timeout=30)
     finally:
         app.extensions["product_jobs"].close()

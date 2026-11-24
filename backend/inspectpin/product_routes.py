@@ -13,6 +13,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 from .errors import ServiceError
 from .vision import validate_jpeg
+from . import recordings
 
 
 product = Blueprint("product", __name__)
@@ -70,6 +71,8 @@ def ready():
 
 @product.post("/api/v1/auth/register")
 def register():
+    if current_app.config["SETTINGS"].deployment_mode == "production":
+        raise ServiceError("ENROLLMENT_REQUIRED", "Ask the evaluation operator for an account", 403)
     data = json_body()
     result = store().register(str(data.get("name", "")), str(data.get("email", "")),
                               str(data.get("password", "")))
@@ -253,6 +256,19 @@ def inspections():
     return jsonify(store().inspections(owner, limit, offset, request.args.get("status")))
 
 
+@product.patch("/api/v1/inspections/<ident>/note")
+def save_note(ident):
+    owner = user_id()
+    value = json_body().get("note")
+    if not isinstance(value, str) or len(value) > 2000:
+        raise ServiceError("INVALID_NOTE", "Notes are limited to 2000 characters", 400)
+    db = store()
+    with db.lock, db.db:
+        db.inspection(owner, ident)
+        db.db.execute("INSERT OR REPLACE INTO inspection_notes VALUES(?,?)", (ident, value))
+        return jsonify(db.inspection(owner, ident))
+
+
 @product.get("/api/v1/inspections/<ident>")
 def inspection(ident):
     return jsonify(store().inspection(user_id(), ident))
@@ -307,10 +323,30 @@ def upload_media(ident):
     return jsonify(store().save_media(owner, ident, kind, content_type, data)), 201
 
 
+@product.post("/api/v1/device/recordings")
+def upload_recording():
+    device = device_auth()
+    if not request.content_length or request.content_length > recordings.MAX_RECORDING_BYTES:
+        raise ServiceError("UPLOAD_SIZE", "Recording must be 1 byte to 8 MiB", 413)
+    request.max_content_length = recordings.MAX_RECORDING_BYTES
+    data = request.get_data(cache=False)
+    meta = recordings.metadata(data, request.mimetype)
+    return jsonify(store().register_recording(device, request.headers.get("Idempotency-Key", ""),
+                                              request.mimetype, data, meta)), 201
+
+
+@product.get("/api/v1/media/<ident>/preview")
+def video_preview(ident):
+    data, mime = store().media(user_id(), ident, content=True)
+    if mime != "video/x-msvideo":
+        raise ServiceError("VIDEO_REQUIRED", "Choose a video recording", 415)
+    return send_file(recordings.preview(data), mimetype="image/gif", max_age=0)
+
+
 @product.get("/api/v1/media/<ident>")
 def media(ident):
     data, content_type = store().media(user_id(), ident, content=True)
-    suffix = "jpg" if content_type == "image/jpeg" else "wav"
+    suffix = {"image/jpeg": "jpg", "audio/wav": "wav", "video/x-msvideo": "avi"}.get(content_type, "bin")
     return send_file(io.BytesIO(data), mimetype=content_type, download_name=f"{ident}.{suffix}", max_age=0)
 
 
@@ -354,8 +390,9 @@ def inspection_pdf(item: dict, image_bytes: bytes | None) -> bytes:
         draw.rectangle((0, 0, 1240, 150), fill="#071018")
         draw.text((60, 48), "INSPECTPIN AI  /  INSPECTION REPORT", fill="#32bfae", font=font)
         y = 190
-        for line in (f"Inspection: {item['id']}", f"Device: {item['device_id'] or 'manual upload'}",
-                     f"Status: {item['status']}", f"Created: {item['created_at']}"):
+        for line in (item["title"][:75], f"Inspection: {item['id']}", f"Inspector: {item.get('inspector','')}",
+                     f"Device: {item['device_id'] or 'manual upload'}", "Received (UTC): " +
+                     time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime(item['created_at']))):
             draw.text((60, y), line, fill="#16232b", font=font)
             y += 36
         if image_bytes:
@@ -372,14 +409,20 @@ def inspection_pdf(item: dict, image_bytes: bytes | None) -> bytes:
         )
         content.extend(("", "Advisory visual analysis only. It does not replace electrical testing",
                         "or a qualified safety inspection."))
+        content.extend(("", "INSPECTOR NOTES", item.get("note") or "No notes entered.", "", "EVIDENCE REFERENCES"))
+        content.extend(f"{m['media_type']} {m['id']} ({m['byte_size']} bytes)" for m in item.get("media", []))
+        pages = [page]
         for paragraph in content:
             for line in textwrap.wrap(paragraph, 88) or [""]:
                 if y > 1680:
-                    break
+                    page = Image.new("RGB", (1240, 1754), "white")
+                    pages.append(page)
+                    draw = ImageDraw.Draw(page)
+                    y = 60
                 draw.text((60, y), line, fill="#16232b", font=font)
                 y += 34
         output = io.BytesIO()
-        page.save(output, format="PDF", resolution=150.0, title="InspectPin AI Inspection Report")
+        pages[0].save(output, format="PDF", save_all=True, append_images=pages[1:], resolution=150.0, title="InspectPin AI Inspection Report")
         return output.getvalue()
     except (OSError, ValueError):
         lines = ["InspectPin AI Inspection Report", f"Inspection ID: {item['id']}",
@@ -390,6 +433,7 @@ def inspection_pdf(item: dict, image_bytes: bytes | None) -> bytes:
 @product.get("/api/v1/inspections/<ident>/report")
 def report(ident):
     item = store().inspection(user_id(), ident)
+    item["inspector"] = store().user(item["owner_id"])["name"]
     image_bytes = None
     if item.get("image_media_id"):
         image_bytes, _ = store().media(item["owner_id"], item["image_media_id"], content=True)

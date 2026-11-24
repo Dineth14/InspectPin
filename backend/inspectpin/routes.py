@@ -44,8 +44,12 @@ def accepted(job):
 @api.before_request
 def authenticate():
     if request.path.startswith("/api/"):
-        token = current_app.config["SETTINGS"].device_token
+        settings = current_app.config["SETTINGS"]
+        token = settings.device_token
         provided = request.headers.get("X-Device-Token", "")
+        if settings.deployment_mode == "production":
+            current_app.extensions["product_store"].authenticate_device(device_id(True), provided)
+            return
         if token and hmac.compare_digest(provided.encode(), token.encode()):
             return
         ident = request.headers.get("X-Device-ID", "")
@@ -112,7 +116,11 @@ def image_content(ident):
 def session():
     owner = device_id(True)
     conversations = current_app.extensions["jobs"].conversations
-    return jsonify(conversations.clear(owner) if request.method == "DELETE" else conversations.status(owner))
+    result = conversations.clear(owner) if request.method == "DELETE" else conversations.status(owner)
+    store = current_app.extensions["product_store"]
+    uid = store.owner_for_device(owner)
+    result["offline_recording"] = bool(uid and (store.ai_configuration(uid) or {}).get("mode") == "offline")
+    return jsonify(result)
 
 
 @api.post("/api/v1/jobs/question")

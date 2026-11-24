@@ -55,6 +55,8 @@ class InspectionSummary {
     required this.findings,
     required this.imageMediaId,
     required this.interactions,
+    this.recordings = const [],
+    this.note = '',
   });
   final String id, title, status, summary;
   final DateTime createdAt;
@@ -62,6 +64,8 @@ class InspectionSummary {
   final List<Finding> findings;
   final String? imageMediaId;
   final List<InspectionInteraction> interactions;
+  final List<Map<String, dynamic>> recordings;
+  final String note;
   factory InspectionSummary.fromJson(Map<String, dynamic> json) =>
       InspectionSummary(
         id: json['id'] as String,
@@ -76,6 +80,11 @@ class InspectionSummary {
             .map(Finding.fromJson)
             .toList(),
         imageMediaId: json['image_media_id'] as String?,
+        note: json['note'] as String? ?? '',
+        recordings: (json['media'] as List? ?? const [])
+            .whereType<Map<String, dynamic>>()
+            .where((m) => ['audio/wav', 'video/x-msvideo'].contains(m['content_type']))
+            .toList(),
         interactions: (json['voice_interactions'] as List? ?? const [])
             .whereType<Map<String, dynamic>>()
             .map(InspectionInteraction.fromJson)
@@ -108,6 +117,7 @@ class DashboardData {
 
 class AiConfiguration {
   const AiConfiguration({
+    this.mode = 'automatic',
     required this.llmProvider,
     required this.llmModel,
     required this.visionProvider,
@@ -120,10 +130,12 @@ class AiConfiguration {
     required this.visionProviders,
   });
   final String llmProvider, llmModel, visionProvider, visionModel, ollamaUrl;
+  final String mode;
   final bool hasOpenAiKey, hasAnthropicKey, hasDeepSeekKey;
   final List<String> llmProviders, visionProviders;
   factory AiConfiguration.fromJson(Map<String, dynamic> json) =>
       AiConfiguration(
+        mode: json['mode'] as String? ?? 'automatic',
         llmProvider: json['llm_provider']?.toString() ?? 'ollama',
         llmModel: json['llm_model']?.toString() ?? '',
         visionProvider: json['vision_provider']?.toString() ?? 'none',

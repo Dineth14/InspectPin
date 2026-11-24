@@ -17,6 +17,11 @@ bool Wifi::connect() {
     Serial.println("Wi-Fi unavailable; SD input retained");
     return false;
   }
+  if (String(IP_SERVER_URL).startsWith("https://")) {
+    configTime(0, 0, "pool.ntp.org", "time.google.com");
+    struct tm clockTime;
+    if (!getLocalTime(&clockTime, 4000)) Serial.println("Waiting for network time for TLS");
+  }
   Serial.printf("Wi-Fi connected IP=%s RSSI=%d\n",WiFi.localIP().toString().c_str(),WiFi.RSSI()); return true;
 }
 void Wifi::scan() {

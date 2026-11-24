@@ -4,7 +4,10 @@
 #include <ESP_I2S.h>
 #include <SD.h>
 #include <cmath>
-bool recordWav(const String &path) {
+bool recordWav(const String &path, ButtonManager *noteControls) {
+  const uint32_t seconds = noteControls ? 60 : Config::recordSeconds;
+  const uint32_t target = seconds * 32000;
+  if (noteControls && SD.totalBytes()-SD.usedBytes() < target+65536) return false;
   I2SClass mic;
   mic.setPinsPdmRx(Config::micClock,Config::micData);
   if (!mic.begin(I2S_MODE_PDM_RX,16000,I2S_DATA_BIT_WIDTH_16BIT,I2S_SLOT_MODE_MONO)) {
@@ -13,10 +16,17 @@ bool recordWav(const String &path) {
   File f=SD.open(path,FILE_WRITE);
   if (!f || !Wav::writeHeader(f,0)) { f.close(); mic.end(); return false; }
   Serial.println("Microphone recording started");
-  const uint32_t target=Config::recordSeconds*32000;
+  bool stopped = false;
   uint32_t written=0, started=millis(); int peak=0; double squares=0;
   int16_t buf[512]; bool ok=true;
-  while (written<target && millis()-started<Config::recordSeconds*1000+3000) {
+  while (written<target && millis()-started<seconds*1000+3000) {
+    if (noteControls) {
+      feedLoopWDT();
+      if (noteControls->update() == ButtonAction::AUDIO_NOTE && written) {
+        stopped = true;
+        break;
+      }
+    }
     size_t got=0, want=min(size_t(target-written),sizeof(buf));
     esp_err_t err=i2s_channel_read(mic.rxChan(),buf,want,&got,500);
     if (err!=ESP_OK || !got || got%2) { ok=false; break; }
@@ -26,7 +36,7 @@ bool recordWav(const String &path) {
     delay(1);
   }
   // Keep even a partial recording for diagnosis; only complete captures are uploaded.
-  ok=Wav::writeHeader(f,written) && ok && written==target;
+  ok=Wav::writeHeader(f,written) && ok && (written==target || stopped);
   f.flush(); f.close(); mic.end();
   Serial.printf("WAV saved: %s bytes=%lu peak=%d RMS=%.1f complete=%s\n",path.c_str(),(unsigned long)(written+44),peak,written?sqrt(squares/(written/2)):0,ok?"yes":"no");
   return ok;

@@ -25,6 +25,8 @@ class App {
   void state(AppState value);
   void fail(const String &error, bool offline=false);
   void capture(bool image);
+  void queueRecording();
+  void recordNote();
   void retry();
   void syncContext(bool clear=false);
   void useContext(const SessionContext &context);

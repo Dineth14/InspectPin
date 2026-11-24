@@ -30,11 +30,13 @@ class _DeviceControlScreenState extends State<DeviceControlScreen> {
       final queued = await widget.api
           .sendDeviceCommand(widget.device.id, type, payload: payload);
       Map<String, dynamic> current = queued;
-      for (var attempt = 0; attempt < 40; attempt++) {
+      final deadline = DateTime.now().add(const Duration(seconds: 125));
+      while (mounted && DateTime.now().isBefore(deadline)) {
         current = await widget.api.commandStatus(queued['id'] as String);
         final state = current['status']?.toString();
-        if (state != 'pending') break;
-        await Future<void>.delayed(const Duration(milliseconds: 500));
+        if (state != 'pending' && state != 'accepted') break;
+        if (mounted) setState(() => status = 'Command $state');
+        await Future<void>.delayed(const Duration(seconds: 2));
       }
       if (mounted) {
         setState(() => status =

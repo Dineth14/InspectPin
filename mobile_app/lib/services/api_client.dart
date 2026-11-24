@@ -148,14 +148,20 @@ class ApiClient {
   Future<Map<String, dynamic>> processingJob(String id) async =>
       _json('GET', '/api/v1/processing-jobs/$id');
 
-  Future<Uint8List> media(String id) async {
+  Future<Uint8List> media(String id, {bool preview = false}) =>
+      _download('/api/v1/media/$id${preview ? '/preview' : ''}');
+
+  Future<Uint8List> report(String id) => _download('/api/v1/inspections/$id/report');
+  Future<InspectionSummary> saveNote(String id, String note) async =>
+      InspectionSummary.fromJson(await _json('PATCH', '/api/v1/inspections/$id/note', body: {'note': note}));
+
+  Future<Uint8List> _download(String path) async {
     final response =
-        await http.get(Uri.parse('$baseUrl/api/v1/media/$id'), headers: {
-      'Accept': 'image/jpeg',
+        await http.get(Uri.parse('$baseUrl$path'), headers: {
       if (_token != null) 'Authorization': 'Bearer $_token',
     }).timeout(const Duration(seconds: 20));
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiException('MEDIA_FAILED', 'Inspection image is unavailable',
+      throw ApiException('MEDIA_FAILED', 'Evidence download failed (${response.statusCode})',
           response.statusCode);
     }
     return response.bodyBytes;

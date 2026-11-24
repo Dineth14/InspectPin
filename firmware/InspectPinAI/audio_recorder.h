@@ -1,3 +1,4 @@
 #pragma once
 #include <Arduino.h>
-bool recordWav(const String &path);
+#include "button_manager.h"
+bool recordWav(const String &path, ButtonManager *noteControls=nullptr);

@@ -21,6 +21,27 @@ void Amp::shutdownForSleep(){
 namespace { uint8_t volumePercent=100; }
 void setPlaybackVolume(uint8_t percent){volumePercent=percent>100?100:percent;}
 uint8_t playbackVolume(){return volumePercent;}
+bool recordingCue(bool starting) {
+  I2SClass speaker;
+  speaker.setPins(Config::bclk, Config::ws, Config::dout);
+  if (!speaker.begin(I2S_MODE_STD,16000,I2S_DATA_BIT_WIDTH_16BIT,I2S_SLOT_MODE_STEREO)) return false;
+  Amp::enable(true);
+  delay(10);
+  int16_t block[160];
+  for (int i=0; i<80; ++i) {
+    int16_t sample = (i % (starting ? 16 : 32) < (starting ? 8 : 16)) ? 2200 : -2200;
+    block[2*i]=block[2*i+1]=sample;
+  }
+  bool ok=true;
+  for (int i=0; i<24 && ok; ++i) {
+    size_t sent=0;
+    ok=i2s_channel_write(speaker.txChan(),block,sizeof(block),&sent,100)==ESP_OK && sent==sizeof(block);
+  }
+  delay(40);
+  speaker.end();
+  Amp::enable(false);
+  return ok;
+}
 bool playWav(const String &path) {
   File f=SD.open(path,FILE_READ); uint32_t remaining=0;
   if (!Wav::validate(f,remaining) || f.size()>Config::maxAnswerBytes) { f.close(); Serial.println("Invalid playback WAV"); return false; }

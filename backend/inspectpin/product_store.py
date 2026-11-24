@@ -134,6 +134,11 @@ class ProductStore:
                     target_type TEXT NOT NULL, target_id TEXT, created_at REAL NOT NULL,
                     metadata TEXT NOT NULL
                 );
+                CREATE TABLE IF NOT EXISTS recording_receipts (
+                    device_id TEXT NOT NULL, owner_id TEXT NOT NULL, filename TEXT NOT NULL,
+                    digest TEXT NOT NULL, inspection_id TEXT NOT NULL REFERENCES inspections(id) ON DELETE CASCADE,
+                    PRIMARY KEY(device_id,owner_id,filename)
+                );
                 CREATE TABLE IF NOT EXISTS ai_configurations (
                     owner_id TEXT PRIMARY KEY,
                     llm_provider TEXT NOT NULL, llm_model TEXT NOT NULL,
@@ -152,6 +157,11 @@ class ProductStore:
                 INSERT OR IGNORE INTO schema_migrations(version, applied_at) VALUES(2, strftime('%s','now'));
                 """
             )
+            columns = {row[1] for row in self.db.execute("PRAGMA table_info(ai_configurations)")}
+            if "mode" not in columns:
+                self.db.execute("ALTER TABLE ai_configurations ADD COLUMN mode TEXT NOT NULL DEFAULT 'automatic'")
+            self.db.execute("CREATE TABLE IF NOT EXISTS inspection_notes (inspection_id TEXT PRIMARY KEY REFERENCES inspections(id) ON DELETE CASCADE, note TEXT NOT NULL)")
+            self.db.execute("INSERT OR IGNORE INTO schema_migrations VALUES(3,?)", (_now(),))
 
     @staticmethod
     def _token_hash(token: str) -> str:
@@ -242,6 +252,7 @@ class ProductStore:
                  value["vision_model"], value["ollama_url"], value.get("openai_key"),
                  value.get("anthropic_key"), value.get("deepseek_key"), _now()),
             )
+            self.db.execute("UPDATE ai_configurations SET mode=? WHERE owner_id=?", (value.get("mode","automatic"), owner_id))
             self.audit(owner_id, "ai.configuration.update", "user", owner_id, {
                 "llm_provider": value["llm_provider"], "llm_model": value["llm_model"],
                 "vision_provider": value["vision_provider"], "vision_model": value["vision_model"],
@@ -354,6 +365,8 @@ class ProductStore:
     @staticmethod
     def _command(row) -> dict:
         result = dict(row)
+        if result["status"] == "pending" and result["expires_at"] <= _now():
+            result["status"] = "expired"
         result["payload"] = json.loads(result["payload"])
         result["result"] = json.loads(result["result"]) if result["result"] else None
         return result
@@ -417,6 +430,8 @@ class ProductStore:
         if row is None:
             raise ServiceError("INSPECTION_NOT_FOUND", "Inspection was not found", 404)
         result = self._inspection(row)
+        note = self.db.execute("SELECT note FROM inspection_notes WHERE inspection_id=?", (ident,)).fetchone()
+        result["note"] = note[0] if note else ""
         result["media"] = [dict(r) for r in self.db.execute(
             "SELECT id,media_type,content_type,byte_size,checksum,created_at FROM media WHERE inspection_id=? ORDER BY created_at",
             (ident,)).fetchall()]
@@ -493,6 +508,36 @@ class ProductStore:
         with self.lock, self.db:
             self.db.execute("UPDATE processing_jobs SET status=?,error=?,completed_at=? WHERE id=?",
                             (status, error, _now(), ident))
+
+    def register_recording(self, device, filename, mime, data, meta):
+        owner, device_id = device["owner_id"], device["id"]
+        digest = hashlib.sha256(data).hexdigest()
+        kind = "audio" if mime == "audio/wav" else "video"
+        suffix = ".wav" if kind == "audio" else ".avi"
+        if not re.fullmatch(r"[a-zA-Z0-9_-]{1,80}" + re.escape(suffix), filename):
+            raise ServiceError("INVALID_FILENAME", "Expected a device capture filename", 400)
+        with self.lock, self.db:
+            row = self.db.execute("SELECT digest,inspection_id FROM recording_receipts WHERE device_id=? AND owner_id=? AND filename=?",
+                                  (device_id, owner, filename)).fetchone()
+            if row:
+                if row["digest"] != digest:
+                    raise ServiceError("RECORDING_CONFLICT", "Capture name already identifies different bytes", 409)
+                return {"inspection_id": row["inspection_id"], "sha256": digest}
+            ident, media_id, now = _id(), _id(), _now()
+            path = self.media_root / (media_id + suffix)
+            try:
+                path.write_bytes(data)
+                self.db.execute("INSERT INTO inspections(id,owner_id,device_id,created_at,title,status,summary,findings,processing_metadata,simulated) VALUES(?,?,?,?,?,'received','','[]',?,0)",
+                                (ident, owner, device_id, now, "Field recording: " + filename,
+                                 _json({**meta, "original_filename": filename, "captured_at": None})))
+                self.db.execute("INSERT INTO media VALUES(?,?,?,?,?,?,?,?,?)",
+                                (media_id, owner, ident, kind, path.name, mime, len(data), digest, now))
+                self.db.execute("INSERT INTO recording_receipts VALUES(?,?,?,?,?)",
+                                (device_id, owner, filename, digest, ident))
+            except (OSError, sqlite3.Error):
+                path.unlink(missing_ok=True)
+                raise
+        return {"inspection_id": ident, "sha256": digest}
 
     def save_media(self, owner_id: str, inspection_id: str, kind: str,
                    content_type: str, data: bytes) -> dict:

@@ -19,6 +19,7 @@
 #include "pcf8574_manager.h"
 #include "ntc_monitor.h"
 #include <WiFi.h>
+#include <SD.h>
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","VIDEO_RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 void App::updateRuntimeState(AppState value) {
   TopLevelState top=TopLevelState::ACTIVE;
@@ -78,6 +79,7 @@ void App::begin() {
   Serial.println("BOOT: eventlog");EventLog::begin();Serial.println("BOOT: amp");
   state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
+  setPlaybackVolume(SettingsStore::get().volumePercent);
   Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
   Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
@@ -90,7 +92,6 @@ void App::begin() {
   #endif
   sdReady_=Store::begin();
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
-  Video::recoverIncomplete();
   Video::recoverIncomplete();
   if (Wifi::connect()) syncContext();
   else state(AppState::OFFLINE);
@@ -131,6 +132,28 @@ void App::capture(bool image) {
   if (!Store::markPending(path_,"",captureImage_,captureContext_)) { fail("PENDING_JOURNAL_FAILED"); return; }
   state(AppState::UPLOADING);
 }
+void App::queueRecording() {
+  recordingCue(false);
+  Power::noteActivity();
+  job_=""; captureImage_=""; captureContext_=""; attempts_=0;
+  if (!Store::markPending(path_,"","","")) { fail("PENDING_JOURNAL_FAILED"); return; }
+  state(AppState::UPLOADING);
+}
+
+void App::recordNote() {
+  if (!sdReady_ || !operation_.begin(OperationClass::CAPTURE)) { fail("NOTE_UNAVAILABLE"); return; }
+  Power::noteActivity();
+  do {
+    path_=Store::newPath(false);
+    path_.replace(".wav","_note.wav");
+  } while (SD.exists(path_) || SD.exists(path_+".part"));
+  state(AppState::RECORDING);
+  if (!recordingCue(true) || !recordWav(path_+".part",&button_)) { fail("NOTE_RECORD_FAILED"); return; }
+  state(AppState::SAVING);
+  if (!SD.rename(path_+".part",path_)) { fail("NOTE_FINALIZE_FAILED"); return; }
+  queueRecording();
+}
+
 void App::retry() {
   if (!operation_.begin(OperationClass::RECOVERY)) { fail("DEVICE_BUSY"); return; }
   if (!sdReady_) { begin(); return; }
@@ -159,11 +182,11 @@ bool App::handleCommand(const DeviceCommand &command) {
     case CommandType::VIDEO_START:
       if(!operation_.begin(OperationClass::VIDEO)){succeeded=false;fail("DEVICE_BUSY");break;}
       path_=Store::newVideoPath();
-      if(Video::begin(path_)){state(AppState::VIDEO_RECORDING);Feedback::signal(Feedback::Event::VIDEO_STARTED);}
+      if(recordingCue(true) && Video::begin(path_)){state(AppState::VIDEO_RECORDING);Feedback::signal(Feedback::Event::VIDEO_STARTED);}
       else {succeeded=false;Serial.printf("Video start failed: %s\n",Video::stats().error.c_str());fail(Video::stats().error);}
       break;
     case CommandType::VIDEO_STOP:
-      if(Video::stop("command")){Feedback::signal(Feedback::Event::VIDEO_STOPPED);state(AppState::READY);}else {succeeded=false;fail("VIDEO_STOP_FAILED");}
+      if(Video::stop("command")){Feedback::signal(Feedback::Event::VIDEO_STOPPED);queueRecording();}else {succeeded=false;fail("VIDEO_STOP_FAILED");}
       break;
     case CommandType::RETRY: retry(); break;
     case CommandType::CONTEXT_GET: syncContext(); break;
@@ -237,7 +260,10 @@ void App::tick() {
     Video::tick(Battery::latest().critical);
     if(action!=ButtonAction::NONE&&Video::active()) handleCommand({CommandType::VIDEO_STOP,CommandSource::BUTTON,String("button-")+millis()});
     if(Serial.available()&&Video::active()) handleCommand(Commands::fromSerial(Serial.read()));
-    if(!Video::active()&&state_==AppState::VIDEO_RECORDING){operation_.end();state(AppState::READY);}
+    if(!Video::active()&&state_==AppState::VIDEO_RECORDING){
+      if(Video::stats().error.length() || !SD.exists(path_)) fail("VIDEO_FINALIZE_FAILED");
+      else queueRecording();
+    }
     return;
   }
   if (idle()) {
@@ -251,6 +277,8 @@ void App::tick() {
       } else if(remoteError.length()&&IP_DEBUG)Serial.printf("Remote command poll failed: %s\n",remoteError.c_str());
     }
     if (action==ButtonAction::VOICE) handleCommand({CommandType::VOICE_START,CommandSource::BUTTON,String("button-")+millis()});
+    else if(action==ButtonAction::AUDIO_NOTE && idle()) recordNote();
+    else if(action==ButtonAction::VIDEO) handleCommand({CommandType::VIDEO_START,CommandSource::BUTTON,String("button-")+millis()});
     else if (action==ButtonAction::CAMERA) handleCommand({CommandType::PHOTO_CAPTURE,CommandSource::BUTTON,String("button-")+millis()});
     if (idle() && Serial.available()) {
       char cmd=Serial.read();
@@ -269,6 +297,19 @@ void App::tick() {
   String error;
   if (state_==AppState::UPLOADING) {
     if (!Wifi::connect()) { fail("OFFLINE_RECORDING_SAVED",true); return; }
+    SessionContext policy;
+    if (!Api::session(policy,error)) { fail(error,true); return; }
+    if (policy.offlineRecording) { fail("OFFLINE_MODE_SAVED",true); return; }
+    if (path_.endsWith("_note.wav") || path_.endsWith(".avi")) {
+      if (!Api::uploadRecording(path_,error)) { fail(error,true); return; }
+      Store::complete(path_);
+      if (remoteOperationId_.length()) {
+        Api::acknowledgeRemoteCommand(remoteOperationId_,"completed","READY");
+        remoteOperationId_="";
+      }
+      state(AppState::READY);
+      return;
+    }
     if (path_.endsWith(".jpg")) {
       SessionContext current;
       if (!Api::uploadImage(path_,current,error)) {

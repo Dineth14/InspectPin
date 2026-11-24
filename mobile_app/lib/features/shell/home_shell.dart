@@ -6,6 +6,7 @@ import '../../design/brand.dart';
 import '../../design/components.dart';
 import '../../models/product_models.dart';
 import '../../services/api_client.dart';
+import '../../services/evidence_export.dart';
 import '../device/device_control_screen.dart';
 import '../settings/ai_configuration_screen.dart';
 
@@ -849,6 +850,28 @@ class InspectionDetail extends StatefulWidget {
 }
 
 class _InspectionDetailState extends State<InspectionDetail> {
+  Future<void> playRecording(String id) async {
+    try {
+      final bytes = await widget.api.media(id);
+      if (mounted) await playEvidence(bytes);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+  Future<void> exportFile([Map<String, dynamic>? media]) async {
+    setState(() => busy = true);
+    try {
+      final mime = media?['content_type'] as String? ?? 'application/pdf';
+      final id = media?['id'] as String? ?? item.id;
+      final bytes = media == null ? await widget.api.report(id) : await widget.api.media(id);
+      final extension = mime == 'audio/wav' ? 'wav' : mime == 'application/pdf' ? 'pdf' : 'avi';
+      await exportEvidence(bytes, 'inspectpin-$id.$extension', mime);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
   late InspectionSummary item = widget.item;
   final question = TextEditingController();
   bool busy = false;
@@ -856,6 +879,7 @@ class _InspectionDetailState extends State<InspectionDetail> {
   @override
   void dispose() {
     question.dispose();
+    unawaited(stopEvidence());
     super.dispose();
   }
 
@@ -892,6 +916,32 @@ class _InspectionDetailState extends State<InspectionDetail> {
   Widget build(BuildContext context) => Scaffold(
       appBar: AppBar(title: Text(item.title)),
       body: ListView(padding: const EdgeInsets.all(16), children: [
+        OutlinedButton(onPressed: busy ? null : () => exportFile(), child: const Text('Download inspection PDF')),
+        TextFormField(initialValue: item.note, maxLength: 2000,
+            decoration: const InputDecoration(labelText: 'Inspector notes'),
+            onChanged: (text) => draftNote = text),
+        OutlinedButton(onPressed: busy ? null : () async {
+          setState(() => busy = true);
+          try {
+            final saved = await widget.api.saveNote(item.id, draftNote ?? item.note);
+            if (mounted) setState(() { item = saved; message = 'Notes saved'; });
+          } catch (e) {
+            if (mounted) setState(() => message = e.toString());
+          } finally { if (mounted) setState(() => busy = false); }
+        }, child: const Text('Save notes')),
+        for (final media in item.recordings) ...[
+          if (media['content_type'] == 'audio/wav')
+            Wrap(children: [
+              TextButton(onPressed: () => playRecording(media['id'] as String), child: const Text('Play recording')),
+              TextButton(onPressed: stopEvidence, child: const Text('Stop')),
+            ]),
+          if (media['content_type'] == 'video/x-msvideo')
+            _RecordingPreview(api: widget.api, id: media['id'] as String),
+          OutlinedButton(
+            onPressed: busy ? null : () => exportFile(media),
+            child: Text('Download original ${media['content_type'] == 'audio/wav' ? 'WAV' : 'silent AVI'} · ${media['byte_size']} bytes'),
+          ),
+        ],
         if (item.simulated)
           const IpNotice(
               text: 'Simulator result — not a physical inspection.',
@@ -1006,6 +1056,28 @@ class _InspectionDetailState extends State<InspectionDetail> {
               ]
             ]))
       ]));
+}
+
+class _RecordingPreview extends StatefulWidget {
+  const _RecordingPreview({required this.api, required this.id});
+  final ApiClient api;
+  final String id;
+  @override
+  State<_RecordingPreview> createState() => _RecordingPreviewState();
+}
+
+class _RecordingPreviewState extends State<_RecordingPreview> {
+  Future<Uint8List>? preview;
+  @override
+  Widget build(BuildContext context) => Column(children: [
+    TextButton(onPressed: () => setState(() {
+      preview = preview == null ? widget.api.media(widget.id, preview: true) : null;
+    }), child: Text(preview == null ? 'Play silent preview' : 'Close preview')),
+    if (preview != null) FutureBuilder<Uint8List>(future: preview, builder: (context, result) {
+      if (result.hasError) return const Text('Preview unavailable. Download the original below.');
+      return result.hasData ? Image.memory(result.data!) : const CircularProgressIndicator();
+    }),
+  ]);
 }
 
 class _LoadingView extends StatelessWidget {

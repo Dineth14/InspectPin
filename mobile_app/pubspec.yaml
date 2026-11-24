@@ -5,6 +5,7 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.4.0 <4.0.0'
 dependencies:
+  web: ^1.1.2
   flutter:
     sdk: flutter
   material_ui: ^1.1.0

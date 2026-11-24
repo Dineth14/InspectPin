@@ -82,7 +82,10 @@ class Settings:
             raise ValueError("USER_SESSION_SECONDS must be between 5 minutes and 30 days")
         if not 1 <= self.port <= 65535 or not 0 < self.tts_gain <= 1 or not 0 <= self.min_rms <= 32767:
             raise ValueError("Invalid port, gain or silence threshold")
-        if self.host not in ("127.0.0.1", "localhost", "::1") and len(self.device_token) < 16:
+        if self.deployment_mode == "production" and "mock" in (
+                self.llm_provider, self.stt_provider, self.tts_provider, self.vision_provider):
+            raise ValueError("Production requires real AI services")
+        if self.deployment_mode != "production" and self.host not in ("127.0.0.1", "localhost", "::1") and len(self.device_token) < 16:
             raise ValueError("LAN binding requires DEVICE_TOKEN of at least 16 characters")
         parsed = urlparse(self.ollama_url)
         if parsed.scheme not in ("http", "https") or not parsed.hostname or parsed.username or parsed.password:

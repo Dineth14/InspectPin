@@ -44,6 +44,7 @@ String responseError(HTTPClient &http, int code) {
   return httpError(code);
 }
 bool readContext(JsonDocument &doc, SessionContext &context) {
+  context.offlineRecording=doc["offline_recording"] | false;
   context.contextId=doc["context_id"] | "";
   context.imageId=doc["active_image_id"] | "";
   double remaining=doc["remaining_seconds"] | 0.0;
@@ -57,6 +58,20 @@ String Api::deviceId() {
   char value[24];
   snprintf(value,sizeof(value),"pin-%012llx",ESP.getEfuseMac());
   return String(value);
+}
+bool Api::uploadRecording(const String &path, String &error) {
+  File file=SD.open(path, FILE_READ);
+  if (!file || !file.size() || file.size()>8*1024*1024) {error="INVALID_RECORDING_SIZE";return false;}
+  RequestClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/device/recordings")) {error="INVALID_SERVER_URL";return false;}
+  http.addHeader("Content-Type",path.endsWith(".avi")?"video/x-msvideo":"audio/wav");
+  http.addHeader("Idempotency-Key",path.substring(path.lastIndexOf('/')+1));
+  int code=http.sendRequest("POST",&file,file.size());
+  JsonDocument receipt;
+  bool ok=code==201 && jsonReply(http,receipt) && validJob(receipt["inspection_id"].as<String>());
+  if (!ok) error=code==201?"INVALID_RECEIPT":responseError(http,code);
+  http.end();
+  return ok;
 }
 bool Api::uploadImage(const String &path, SessionContext &context, String &error) {
   File f=SD.open(path,FILE_READ);

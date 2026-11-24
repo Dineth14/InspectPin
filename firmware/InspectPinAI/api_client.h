@@ -5,9 +5,11 @@ struct JobResult { String status, transcript, answer, error; bool audio=false, h
 struct SessionContext {
   String imageId, contextId;
   uint32_t remainingMs=0;
+  bool offlineRecording=false;
 };
 namespace Api {
 String deviceId();
+bool uploadRecording(const String &path, String &error);
 bool upload(const String &path, String &job, String &error,
             const String &imageId="", const String &contextId="", String *returnedContext=nullptr);
 bool uploadImage(const String &path, SessionContext &context, String &error);
