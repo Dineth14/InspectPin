@@ -5,7 +5,6 @@ import threading
 
 from PIL import Image
 
-from .audio_processing import parse_wav
 from .errors import ServiceError
 from .vision import validate_jpeg
 
@@ -15,6 +14,7 @@ _preview_slot = threading.BoundedSemaphore(1)
 
 def metadata(data, mime):
     if mime == "audio/wav":
+        from .audio_processing import parse_wav
         if len(data) > 44 + 60 * 32000:
             raise ServiceError("RECORDING_TOO_LONG", "Maximum audio duration is 60 seconds", 413)
         return {"duration_seconds": parse_wav(data)["duration_seconds"], "sample_rate": 16000}
@@ -48,9 +48,7 @@ def metadata(data, mime):
                 or u32(entry+8) != pos-220 or u32(entry+12) != length):
             reject()
         jpeg = data[pos+8:pos+8+length]
-        info = validate_jpeg(jpeg)
-        if info["width"] != 320 or info["height"] != 240:
-            reject()
+        validate_jpeg(jpeg, expected_size=(320, 240))
         pos += 8 + length + length % 2
     if pos != end:
         reject()

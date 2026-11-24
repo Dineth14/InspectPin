@@ -28,3 +28,24 @@ Future<void> exportEvidence(Uint8List bytes, String filename, String mime) async
     ..click();
   Timer(const Duration(seconds: 30), () => web.URL.revokeObjectURL(url));
 }
+
+Future<void> playVideo(Uint8List bytes) async {
+  final dialog = web.HTMLDialogElement();
+  final url = web.URL.createObjectURL(web.Blob([bytes.toJS].toJS, web.BlobPropertyBag(type: 'video/mp4')));
+  final video = web.HTMLVideoElement()
+    ..src = url
+    ..controls = true
+    ..playsInline = true;
+  video.style.maxWidth = '85vw';
+  final close = web.HTMLButtonElement()..textContent = 'Close video';
+  dialog.appendChild(video);
+  dialog.appendChild(close);
+  close.onClick.listen((_) => dialog.close());
+  dialog.addEventListener('close', ((web.Event _) {
+    video.pause();
+    dialog.remove();
+    web.URL.revokeObjectURL(url);
+  }).toJS);
+  web.document.body!.appendChild(dialog);
+  dialog.showModal();
+}

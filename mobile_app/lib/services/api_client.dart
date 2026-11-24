@@ -23,6 +23,8 @@ class ApiClient {
   Future<bool> initialize() async {
     final saved = await storage.read(key: 'inspectpin_api_url');
     if (saved != null && saved.isNotEmpty) baseUrl = saved;
+    // Older releases saved one unscoped token. Require a fresh sign-in once.
+    await storage.delete(key: 'inspectpin_access_token');
     return restore();
   }
 
@@ -46,6 +48,7 @@ class ApiClient {
       throw const ApiException(
           'HTTPS_REQUIRED', 'Remote backends must use HTTPS', 0);
     }
+    if (baseUrl != normalized) _token = null;
     baseUrl = normalized;
     await storage.write(key: 'inspectpin_api_url', value: normalized);
   }
@@ -56,6 +59,7 @@ class ApiClient {
     }
     final parts = host.split('.').map(int.tryParse).toList();
     if (parts.length != 4 || parts.any((part) => part == null)) return false;
+    if (parts.any((p) => p! < 0 || p > 255)) return false;
     final first = parts[0]!, second = parts[1]!;
     return first == 10 ||
         first == 127 ||
@@ -64,7 +68,7 @@ class ApiClient {
   }
 
   Future<bool> restore() async {
-    _token = await storage.read(key: 'inspectpin_access_token');
+    _token = await storage.read(key: 'inspectpin_token_$baseUrl');
     if (_token == null) return false;
     try {
       await _json('GET', '/api/v1/auth/me');
@@ -77,14 +81,16 @@ class ApiClient {
 
   Future<void> authenticate(
       {required String email, required String password, String? name}) async {
+    final origin = baseUrl;
     final endpoint = name == null ? 'login' : 'register';
     final result = await _json('POST', '/api/v1/auth/$endpoint', body: {
       'email': email,
       'password': password,
       if (name != null) 'name': name,
     });
+    if (origin != baseUrl) throw StateError('Receiver changed during sign-in');
     _token = result['access_token'] as String;
-    await storage.write(key: 'inspectpin_access_token', value: _token);
+    await storage.write(key: 'inspectpin_token_$origin', value: _token);
   }
 
   Future<void> signOut() async {
@@ -92,8 +98,30 @@ class ApiClient {
       if (_token != null) await _json('POST', '/api/v1/auth/logout');
     } catch (_) {/* local sign-out still proceeds */}
     _token = null;
-    await storage.delete(key: 'inspectpin_access_token');
+    await storage.delete(key: 'inspectpin_token_$baseUrl');
   }
+
+  Future<void> testReceiver() async {
+    for (final path in ['/healthz', '/api/v1/ready']) {
+      final response = await http
+          .get(Uri.parse('$baseUrl$path'))
+          .timeout(const Duration(seconds: 5));
+      final data = jsonDecode(response.body);
+      if (response.statusCode != 200 ||
+          data is! Map ||
+          (path == '/healthz'
+              ? data['service'] != 'InspectPin AI'
+              : data['database'] != 'ok')) {
+        throw StateError('InspectPin receiver is unavailable');
+      }
+    }
+  }
+
+  Future<List<DeviceSummary>> pairedDevices() async =>
+      ((await _json('GET', '/api/v1/devices'))['items'] as List)
+          .whereType<Map<String, dynamic>>()
+          .map(DeviceSummary.fromJson)
+          .toList();
 
   Future<DashboardData> dashboard() async {
     final results = await Future.wait([
@@ -151,17 +179,40 @@ class ApiClient {
   Future<Uint8List> media(String id, {bool preview = false}) =>
       _download('/api/v1/media/$id${preview ? '/preview' : ''}');
 
-  Future<Uint8List> report(String id) => _download('/api/v1/inspections/$id/report');
+  Future<Uint8List> report(String id) =>
+      _download('/api/v1/inspections/$id/report');
+  Future<Uint8List> playback(String id, bool Function() active) async {
+    final uri = Uri.parse('$baseUrl/api/v1/media/$id/playback');
+    for (var attempt = 0; active() && attempt < 21; attempt++) {
+      final response = await http.get(uri, headers: {
+        if (_token != null) 'Authorization': 'Bearer $_token',
+      }).timeout(const Duration(seconds: 20));
+      if (response.statusCode == 200) return response.bodyBytes;
+      if (response.statusCode != 202) {
+        throw ApiException(
+            'PLAYBACK_FAILED',
+            'Video unavailable (${response.statusCode}). Use the animated preview or original AVI.',
+            response.statusCode);
+      }
+      await Future<void>.delayed(const Duration(seconds: 2));
+    }
+    throw const ApiException('PLAYBACK_PENDING',
+        'Video is still processing. Try again shortly.', 202);
+  }
+
   Future<InspectionSummary> saveNote(String id, String note) async =>
-      InspectionSummary.fromJson(await _json('PATCH', '/api/v1/inspections/$id/note', body: {'note': note}));
+      InspectionSummary.fromJson(await _json(
+          'PATCH', '/api/v1/inspections/$id/note',
+          body: {'note': note}));
 
   Future<Uint8List> _download(String path) async {
-    final response =
-        await http.get(Uri.parse('$baseUrl$path'), headers: {
+    final response = await http.get(Uri.parse('$baseUrl$path'), headers: {
       if (_token != null) 'Authorization': 'Bearer $_token',
     }).timeout(const Duration(seconds: 20));
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw ApiException('MEDIA_FAILED', 'Evidence download failed (${response.statusCode})',
+      throw ApiException(
+          'MEDIA_FAILED',
+          'Evidence download failed (${response.statusCode})',
           response.statusCode);
     }
     return response.bodyBytes;

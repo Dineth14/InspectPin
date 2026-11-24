@@ -5,6 +5,8 @@ ESP32-S3 Sense. This repository contains the embedded firmware, local AI
 backend, persistent product API, React dashboard, Flutter companion app and a
 Windows virtual device.
 
+To run the battery-powered board through a phone hotspot with the laptop switched off, follow the [Oracle Always Free deployment and acceptance guide](docs/ZERO_COST_CLOUD.md).
+
 The simulator demonstrates the complete mock PHOTO and ASK transport path; mock
 output is labelled and is not camera recognition, speech recognition or
 physical validation. See the [current audit](docs/CURRENT_STATE_AUDIT.md),

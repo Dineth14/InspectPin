@@ -3,11 +3,12 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 HF_HOME=/opt/voices/huggingface
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
 COPY requirements.txt requirements-ai.txt ./
-RUN pip install --no-cache-dir -r requirements-ai.txt
+RUN pip install --no-cache-dir --no-compile -r requirements-ai.txt
 COPY scripts/download_models.py /app/download_models.py
 RUN python download_models.py whisper && python download_models.py piper
 COPY inspectpin inspectpin
 COPY receiver.py .
+COPY scripts/check_free_catalog.py /app/check_free_catalog.py
 ENV DEPLOYMENT_MODE=production HOST=0.0.0.0 PORT=5000 DATA_DIR=/data STT_PROVIDER=whisper WHISPER_LOCAL_ONLY=true TTS_PROVIDER=piper LLM_PROVIDER=openai LLM_MODEL=gpt-4.1-mini VISION_PROVIDER=openai VISION_MODEL=gpt-4.1-mini
 VOLUME ["/data"]
 EXPOSE 5000

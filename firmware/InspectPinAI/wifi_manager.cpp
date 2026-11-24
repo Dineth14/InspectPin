@@ -1,15 +1,18 @@
 #include "wifi_manager.h"
 #include "config.h"
+#include "network_profile.h"
 #include <WiFi.h>
 bool Wifi::connect() {
   if (WiFi.status()==WL_CONNECTED) return true;
   // A timed-out ESP32 association can remain in WL_IDLE_STATUS/connecting.
   // Starting another scan or begin() in that state produces
   // "sta is connecting, cannot set config" and prevents recovery.
+  WiFi.persistent(false);
   WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
   WiFi.disconnect(false,false);
   delay(100);
-  WiFi.begin(IP_WIFI_SSID,IP_WIFI_PASSWORD);
+  WiFi.begin(NetworkProfile::active().ssid.c_str(),NetworkProfile::active().password.c_str());
   uint32_t start=millis();
   while (WiFi.status()!=WL_CONNECTED && millis()-start<Config::wifiTimeoutMs) delay(100);
   if (WiFi.status()!=WL_CONNECTED) {
@@ -17,7 +20,7 @@ bool Wifi::connect() {
     Serial.println("Wi-Fi unavailable; SD input retained");
     return false;
   }
-  if (String(IP_SERVER_URL).startsWith("https://")) {
+  if (NetworkProfile::active().origin.startsWith("https://")) {
     configTime(0, 0, "pool.ntp.org", "time.google.com");
     struct tm clockTime;
     if (!getLocalTime(&clockTime, 4000)) Serial.println("Waiting for network time for TLS");

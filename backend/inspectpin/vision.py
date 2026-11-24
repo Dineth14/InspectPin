@@ -9,7 +9,7 @@ from typing import Protocol
 from PIL import Image
 
 from .errors import ServiceError
-from .llm_providers import AnthropicProvider, extract_answer, messages_for, post_json
+from .llm_providers import CHAT_ENDPOINTS, AnthropicProvider, extract_answer, hosted_chat, messages_for, post_json
 
 VISION_SYSTEM = (
     "You are InspectPin AI, a wearable engineering inspection assistant. "
@@ -26,12 +26,14 @@ VISION_SYSTEM = (
 )
 
 
-def validate_jpeg(data):
+def validate_jpeg(data, expected_size=None):
     try:
         with warnings.catch_warnings():
             warnings.simplefilter("error", Image.DecompressionBombWarning)
             with Image.open(io.BytesIO(data)) as im:
                 if im.format != "JPEG" or im.width * im.height > 12000000:
+                    raise ValueError()
+                if expected_size is not None and im.size != expected_size:
                     raise ValueError()
                 im.verify()
             with Image.open(io.BytesIO(data)) as im:
@@ -77,10 +79,15 @@ class Vision:
                 raise ServiceError("OCR_FAILED", "Check Tesseract installation/language files") from exc
         encoded = base64.b64encode(image).decode("ascii")
         messages = messages_for(question, history, VISION_SYSTEM)
+        if s.vision_provider in CHAT_ENDPOINTS:
+            messages[-1]["content"] = [{"type": "text", "text": question},
+                                       {"type": "image_url", "image_url": {"url": "data:image/jpeg;base64," + encoded}}]
+            return hosted_chat(s, s.vision_provider, s.vision_model, messages)
         if s.vision_provider == "ollama":
             messages[-1]["images"] = [encoded]
             result = post_json(s.ollama_url.rstrip("/") + "/api/chat", {
                 "model": s.vision_model, "stream": False, "options": {"num_predict": 220},
+                "keep_alive": s.ollama_keep_alive_seconds,
                 "messages": messages}, s.request_timeout)
             return extract_answer(result, True)
         if s.vision_provider == "anthropic":

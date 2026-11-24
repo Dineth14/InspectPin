@@ -1,9 +1,26 @@
 from cryptography.fernet import Fernet
 from types import SimpleNamespace
+from dataclasses import replace
 
 import requests
 
 from test_product_api import account
+
+
+def test_restored_workspace_uses_operator_origin(factory):
+    app = factory()
+    client = app.test_client()
+    owner = account(client)
+    owner_id = client.get("/api/v1/auth/me", headers=owner).json["id"]
+    manager = app.extensions["ai_configuration"]
+    manager.update(owner_id, {"llm_provider":"ollama", "llm_model":"local",
+                              "vision_provider":"none", "ollama_url":"http://previous-lan.example"})
+    manager.settings = replace(manager.settings, deployment_mode="production", llm_provider="ollama")
+    assert manager.settings_for_owner(owner_id).ollama_url == manager.settings.ollama_url
+    manager.settings = replace(manager.settings, llm_provider="openai")
+    assert "ollama" not in manager.public(owner_id)["supported_llm_providers"]
+    result = client.patch("/api/v1/settings/ai", headers=owner, json={"llm_provider":"ollama"})
+    assert result.status_code == 403
 
 
 def test_workspace_ai_configuration_encrypts_keys_and_isolates_owners(factory, monkeypatch):

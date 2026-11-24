@@ -129,6 +129,8 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
         'openai' => 'OpenAI API',
         'anthropic' => 'Anthropic Claude',
         'deepseek' => 'DeepSeek API',
+        'groq' => 'GroqCloud',
+        'gemini' => 'Google Gemini API',
         'none' => 'Disabled',
         _ => value,
       };
@@ -156,6 +158,10 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                     IpNotice(
                         text: message!,
                         error: message!.toLowerCase().contains('error')),
+                  if (config?.freeTierOnly == true)
+                    const Text('Evaluation models only. Automatic mode sends image questions to the vision model and other questions to the text model. The server supplies the API keys.'),
+                  if (visionProvider == 'gemini' || llmProvider == 'gemini')
+                    const Text('Use consented demonstration material. Google may review unpaid Gemini inputs and outputs for product improvement.'),
                   if (config == null) OutlinedButton(onPressed: load, child: const Text('Retry settings')),
                   if (config != null) ...[IpPanel(
                       child: Column(
@@ -164,7 +170,8 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                         const IpEyebrow('Text reasoning'),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
-                          initialValue: llmProvider,
+                          initialValue: config!.llmProviders.contains(llmProvider) ? llmProvider : null,
+                          hint: const Text('Select an available text provider'),
                           decoration:
                               const InputDecoration(labelText: 'Provider'),
                           items: [
@@ -175,7 +182,11 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                           ],
                           onChanged: saving
                               ? null
-                              : (value) => setState(() => llmProvider = value!),
+                              : (value) => setState(() {
+                                  llmProvider = value!;
+                                  if (value == 'groq') llmModel.text = 'openai/gpt-oss-20b';
+                                  if (value == 'gemini') llmModel.text = 'gemini-3.1-flash-lite';
+                                }),
                         ),
                         const SizedBox(height: 12),
                         TextField(
@@ -200,7 +211,8 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                         const IpEyebrow('Camera understanding'),
                         const SizedBox(height: 8),
                         DropdownButtonFormField<String>(
-                          initialValue: visionProvider,
+                          initialValue: config!.visionProviders.contains(visionProvider) ? visionProvider : null,
+                          hint: const Text('Select an available vision provider'),
                           decoration: const InputDecoration(
                               labelText: 'Vision provider'),
                           items: [
@@ -212,7 +224,11 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                           onChanged: saving
                               ? null
                               : (value) =>
-                                  setState(() => visionProvider = value!),
+                                  setState(() {
+                                    visionProvider = value!;
+                                    if (value == 'groq') visionModel.text = 'qwen/qwen3.8-27b';
+                                    if (value == 'gemini') visionModel.text = 'gemini-3.1-flash-lite';
+                                  }),
                         ),
                         const SizedBox(height: 12),
                         TextField(
@@ -227,7 +243,7 @@ class _AiConfigurationScreenState extends State<AiConfigurationScreen> {
                                 fontSize: 11, color: IpColors.textMuted)),
                       ])),
                   const SizedBox(height: 12),
-                  IpPanel(
+                  if (!config!.freeTierOnly) IpPanel(
                       child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [

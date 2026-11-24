@@ -27,7 +27,8 @@ class App {
   void capture(bool image);
   void queueRecording();
   void recordNote();
-  void retry();
+  void retry(bool automatic=false);
+  uint32_t lastRecovery_=0;
   void syncContext(bool clear=false);
   void useContext(const SessionContext &context);
   bool idle() const;

@@ -13,10 +13,11 @@ from cryptography.fernet import Fernet, InvalidToken
 from .errors import ServiceError
 from .llm_providers import make_llm
 from .vision import Vision
+from .config import EVALUATION_MODELS
 
 
-PROVIDERS = {"ollama", "openai", "anthropic", "deepseek"}
-VISION_PROVIDERS = {"none", "ollama", "openai", "anthropic"}
+PROVIDERS = {"ollama", "openai", "anthropic", "deepseek", *EVALUATION_MODELS}
+VISION_PROVIDERS = {"none", "ollama", "openai", "anthropic", *EVALUATION_MODELS}
 MODEL = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$")
 
 
@@ -81,7 +82,11 @@ class AIConfigurationManager:
         }
 
     def _record(self, owner_id: str) -> dict:
-        return self.store.ai_configuration(owner_id) or self._base()
+        record = self.store.ai_configuration(owner_id) or self._base()
+        if self.settings.deployment_mode == "production":
+            # Stored development origins can survive a deployment or restore.
+            record = {**record, "ollama_url": self.settings.ollama_url.rstrip("/")}
+        return record
 
     def _secret(self, record: dict, provider: str) -> str:
         stored = self.cipher.decrypt(record.get(provider + "_key"))
@@ -89,6 +94,14 @@ class AIConfigurationManager:
 
     def public(self, owner_id: str) -> dict:
         record = self._record(owner_id)
+        available = PROVIDERS | {"none"}
+        if self.settings.free_tier_only:
+            available &= {"none", "ollama", *EVALUATION_MODELS}
+        if not self._local_enabled():
+            available.discard("ollama")
+        for provider in EVALUATION_MODELS:
+            if not getattr(self.settings, provider + "_api_key"):
+                available.discard(provider)
         return {
             "mode": record.get("mode", "automatic"),
             "llm_provider": record["llm_provider"],
@@ -99,10 +112,21 @@ class AIConfigurationManager:
             "has_openai_key": bool(self._secret(record, "openai")),
             "has_anthropic_key": bool(self._secret(record, "anthropic")),
             "has_deepseek_key": bool(self._secret(record, "deepseek")),
-            "supported_llm_providers": sorted(PROVIDERS),
-            "supported_vision_providers": sorted(VISION_PROVIDERS),
+            "free_tier_only": self.settings.free_tier_only,
+            "supported_llm_providers": sorted(PROVIDERS & available),
+            "supported_vision_providers": sorted(VISION_PROVIDERS & available),
             "updated_at": record.get("updated_at", 0.0),
         }
+
+    def _local_enabled(self):
+        return (self.settings.deployment_mode != "production" or
+                "ollama" in (self.settings.llm_provider, self.settings.vision_provider))
+
+    def _check_selection(self, llm, text_model, vision, vision_model):
+        try:
+            self.settings.validate_cloud_selection(llm, text_model, vision, vision_model)
+        except ValueError as exc:
+            raise ServiceError("MODEL_CONFIGURATION", str(exc), 400) from exc
 
     @staticmethod
     def _text(data: dict, name: str, current: str) -> str:
@@ -125,6 +149,7 @@ class AIConfigurationManager:
         mode = self._text(data, "mode", current.get("mode", "automatic"))
         if mode not in {"automatic", "cloud", "local", "offline"}:
             raise ServiceError("INVALID_MODE", "Unknown AI operating mode", 400)
+        self._check_speech_mode(mode)
         llm_provider = self._text(data, "llm_provider", current["llm_provider"])
         vision_provider = self._text(data, "vision_provider", current["vision_provider"])
         llm_model = self._text(data, "llm_model", current["llm_model"])
@@ -136,18 +161,23 @@ class AIConfigurationManager:
             raise ServiceError("VISION_MODEL_REQUIRED", "Choose a vision-capable model", 400)
         if llm_provider not in PROVIDERS or vision_provider not in VISION_PROVIDERS:
             raise ServiceError("INVALID_AI_PROVIDER", "Choose a supported text and vision provider", 400)
+        if not self._local_enabled() and "ollama" in (llm_provider, vision_provider):
+            raise ServiceError("LOCAL_PROVIDER_DISABLED", "Private inference is disabled on this server", 403)
         if mode == "local" and (llm_provider != "ollama" or vision_provider not in {"none", "ollama"}):
             raise ServiceError("LOCAL_PROVIDER_REQUIRED", "Select Ollama for text and Ollama or disabled for vision", 400)
         if mode == "cloud" and (llm_provider == "ollama" or vision_provider == "ollama"):
             raise ServiceError("CLOUD_PROVIDER_REQUIRED", "Select authorized cloud models or disable vision", 400)
         if not MODEL.fullmatch(llm_model) or (vision_provider != "none" and not MODEL.fullmatch(vision_model)):
             raise ServiceError("INVALID_AI_MODEL", "Model IDs may contain letters, numbers, dot, dash, slash, underscore and colon", 400)
+        self._check_selection(llm_provider, llm_model, vision_provider, vision_model)
 
         encrypted = {}
         secrets = {}
         for provider in ("openai", "anthropic", "deepseek"):
             field = provider + "_api_key"
             supplied = data.get(field)
+            if supplied and self.settings.free_tier_only:
+                raise ServiceError("MODEL_CONFIGURATION", "The evaluation uses operator-managed keys", 400)
             if supplied is not None and (not isinstance(supplied, str) or len(supplied) > 512):
                 raise ServiceError("INVALID_PROVIDER_KEY", f"{field} must be at most 512 characters", 400)
             if data.get("clear_" + field) is True:
@@ -175,8 +205,16 @@ class AIConfigurationManager:
             self.cache.pop(owner_id, None)
         return self.public(owner_id)
 
+    def _check_speech_mode(self, mode):
+        if mode == "local" and self.settings.stt_provider == "groq":
+            raise ServiceError("LOCAL_SPEECH_REQUIRED", "Enable receiver-side Whisper for local mode", 400)
+
     def settings_for_owner(self, owner_id: str):
         record = self._record(owner_id)
+        self._check_speech_mode(record.get("mode"))
+        self._check_selection(record["llm_provider"], record["llm_model"], record["vision_provider"], record["vision_model"])
+        if not self._local_enabled() and "ollama" in (record["llm_provider"], record["vision_provider"]):
+            raise ServiceError("LOCAL_PROVIDER_DISABLED", "Choose a cloud provider for this server", 403)
         return replace(
             self.settings,
             llm_provider=record["llm_provider"], llm_model=record["llm_model"],
@@ -203,7 +241,7 @@ class AIConfigurationManager:
             configured = self.settings_for_owner(owner_id)
             from .pipeline import Services
             services = Services(self.default_services.stt, make_llm(configured),
-                                self.default_services.tts, Vision(configured))
+                                self.default_services.tts, Vision(configured), Services.provider_details(configured))
             self.cache[owner_id] = (stamp, services)
             return services
 

@@ -4,6 +4,13 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 
+# Public free-plan catalog reviewed for the evaluation. Billing entitlement belongs to the account.
+EVALUATION_MODELS = {
+    "groq": {"text": {"openai/gpt-oss-20b", "qwen/qwen3.8-27b"}, "vision": {"qwen/qwen3.8-27b"}},
+    "gemini": {"text": {"gemini-3.1-flash-lite"}, "vision": {"gemini-3.1-flash-lite"}},
+}
+
+
 @dataclass(frozen=True)
 class Settings:
     host: str = "127.0.0.1"
@@ -21,9 +28,13 @@ class Settings:
     llm_provider: str = "ollama"
     llm_model: str = "llama3.2:3b"
     ollama_url: str = "http://127.0.0.1:11434"
+    ollama_keep_alive_seconds: int = 0
     openai_api_key: str = ""
     anthropic_api_key: str = ""
     deepseek_api_key: str = ""
+    groq_api_key: str = ""
+    gemini_api_key: str = ""
+    free_tier_only: bool = False
     config_encryption_key: str = ""
     deployment_mode: str = "development"
     tts_provider: str = "piper"
@@ -65,14 +76,19 @@ class Settings:
         return result
 
     def validate(self):
+        if not 0 <= self.ollama_keep_alive_seconds <= 3600:
+            raise ValueError("OLLAMA_KEEP_ALIVE_SECONDS must be between 0 and 3600")
         for name, allowed in {
-            "stt_provider": {"mock", "whisper"},
-            "llm_provider": {"mock", "ollama", "openai", "anthropic", "deepseek"},
+            "stt_provider": {"mock", "whisper", "groq"},
+            "llm_provider": {"mock", "ollama", "openai", "anthropic", "deepseek", *EVALUATION_MODELS},
             "tts_provider": {"mock", "piper"},
-            "vision_provider": {"none", "mock", "ollama", "openai", "anthropic"},
+            "vision_provider": {"none", "mock", "ollama", "openai", "anthropic", *EVALUATION_MODELS},
         }.items():
             if getattr(self, name) not in allowed:
                 raise ValueError(f"Invalid {name}")
+        self.validate_cloud_selection(self.llm_provider, self.llm_model, self.vision_provider, self.vision_model)
+        if self.stt_provider == "groq" and not self.groq_api_key.strip():
+            raise ValueError("Groq speech recognition requires a server GROQ_API_KEY")
         for name in ("request_timeout", "job_timeout", "queue_size", "max_jobs",
                      "retention_seconds", "max_voice_bytes", "max_image_bytes", "whisper_beam",
                      "vision_max_image_bytes", "vision_context_seconds", "conversation_max_turns"):
@@ -105,3 +121,12 @@ class Settings:
             raise ValueError("OpenAI vision needs OPENAI_API_KEY")
         if self.vision_provider == "anthropic" and not self.anthropic_api_key:
             raise ValueError("Anthropic vision needs ANTHROPIC_API_KEY")
+
+    def validate_cloud_selection(self, llm, text_model, vision, vision_model):
+        for task, provider, model in (("text", llm, text_model), ("vision", vision, vision_model)):
+            if provider in EVALUATION_MODELS:
+                if not model or not getattr(self, provider + "_api_key").strip():
+                    raise ValueError(f"Configure a server {provider.upper()}_API_KEY and a {task} model")
+            if self.free_tier_only and provider not in {"ollama", "none"}:
+                if model not in EVALUATION_MODELS.get(provider, {}).get(task, set()):
+                    raise ValueError(f"{task} provider/model is outside the evaluation allowlist")

@@ -1,10 +1,10 @@
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .audio_processing import parse_wav
 from .errors import ServiceError
 from .llm_providers import make_llm
-from .stt import MockSTT, WhisperSTT
+from .stt import GroqSTT, MockSTT, WhisperSTT
 from .tts import MockTTS, PiperTTS
 from .vision import Vision
 from .command_router import classify
@@ -16,12 +16,24 @@ class Services:
     llm: object
     tts: object
     vision: object
+    providers: dict = field(default_factory=dict)
+
+    @staticmethod
+    def provider_details(settings):
+        return {
+            "stt": {"provider": settings.stt_provider,
+                    "model": GroqSTT.model_name if settings.stt_provider == "groq" else settings.whisper_model},
+            "llm": {"provider": settings.llm_provider, "model": settings.llm_model},
+            "vision": {"provider": settings.vision_provider, "model": settings.vision_model},
+            "tts": {"provider": settings.tts_provider, "model": settings.piper_model.stem},
+        }
 
     @classmethod
     def create(cls, settings):
-        return cls(MockSTT() if settings.stt_provider == "mock" else WhisperSTT(settings),
+        stt = {"mock": lambda: MockSTT(), "whisper": lambda: WhisperSTT(settings), "groq": lambda: GroqSTT(settings)}
+        return cls(stt[settings.stt_provider](),
                    make_llm(settings), MockTTS() if settings.tts_provider == "mock" else PiperTTS(settings),
-                   Vision(settings))
+                   Vision(settings), cls.provider_details(settings))
 
 
 def process(job, folder, services, settings, check_deadline):
@@ -67,6 +79,8 @@ def process(job, folder, services, settings, check_deadline):
     stage("tts", lambda: services.tts.synthesize(answer, pending))
     parse_wav(pending.read_bytes())
     result = {"transcript": transcript, "answer": answer, "timings_seconds": timing}
+    result["providers_used"] = {name: services.providers[name] for name in timing
+                                if name in getattr(services, "providers", {})}
     if routed is not None:
         result["device_command"] = routed.as_dict()
         result["confirmation_required"] = routed.confirmation_required

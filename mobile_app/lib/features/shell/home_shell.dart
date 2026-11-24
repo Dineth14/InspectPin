@@ -29,20 +29,92 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   DashboardData? data;
   bool loading = true;
   String? error, notice;
-  int tab = 0;
+  int tab = Uri.base.queryParameters['view'] == 'inspections' ? 1 : 0;
   String? assistantInspection;
+  String? verifyingId, verification;
+  Timer? liveTimer;
+  bool checkingDevices = false;
+  Future<void> updateDevices() async {
+    if (data == null || checkingDevices || loading || (tab != 0 && tab != 3)) {
+      return;
+    }
+    checkingDevices = true;
+    try {
+      final devices = await widget.api.pairedDevices();
+      if (mounted && data != null) {
+        setState(() {
+          data = DashboardData(devices, data!.inspections);
+          error = null;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() =>
+            error = 'Receiver unreachable. Wake the laptop and check Wi-Fi.');
+      }
+    } finally {
+      checkingDevices = false;
+    }
+  }
+
+  Future<void> verify(DeviceSummary device) async {
+    setState(() {
+      verifyingId = device.id;
+      verification = 'Waiting for a fresh heartbeat from ${device.id}…';
+    });
+    final clock = Stopwatch()..start();
+    try {
+      DateTime? baseline;
+      bool initialized = false;
+      while (mounted && clock.elapsed.inSeconds < 75) {
+        final devices = await widget.api.pairedDevices();
+        final current = devices.where((d) => d.id == device.id).firstOrNull;
+        if (current == null) {
+          verification = 'Device is no longer paired';
+          break;
+        }
+        if (initialized &&
+            current.online &&
+            current.lastSeen != null &&
+            (baseline == null || current.lastSeen!.isAfter(baseline))) {
+          verification =
+              'Device online · fresh heartbeat ${current.lastSeen!.toLocal()}';
+          break;
+        }
+        if (!initialized) {
+          baseline = current.lastSeen;
+          initialized = true;
+        }
+        await Future<void>.delayed(const Duration(seconds: 3));
+      }
+      if (clock.elapsed.inSeconds >= 75) {
+        verification =
+            'Device not responding. Wake it with ASK and check Wi-Fi.';
+      }
+    } catch (_) {
+      verification = 'Receiver unreachable. Check laptop and hotspot.';
+    }
+    if (mounted) {
+      setState(() => verifyingId = null);
+      await refresh();
+    }
+  }
+
   final assistantQuestion = TextEditingController(),
       search = TextEditingController();
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    liveTimer =
+        Timer.periodic(const Duration(seconds: 15), (_) => updateDevices());
     refresh();
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    liveTimer?.cancel();
     assistantQuestion.dispose();
     search.dispose();
     super.dispose();
@@ -100,7 +172,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
                 if (error != null) IpNotice(text: error!, error: true),
                 if (notice != null) IpNotice(text: notice!, error: false),
                 if (loading && data == null) const _LoadingView(),
-                if (data != null)
+                if (data != null && (error == null || (tab != 0 && tab != 3)))
                   switch (tab) {
                     0 => _home(data!),
                     1 => _history(data!),
@@ -179,8 +251,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             body:
                 'Use PHOTO on the device or request a capture when it is online.')
       else
-        for (final item in value.inspections.take(4))
-          _InspectionCard(item: item, onTap: () => _openInspection(item.id))
+        for (final item in value.inspections.take(4)) _inspectionRow(item)
     ]);
   }
 
@@ -221,9 +292,63 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             title: 'No matching evidence',
             body: 'Try another title or clear the search.')
       else
-        for (final item in items)
-          _InspectionCard(item: item, onTap: () => _openInspection(item.id))
+        for (final item in items) _inspectionRow(item)
     ]);
+  }
+
+  Widget _inspectionRow(InspectionSummary item) => Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _InspectionCard(item: item, onTap: () => _openInspection(item.id)),
+          Wrap(spacing: 8, children: [
+            OutlinedButton(
+                onPressed: () => _openInspection(item.id),
+                child: const Text('Open inspection')),
+            TextButton.icon(
+                icon: const Icon(Icons.edit_note),
+                label: const Text('Inspector note'),
+                onPressed: () => _editInspectionNote(item.id)),
+            TextButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Download PDF'),
+                onPressed: () async {
+                  try {
+                    final bytes = await widget.api.report(item.id);
+                    await exportEvidence(
+                        bytes, 'InspectPin-${item.id}.pdf', 'application/pdf');
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          content: Text('Inspection PDF exported')));
+                    }
+                  } catch (e) {
+                    if (mounted) {
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(SnackBar(content: Text(e.toString())));
+                    }
+                  }
+                }),
+          ]),
+          const SizedBox(height: 16)
+        ],
+      );
+
+  Future<void> _editInspectionNote(String id) async {
+    try {
+      final inspection = await widget.api.inspection(id);
+      if (!mounted) return;
+      final value = await _noteDialog(context, inspection.note);
+      if (value == null || !mounted) return;
+      await widget.api.saveNote(id, value);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Inspector note saved')));
+      await refresh();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
+    }
   }
 
   Widget _assistant(DashboardData value) {
@@ -292,7 +417,9 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   Widget _devices(DashboardData value) =>
       Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const IpEyebrow('Instrument management'),
-        Text('Devices', style: Theme.of(context).textTheme.headlineLarge),
+        Text('Connect Device',
+            style: Theme.of(context).textTheme.headlineLarge),
+        if (verification != null) Text(verification!),
         const SizedBox(height: 8),
         const Text(
             'Identity, live telemetry and authenticated remote controls.'),
@@ -302,12 +429,19 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
               icon: Icons.memory_outlined,
               title: 'No device paired',
               body:
-                  'Pairing uses the real secure device registration contract. BLE discovery is not claimed.',
+                  'Pair the ID printed at startup. To configure Wi-Fi over USB, run scripts/configure_usb.ps1 on the laptop.',
               action: FilledButton(
                   onPressed: _showPairDialog,
-                  child: const Text('Pair development device')))
+                  child: const Text('Pair InspectPin')))
         else ...[
           for (final device in value.devices) ...[
+            Text(device.connectionLabel),
+            Text(device.lastSeen == null
+                ? 'Paired · no heartbeat received'
+                : 'Last heartbeat: ${device.lastSeen!.toLocal()}'),
+            OutlinedButton(
+                onPressed: verifyingId == null ? () => verify(device) : null,
+                child: const Text('Verify live connection')),
             _DeviceTechnicalCard(
                 device: device,
                 onCapture: () => _capture(device),
@@ -319,7 +453,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
           OutlinedButton.icon(
               onPressed: _showPairDialog,
               icon: const Icon(Icons.add),
-              label: const Text('Pair another development device'))
+              label: const Text('Pair another InspectPin'))
         ]
       ]);
 
@@ -464,7 +598,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     await showDialog(
         context: context,
         builder: (dialog) => AlertDialog(
-                title: const Text('Pair development device'),
+                title: const Text('Pair InspectPin'),
                 content: Column(mainAxisSize: MainAxisSize.min, children: [
                   const Text(
                       'Enter the stable ID shown by firmware. BLE discovery is not available.'),
@@ -836,6 +970,30 @@ class _EvidenceThumb extends StatelessWidget {
   }
 }
 
+Future<String?> _noteDialog(BuildContext context, String initial) {
+  String draft = initial;
+  return showDialog<String>(
+      context: context,
+      builder: (dialog) => AlertDialog(
+              title: const Text('Inspector note'),
+              content: TextFormField(
+                  initialValue: initial,
+                  autofocus: true,
+                  minLines: 3,
+                  maxLines: 8,
+                  maxLength: 2000,
+                  onChanged: (value) => draft = value,
+                  decoration: const InputDecoration(labelText: 'Observation')),
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(dialog),
+                    child: const Text('Cancel')),
+                FilledButton(
+                    onPressed: () => Navigator.pop(dialog, draft),
+                    child: const Text('Save note')),
+              ]));
+}
+
 class InspectionDetail extends StatefulWidget {
   const InspectionDetail(
       {super.key,
@@ -850,28 +1008,80 @@ class InspectionDetail extends StatefulWidget {
 }
 
 class _InspectionDetailState extends State<InspectionDetail> {
+  Future<void> editNote() async {
+    final value = await _noteDialog(context, item.note);
+    if (value == null || !mounted) return;
+    setState(() => busy = true);
+    try {
+      final saved = await widget.api.saveNote(item.id, value);
+      if (!mounted) return;
+      setState(() => item = saved);
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Inspector note saved')));
+      await widget.onUpdated();
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  String? preparingVideo;
+  Future<void> openVideo(String id) async {
+    setState(() => preparingVideo = id);
+    try {
+      final data =
+          await widget.api.playback(id, () => mounted && preparingVideo == id);
+      if (mounted) await playVideo(data);
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(error.toString())));
+      }
+    } finally {
+      if (mounted) setState(() => preparingVideo = null);
+    }
+  }
+
   Future<void> playRecording(String id) async {
     try {
       final bytes = await widget.api.media(id);
       if (mounted) await playEvidence(bytes);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
+
   Future<void> exportFile([Map<String, dynamic>? media]) async {
     setState(() => busy = true);
     try {
       final mime = media?['content_type'] as String? ?? 'application/pdf';
       final id = media?['id'] as String? ?? item.id;
-      final bytes = media == null ? await widget.api.report(id) : await widget.api.media(id);
-      final extension = mime == 'audio/wav' ? 'wav' : mime == 'application/pdf' ? 'pdf' : 'avi';
+      final bytes = media == null
+          ? await widget.api.report(id)
+          : await widget.api.media(id);
+      final extension = mime == 'audio/wav'
+          ? 'wav'
+          : mime == 'application/pdf'
+              ? 'pdf'
+              : 'avi';
       await exportEvidence(bytes, 'inspectpin-$id.$extension', mime);
     } catch (e) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
+
   late InspectionSummary item = widget.item;
   final question = TextEditingController();
   bool busy = false;
@@ -914,32 +1124,56 @@ class _InspectionDetailState extends State<InspectionDetail> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: Text(item.title)),
+      appBar: AppBar(
+          title: Text(item.title),
+          bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(48),
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Flexible(
+                        child: TextButton(
+                            onPressed: busy ? null : editNote,
+                            child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Inspector note')))),
+                    Flexible(
+                        child: TextButton(
+                            onPressed: busy ? null : () => exportFile(),
+                            child: const FittedBox(
+                                fit: BoxFit.scaleDown,
+                                child: Text('Download PDF')))),
+                  ]))),
       body: ListView(padding: const EdgeInsets.all(16), children: [
-        OutlinedButton(onPressed: busy ? null : () => exportFile(), child: const Text('Download inspection PDF')),
-        TextFormField(initialValue: item.note, maxLength: 2000,
-            decoration: const InputDecoration(labelText: 'Inspector notes'),
-            onChanged: (text) => draftNote = text),
-        OutlinedButton(onPressed: busy ? null : () async {
-          setState(() => busy = true);
-          try {
-            final saved = await widget.api.saveNote(item.id, draftNote ?? item.note);
-            if (mounted) setState(() { item = saved; message = 'Notes saved'; });
-          } catch (e) {
-            if (mounted) setState(() => message = e.toString());
-          } finally { if (mounted) setState(() => busy = false); }
-        }, child: const Text('Save notes')),
+        if (item.note.isNotEmpty)
+          ListTile(
+              title: const Text('Saved inspector note'),
+              subtitle: Text(item.note)),
         for (final media in item.recordings) ...[
+          if (item.recordingSeconds != null)
+            Text(
+                '${media['content_type'] == 'audio/wav' ? 'Audio' : 'Silent video'} · ${item.recordingSeconds!.toStringAsFixed(1)} s'),
           if (media['content_type'] == 'audio/wav')
             Wrap(children: [
-              TextButton(onPressed: () => playRecording(media['id'] as String), child: const Text('Play recording')),
+              TextButton(
+                  onPressed: () => playRecording(media['id'] as String),
+                  child: const Text('Play recording')),
               TextButton(onPressed: stopEvidence, child: const Text('Stop')),
             ]),
+          if (media['content_type'] == 'video/x-msvideo')
+            TextButton(
+                onPressed: preparingVideo != null
+                    ? null
+                    : () => openVideo(media['id'] as String),
+                child: Text(preparingVideo == media['id']
+                    ? 'Preparing silent video…'
+                    : 'Play silent video')),
           if (media['content_type'] == 'video/x-msvideo')
             _RecordingPreview(api: widget.api, id: media['id'] as String),
           OutlinedButton(
             onPressed: busy ? null : () => exportFile(media),
-            child: Text('Download original ${media['content_type'] == 'audio/wav' ? 'WAV' : 'silent AVI'} · ${media['byte_size']} bytes'),
+            child: Text(
+                'Download original ${media['content_type'] == 'audio/wav' ? 'WAV' : 'silent AVI'} · ${media['byte_size']} bytes'),
           ),
         ],
         if (item.simulated)
@@ -1070,14 +1304,27 @@ class _RecordingPreviewState extends State<_RecordingPreview> {
   Future<Uint8List>? preview;
   @override
   Widget build(BuildContext context) => Column(children: [
-    TextButton(onPressed: () => setState(() {
-      preview = preview == null ? widget.api.media(widget.id, preview: true) : null;
-    }), child: Text(preview == null ? 'Play silent preview' : 'Close preview')),
-    if (preview != null) FutureBuilder<Uint8List>(future: preview, builder: (context, result) {
-      if (result.hasError) return const Text('Preview unavailable. Download the original below.');
-      return result.hasData ? Image.memory(result.data!) : const CircularProgressIndicator();
-    }),
-  ]);
+        TextButton(
+            onPressed: () => setState(() {
+                  preview = preview == null
+                      ? widget.api.media(widget.id, preview: true)
+                      : null;
+                }),
+            child: Text(
+                preview == null ? 'Play silent preview' : 'Close preview')),
+        if (preview != null)
+          FutureBuilder<Uint8List>(
+              future: preview,
+              builder: (context, result) {
+                if (result.hasError) {
+                  return const Text(
+                      'Preview unavailable. Download the original below.');
+                }
+                return result.hasData
+                    ? Image.memory(result.data!)
+                    : const CircularProgressIndicator();
+              }),
+      ]);
 }
 
 class _LoadingView extends StatelessWidget {

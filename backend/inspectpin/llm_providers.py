@@ -32,6 +32,10 @@ def post_json(url, payload, timeout, key="", headers=None):
         raise ServiceError("PROVIDER_TIMEOUT", "AI provider timed out") from exc
     except requests.RequestException as exc:
         raise ServiceError("PROVIDER_UNAVAILABLE", "Cannot connect to AI provider") from exc
+    return provider_json(response)
+
+
+def provider_json(response):
     if response.status_code != 200:
         code = {401: "PROVIDER_AUTH", 403: "PROVIDER_AUTH", 402: "PROVIDER_QUOTA",
                 404: "MODEL_UNAVAILABLE", 429: "PROVIDER_RATE_OR_QUOTA"}.get(response.status_code, "PROVIDER_ERROR")
@@ -76,6 +80,7 @@ class OllamaProvider:
         s = self.settings
         result = post_json(s.ollama_url.rstrip("/") + "/api/chat", {
             "model": s.llm_model, "stream": False, "options": {"num_predict": 220},
+            "keep_alive": s.ollama_keep_alive_seconds,
             "messages": messages_for(text, history)}, s.request_timeout)
         return extract_answer(result, True)
 
@@ -86,6 +91,8 @@ class CloudProvider:
 
     def answer(self, text, history=None):
         s = self.settings
+        if s.llm_provider in CHAT_ENDPOINTS:
+            return hosted_chat(s, s.llm_provider, s.llm_model, messages_for(text, history))
         openai = s.llm_provider == "openai"
         url = "https://api.openai.com/v1/responses" if openai else "https://api.deepseek.com/chat/completions"
         if openai:
@@ -97,6 +104,21 @@ class CloudProvider:
                        "thinking": {"type": "disabled"}}
         return extract_answer(post_json(url, payload, s.request_timeout,
                                        s.openai_api_key if openai else s.deepseek_api_key))
+
+
+CHAT_ENDPOINTS = {
+    "groq": "https://api.groq.com/openai/v1/chat/completions",
+    "gemini": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+}
+
+
+def hosted_chat(settings, provider, model, messages):
+    limit_field = "max_completion_tokens" if provider == "groq" else "max_tokens"
+    payload = {"model": model, "messages": messages, "stream": False, limit_field: 1024}
+    if provider == "groq" and model == "qwen/qwen3.8-27b":
+        payload["reasoning_format"] = "hidden"
+    return extract_answer(post_json(CHAT_ENDPOINTS[provider], payload, settings.request_timeout,
+                                    getattr(settings, provider + "_api_key")))
 
 
 class AnthropicProvider:
@@ -131,5 +153,7 @@ class AnthropicProvider:
 def make_llm(settings):
     return {"mock": MockLLM, "ollama": lambda: OllamaProvider(settings),
             "openai": lambda: CloudProvider(settings),
+            "groq": lambda: CloudProvider(settings),
+            "gemini": lambda: CloudProvider(settings),
             "anthropic": lambda: AnthropicProvider(settings),
             "deepseek": lambda: CloudProvider(settings)}[settings.llm_provider]()

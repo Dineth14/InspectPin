@@ -10,11 +10,13 @@ class MainActivity : FlutterActivity() {
     private var reply: MethodChannel.Result? = null
     private var evidence: ByteArray? = null
     private var player: android.media.MediaPlayer? = null
+    private var videoDialog: android.app.AlertDialog? = null
     private fun stopPlayback() {
         player?.release()
         player = null
     }
     override fun onStop() {
+        videoDialog?.dismiss()
         stopPlayback()
         super.onStop()
     }
@@ -24,6 +26,37 @@ class MainActivity : FlutterActivity() {
         MethodChannel(engine.dartExecutor.binaryMessenger, "ai.inspectpin.mobile/evidence")
             .setMethodCallHandler { call, result ->
                 if (call.method == "stop") { stopPlayback(); result.success(null); return@setMethodCallHandler }
+                if (call.method == "video") {
+                    var file: java.io.File? = null
+                    try {
+                        videoDialog?.dismiss()
+                        stopPlayback()
+                        val clip = java.io.File.createTempFile("inspectpin-", ".mp4", cacheDir)
+                        file = clip
+                        clip.writeBytes(call.arguments as ByteArray)
+                        val view = android.widget.VideoView(this)
+                        val controls = android.widget.MediaController(this)
+                        controls.setAnchorView(view)
+                        view.setMediaController(controls)
+                        val dialog = android.app.AlertDialog.Builder(this)
+                            .setTitle("Silent video").setView(view).setPositiveButton("Close", null).create()
+                        dialog.setOnDismissListener {
+                            view.stopPlayback()
+                            clip.delete()
+                            videoDialog = null
+                        }
+                        videoDialog = dialog
+                        dialog.show()
+                        view.setVideoPath(clip.absolutePath)
+                        view.start()
+                        result.success(null)
+                    } catch (e: Exception) {
+                        videoDialog?.dismiss()
+                        file?.delete()
+                        result.error("PLAY_FAILED", "Could not open silent video", null)
+                    }
+                    return@setMethodCallHandler
+                }
                 if (call.method == "play") {
                     stopPlayback()
                     try {

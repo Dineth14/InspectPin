@@ -69,9 +69,9 @@ class ProductJobManager:
                     answer = services.llm.answer(question)
                 else:
                     raise ServiceError("IMAGE_REQUIRED", "Upload an inspection JPEG before analysis", 409)
-                active_settings = (self.services.settings_for_owner(job["owner_id"])
-                                   if hasattr(self.services, "settings_for_owner") else self.settings)
-                mock = active_settings.vision_provider == "mock"
+                vision = getattr(services, "providers", {}).get("vision", {
+                    "provider": self.settings.vision_provider, "model": self.settings.vision_model})
+                mock = vision["provider"] == "mock"
                 findings = [{
                     "category": "visual_observation",
                     "description": answer,
@@ -81,8 +81,8 @@ class ProductJobManager:
                 }]
                 if operation == "analysis":
                     self.store.update_inspection(job["owner_id"], inspection_id, "completed", answer,
-                                                 findings, {"vision_provider": active_settings.vision_provider,
-                                                            "vision_model": active_settings.vision_model,
+                                                 findings, {"vision_provider": vision["provider"],
+                                                            "vision_model": vision["model"],
                                                             "simulated_result": mock,
                                                             "completed_at": time.time()})
                 elif interaction_id:

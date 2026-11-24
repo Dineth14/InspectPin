@@ -1,5 +1,6 @@
 #include "api_client.h"
 #include "config.h"
+#include "network_profile.h"
 #include "wav_utils.h"
 #include <HTTPClient.h>
 #include <WiFi.h>
@@ -11,7 +12,7 @@
 namespace {
 struct RequestClient { WiFiClient plain; WiFiClientSecure secure; };
 bool start(HTTPClient &http, RequestClient &client, const String &route) {
-  String base=IP_SERVER_URL;
+  String base=NetworkProfile::active().origin;
   const bool tls=base.startsWith("https://");
   if (!tls && !base.startsWith("http://")) return false;
   while (base.endsWith("/")) base.remove(base.length()-1);
@@ -22,7 +23,7 @@ bool start(HTTPClient &http, RequestClient &client, const String &route) {
     client.secure.setCACert(IP_SERVER_CA_CERT);
     if(!http.begin(client.secure,base+route))return false;
   } else if (!http.begin(client.plain,base+route)) return false;
-  http.addHeader("X-Device-Token",IP_DEVICE_TOKEN);
+  http.addHeader("X-Device-Token",NetworkProfile::active().token);
   http.addHeader("X-Device-ID",Api::deviceId()); return true;
 }
 bool jsonReply(HTTPClient &http, JsonDocument &doc) {

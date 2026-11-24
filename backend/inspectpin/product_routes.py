@@ -343,6 +343,23 @@ def video_preview(ident):
     return send_file(recordings.preview(data), mimetype="image/gif", max_age=0)
 
 
+@product.get("/api/v1/media/<ident>/playback")
+def video_playback(ident):
+    owner = user_id()
+    repository = store()
+    media = repository.media(owner, ident)
+    if media["content_type"] != "video/x-msvideo":
+        raise ServiceError("VIDEO_REQUIRED", "Choose a silent video recording", 415)
+    state, data = current_app.extensions["playback_cache"].get(
+        (owner, ident), lambda: repository.media(owner, ident, content=True)[0])
+    if state == "ready":
+        return send_file(io.BytesIO(data), mimetype="video/mp4", conditional=True,
+                         download_name=f"{ident}.mp4", max_age=0)
+    if state == "failed":
+        raise ServiceError("PLAYBACK_FAILED", "Use the silent preview or download the original AVI", 503)
+    return jsonify(status=state), 202, {"Retry-After": "2"}
+
+
 @product.get("/api/v1/media/<ident>")
 def media(ident):
     data, content_type = store().media(user_id(), ident, content=True)

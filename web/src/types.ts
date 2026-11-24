@@ -9,6 +9,7 @@ export type Finding = { category?: string; description: string; severity?: strin
 export type Inspection = {
   id: string; device_id: string | null; created_at: number; title: string; status: string
   summary: string; findings: Finding[]; simulated: boolean; image_media_id?: string | null
+  processing_metadata?: { duration_seconds?: number; playback_seconds?: number }
   media?: { id: string; media_type: string; content_type: string; byte_size: number }[]
   voice_interactions?: { id: string; transcript: string; question: string; ai_response: string; status: string; created_at: number }[]
 }

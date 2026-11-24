@@ -2,6 +2,7 @@ import { FormEvent, useCallback, useEffect, useMemo, useState } from 'react'
 import { ApiClient, ApiError, formatBytes, relativeTime } from './api'
 import type { Device, Inspection, User } from './types'
 import { AuthenticatedImage } from './components/AuthenticatedImage'
+import { Recording } from './components/Recording'
 import { BrandIcon, BrandWordmark } from './components/Brand'
 import { Icon } from './components/Icon'
 import { EmptyState, Eyebrow, Skeleton, StatusBadge } from './components/Ui'
@@ -121,6 +122,9 @@ function Workspace({ item, api, onBack, onUpdated }: { item: Inspection; api: Ap
   async function reload() { onUpdated(await api.inspection(item.id)) }
   return <><button className="back-button" onClick={onBack}>← Evidence library</button><header className="workspace-head"><div><Eyebrow>INSPECTION {item.id.slice(0, 8).toUpperCase()}</Eyebrow><h1>{item.title}</h1><p>{new Date(item.created_at * 1000).toLocaleString()} · {item.device_id ?? 'manual upload'}</p></div><button className="button secondary" onClick={() => api.downloadReport(item.id)}><Icon name="download" />Export report</button></header>
     {item.simulated && <div className="notice warning"><Icon name="alert" />Simulator result — not a physical inspection.</div>}
+    {item.media?.filter(m => ['audio/wav','video/x-msvideo'].includes(m.content_type)).map(m =>
+      <Recording key={m.id} id={m.id} api={api} video={m.content_type==='video/x-msvideo'}
+        seconds={item.processing_metadata?.duration_seconds ?? item.processing_metadata?.playback_seconds}/>)}
     <div className="workspace-grid"><section className="evidence-panel panel"><div className="panel-title"><div><Eyebrow>ORIGINAL EVIDENCE</Eyebrow><h2>Captured image</h2></div><span>{item.media?.find(m => m.media_type === 'image')?.byte_size ? formatBytes(item.media.find(m => m.media_type === 'image')!.byte_size) : 'Unavailable'}</span></div><div className="evidence-frame"><AuthenticatedImage api={api} mediaId={mediaId(item)} alt={`Original inspection evidence for ${item.title}`} /></div><p className="image-note">Original media is retained unchanged. Annotations appear only when the model returns real regions.</p></section>
       <section className="analysis-panel panel"><Eyebrow>AI ANALYSIS</Eyebrow><h2>{item.summary || 'Analysis pending'}</h2><div className="finding-list">{item.findings?.length ? item.findings.map((finding, index) => <article className="finding-card" key={index}><div><span>{finding.severity ?? 'observation'}</span><b>{finding.confidence ?? 'uncertainty not scored'}</b></div><p>{finding.description}</p>{finding.evidence && <small>Evidence: {finding.evidence}</small>}</article>) : <EmptyState title="No findings yet" body="The analysis has not returned structured observations." />}</div><p className="advisory"><Icon name="shield" />Visual advisory only. Verify with appropriate electrical testing and qualified personnel.</p></section>
       <aside className="conversation-panel panel"><Eyebrow>CONTEXT THREAD</Eyebrow><h2>Questions & answers</h2><div className="conversation-list">{item.voice_interactions?.length ? item.voice_interactions.map(turn => <article className="turn" key={turn.id}><div className="turn-user">{turn.question || turn.transcript}</div><div className="turn-ai"><BrandIcon /> <p>{turn.ai_response || (turn.status === 'failed' ? 'The answer failed. Try again.' : 'Processing…')}</p></div></article>) : <p className="muted">No follow-up questions yet.</p>}</div><AskForm inspection={item} api={api} onDone={reload} compact /></aside></div>

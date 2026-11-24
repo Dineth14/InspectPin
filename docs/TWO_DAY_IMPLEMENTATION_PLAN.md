@@ -10,3 +10,5 @@ Baseline commit `099b5507`, clean tracked tree before implementation. The existi
 | P1 | Silent AVI accessible from serial, short ASK limited to inference | Local recording controls, protected evidence transport | Medium, SD and physical rehearsal | Play original and compare hash. Preserve each original on SD |
 | P1 | Inspection and reporting screens lack field notes | Persist notes, render in report | Small, migrated test database | Owner-scoped editing and PDF verification. Back up database before switching |
 | P2/P3 | Synchronized A/V, automated provider failover and fleet services | Deferred for the evaluation | Hardware qualification and deployment | Revisit after evaluation |
+
+The [release record](RELEASE_NOTES.md) lists the completed software checks, current artifacts and deployment blockers. Perform the remaining [physical rehearsal](PHYSICAL_ACCEPTANCE_TESTS.md) before promoting the evaluation firmware over the working battery-tested build.

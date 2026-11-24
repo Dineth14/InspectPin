@@ -2,3 +2,5 @@
 faster-whisper==1.2.1
 av==15.1.0
 piper-tts==1.3.0
+# ONNX Runtime 1.32.0 crashed on import during the Linux ARM64 Docker rehearsal.
+onnxruntime==1.23.2; sys_platform == "linux" and platform_machine == "aarch64"

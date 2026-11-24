@@ -8,6 +8,12 @@
 
 ---
 
+## Evaluation release addendum, 24 November 2026
+
+The single-layer evaluation build adds long-press standalone audio and silent video, authenticated upload and original download, inspection notes and PDF updates, workspace processing modes and a hosted receiver recipe. The sections below describe the audited baseline where their controls or build counts differ. The operator confirmed battery-powered operation. Validation of the new recording gestures on the assembled unit is open.
+
+For current build paths and test counts use [release notes](RELEASE_NOTES.md). For the laptop launcher, gesture durations and the nameplate exercise use the [user manual](USER_MANUAL.md). The [media architecture](MEDIA_RECORDING_ARCHITECTURE.md), [cloud guide](CLOUD_DEPLOYMENT_GUIDE.md), [commercial roadmap](COMMERCIALIZATION_ROADMAP.md) and [acceptance log](PHYSICAL_ACCEPTANCE_TESTS.md) describe the remaining release gates.
+
 ## 1. Executive summary
 
 InspectPin AI is a network-connected visual and voice inspection prototype built around a Seeed Studio XIAO ESP32-S3 Sense. The device can capture a photograph or record a spoken question, save the original media to microSD, send it over Wi-Fi to a Python backend, run local or cloud AI, download a generated WAV answer, and play it through a MAX98357A I2S amplifier and speaker.

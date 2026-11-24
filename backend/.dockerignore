@@ -6,3 +6,4 @@
 !inspectpin/*.py
 !scripts/
 !scripts/download_models.py
+!scripts/check_free_catalog.py

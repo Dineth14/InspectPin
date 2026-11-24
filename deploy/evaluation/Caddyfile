@@ -1,0 +1,15 @@
+{
+	acme_ca https://acme-v02.api.letsencrypt.org/directory
+}
+
+{$PUBLIC_HOST} {
+	@receiver path /api/* /healthz
+	handle @receiver {
+		reverse_proxy receiver:5000
+	}
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+}

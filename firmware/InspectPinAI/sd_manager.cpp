@@ -1,5 +1,6 @@
 #include "sd_manager.h"
 #include "config.h"
+#include "network_profile.h"
 #include <SD.h>
 #include <SPI.h>
 #include <esp_system.h>
@@ -27,18 +28,20 @@ String Store::newPath(bool image) {
   return String(path);
 }
 String Store::newVideoPath(){char path[80];do{snprintf(path,sizeof(path),"/inspectpin/%08lx_%08lx.avi",(unsigned long)esp_random(),(unsigned long)millis());}while(SD.exists(path)||SD.exists(String(path)+".part"));return String(path);}
-bool Store::markPending(const String &path, const String &job, const String &imageId, const String &contextId) {
+bool Store::markPending(const String &path, const String &job, const String &imageId, const String &contextId, bool unsent) {
   // Save the original association: retry must never silently use a newer image.
   String temporary=path+".pending.tmp", finalPath=path+".pending";
   File f=SD.open(temporary,FILE_WRITE);
   if (!f) return false;
   JsonDocument doc; doc["version"]=2; doc["job"]=job; doc["image_id"]=imageId; doc["context_id"]=contextId;
+    doc["origin"]=NetworkProfile::active().origin;
+    doc["unsent"]=unsent;
   bool ok=serializeJson(doc,f)==measureJson(doc); f.flush(); f.close();
   if (!ok) return false;
   if (SD.exists(finalPath) && !SD.remove(finalPath)) return false;
   return SD.rename(temporary,finalPath);
 }
-bool Store::nextPending(String &path, String &job, String &imageId, String &contextId) {
+bool Store::nextPending(String &path, String &job, String &imageId, String &contextId, bool automatic) {
   File dir=SD.open("/inspectpin");
   if (!dir) return false;
   for (File entry=dir.openNextFile(); entry; entry=dir.openNextFile()) {
@@ -46,15 +49,22 @@ bool Store::nextPending(String &path, String &job, String &imageId, String &cont
     if (!entry.isDirectory() && name.endsWith(".pending")) {
       path=String("/inspectpin/")+name.substring(0,name.length()-8);
       job=""; imageId=""; contextId="";
+      bool unsent=false;
       if (entry.peek()=='{') {
         JsonDocument doc;
         if (entry.size()>1024 || deserializeJson(doc,entry) || doc["version"]!=2 ||
             !doc["job"].is<const char*>() || !doc["image_id"].is<const char*>() || !doc["context_id"].is<const char*>()) {
           Serial.println("Skipping corrupt pending metadata; original input retained"); entry.close(); continue;
         }
-        job=doc["job"] | ""; imageId=doc["image_id"] | ""; contextId=doc["context_id"] | "";
-      } else { job=entry.readStringUntil('\n'); job.trim(); }  // Original voice-only journals.
+          if(NetworkProfile::active().origin!=(doc["origin"] | IP_SERVER_URL)){entry.close();continue;}
+          job=doc["job"] | ""; imageId=doc["image_id"] | ""; contextId=doc["context_id"] | "";
+          unsent=doc["unsent"] | false;
+        } else {
+          if(NetworkProfile::active().origin!=IP_SERVER_URL){entry.close();continue;}
+          job=entry.readStringUntil('\n'); job.trim();
+        }
       entry.close();
+      if (automatic && !unsent && !job.length() && !path.endsWith("_note.wav") && !path.endsWith(".avi")) continue;
       if (!SD.exists(path)) continue;
       if (!validId(job) || !validId(imageId) || !validId(contextId)) {
         Serial.println("Skipping invalid pending IDs; refusing to change image association"); continue;

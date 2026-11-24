@@ -1,5 +1,6 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'features/auth/login_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
@@ -17,9 +18,15 @@ class InspectPinApp extends StatefulWidget {
 
 class _InspectPinAppState extends State<InspectPinApp> {
   static const storage = FlutterSecureStorage();
+  static const configuredOrigin = String.fromEnvironment('INSPECTPIN_API_URL');
+  static String get defaultOrigin {
+    if (configuredOrigin.isNotEmpty) return configuredOrigin;
+    if (kIsWeb && Uri.base.scheme == 'https') return Uri.base.origin;
+    return kIsWeb ? 'http://127.0.0.1:5000' : 'http://10.0.2.2:5000';
+  }
+
   final api = ApiClient(
-    baseUrl: const String.fromEnvironment('INSPECTPIN_API_URL',
-        defaultValue: 'http://10.0.2.2:5000'),
+    baseUrl: defaultOrigin,
     storage: storage,
   );
   bool loading = true, signedIn = false, onboarded = false;

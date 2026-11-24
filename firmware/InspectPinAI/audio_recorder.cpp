@@ -18,6 +18,7 @@ bool recordWav(const String &path, ButtonManager *noteControls) {
   Serial.println("Microphone recording started");
   bool stopped = false;
   uint32_t written=0, started=millis(); int peak=0; double squares=0;
+  uint32_t nextReport=5000;
   int16_t buf[512]; bool ok=true;
   while (written<target && millis()-started<seconds*1000+3000) {
     if (noteControls) {
@@ -32,6 +33,11 @@ bool recordWav(const String &path, ButtonManager *noteControls) {
     if (err!=ESP_OK || !got || got%2) { ok=false; break; }
     size_t saved=f.write((uint8_t*)buf,got); written+=saved;
     if (saved!=got) { ok=false; break; }
+    if (noteControls && millis()-started >= nextReport) {
+      Serial.printf("Audio note: recorded_ms=%lu heap=%u psram=%u\n",
+                    (unsigned long)(written/32),ESP.getFreeHeap(),ESP.getFreePsram());
+      nextReport+=5000;
+    }
     for (size_t i=0;i<got/2;i++) { int sample=buf[i]; peak=max(peak,abs(sample)); squares+=double(sample)*sample; }
     delay(1);
   }

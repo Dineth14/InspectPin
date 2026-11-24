@@ -8,6 +8,7 @@ class DeviceSummary {
     required this.hardwareRevision,
     required this.firmwareVersion,
     required this.lastSeen,
+    this.reportedState = '',
     required this.storageFree,
     required this.storageTotal,
     required this.battery,
@@ -15,6 +16,23 @@ class DeviceSummary {
   final String id, name, hardwareRevision, firmwareVersion;
   final bool online;
   final DateTime? lastSeen;
+  final String reportedState;
+  String get connectionLabel {
+    if (lastSeen == null) return 'Paired · waiting for first heartbeat';
+    if (!online) return 'Device not responding';
+    if ([
+      'RECORDING',
+      'UPLOADING',
+      'WAITING_FOR_AI',
+      'PLAYING',
+      'VIDEO_RECORDING',
+      'DOWNLOADING'
+    ].contains(reportedState)) {
+      return 'Device busy · $reportedState';
+    }
+    return 'Device online';
+  }
+
   final int? storageFree, storageTotal;
   final BatteryStatus battery;
 
@@ -22,6 +40,7 @@ class DeviceSummary {
         id: json['id'] as String,
         name: json['name'] as String? ?? 'InspectPin',
         online: json['online'] == true,
+        reportedState: json['reported_state']?.toString() ?? '',
         hardwareRevision: json['hardware_revision'] as String? ?? 'Unknown',
         firmwareVersion: json['firmware_version'] as String? ?? 'Unknown',
         lastSeen: json['last_seen'] is num
@@ -56,6 +75,7 @@ class InspectionSummary {
     required this.imageMediaId,
     required this.interactions,
     this.recordings = const [],
+    this.recordingSeconds,
     this.note = '',
   });
   final String id, title, status, summary;
@@ -65,6 +85,7 @@ class InspectionSummary {
   final String? imageMediaId;
   final List<InspectionInteraction> interactions;
   final List<Map<String, dynamic>> recordings;
+  final num? recordingSeconds;
   final String note;
   factory InspectionSummary.fromJson(Map<String, dynamic> json) =>
       InspectionSummary(
@@ -81,9 +102,12 @@ class InspectionSummary {
             .toList(),
         imageMediaId: json['image_media_id'] as String?,
         note: json['note'] as String? ?? '',
+        recordingSeconds: (json['processing_metadata']?['duration_seconds'] ??
+            json['processing_metadata']?['playback_seconds']) as num?,
         recordings: (json['media'] as List? ?? const [])
             .whereType<Map<String, dynamic>>()
-            .where((m) => ['audio/wav', 'video/x-msvideo'].contains(m['content_type']))
+            .where((m) =>
+                ['audio/wav', 'video/x-msvideo'].contains(m['content_type']))
             .toList(),
         interactions: (json['voice_interactions'] as List? ?? const [])
             .whereType<Map<String, dynamic>>()
@@ -117,6 +141,7 @@ class DashboardData {
 
 class AiConfiguration {
   const AiConfiguration({
+    this.freeTierOnly = false,
     this.mode = 'automatic',
     required this.llmProvider,
     required this.llmModel,
@@ -132,10 +157,12 @@ class AiConfiguration {
   final String llmProvider, llmModel, visionProvider, visionModel, ollamaUrl;
   final String mode;
   final bool hasOpenAiKey, hasAnthropicKey, hasDeepSeekKey;
+  final bool freeTierOnly;
   final List<String> llmProviders, visionProviders;
   factory AiConfiguration.fromJson(Map<String, dynamic> json) =>
       AiConfiguration(
         mode: json['mode'] as String? ?? 'automatic',
+        freeTierOnly: json['free_tier_only'] == true,
         llmProvider: json['llm_provider']?.toString() ?? 'ollama',
         llmModel: json['llm_model']?.toString() ?? '',
         visionProvider: json['vision_provider']?.toString() ?? 'none',

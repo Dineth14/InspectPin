@@ -13,6 +13,7 @@ from .product_routes import product
 from .product_store import ProductStore
 from .product_jobs import ProductJobManager
 from .storage import Storage
+from .video_playback import PlaybackCache
 
 
 def create_app(settings=None, services=None):
@@ -22,6 +23,7 @@ def create_app(settings=None, services=None):
     app.config.update(SETTINGS=settings, MAX_CONTENT_LENGTH=max(settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes))
     services = services or Services.create(settings)
     app.extensions["services"] = services
+    app.extensions["playback_cache"] = PlaybackCache()
     app.extensions["product_store"] = ProductStore(settings.data_dir, settings.user_session_seconds)
     app.extensions["ai_configuration"] = AIConfigurationManager(
         settings, app.extensions["product_store"], services)

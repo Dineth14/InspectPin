@@ -1,0 +1,50 @@
+name: inspectpin-evaluation
+services:
+  receiver:
+    build:
+      context: ../../backend
+      dockerfile: Dockerfile.hosted
+    restart: unless-stopped
+    environment:
+      DEPLOYMENT_MODE: production
+      FREE_TIER_ONLY: "true"
+      HOST: 0.0.0.0
+      PORT: "5000"
+      DATA_DIR: /data
+      CONFIG_ENCRYPTION_KEY: ${CONFIG_ENCRYPTION_KEY:?Set a permanent Fernet key}
+      STT_PROVIDER: ${STT_PROVIDER:-whisper}
+      WHISPER_LOCAL_ONLY: "true"
+      TTS_PROVIDER: piper
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+      LLM_MODEL: ${LLM_MODEL:-openai/gpt-oss-20b}
+      VISION_PROVIDER: ${VISION_PROVIDER:-groq}
+      VISION_MODEL: ${VISION_MODEL:-qwen/qwen3.8-27b}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      CORS_ORIGIN: https://${PUBLIC_HOST:?Set the public DNS hostname}
+    volumes:
+      - evidence:/data
+    logging:
+      options: {max-size: 5m, max-file: "2"}
+  https:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on:
+      receiver:
+        condition: service_healthy
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:?Set the public DNS hostname}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./dashboard:/srv:ro
+      - certificates:/data
+      - caddy_config:/config
+    logging:
+      options: {max-size: 5m, max-file: "2"}
+volumes:
+  evidence:
+  certificates:
+  caddy_config:

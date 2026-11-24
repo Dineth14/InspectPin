@@ -1,4 +1,5 @@
 #include "app_state_machine.h"
+#include "network_profile.h"
 #include "config.h"
 #include "sd_manager.h"
 #include "audio_recorder.h"
@@ -76,6 +77,7 @@ void App::fail(const String &error,bool offline) {
 }
 bool App::idle() const { return state_==AppState::READY || state_==AppState::OFFLINE || state_==AppState::ERROR || state_==AppState::LOW_BATTERY; }
 void App::begin() {
+  NetworkProfile::load();
   Serial.println("BOOT: eventlog");EventLog::begin();Serial.println("BOOT: amp");
   state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
   if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
@@ -154,10 +156,10 @@ void App::recordNote() {
   queueRecording();
 }
 
-void App::retry() {
+void App::retry(bool automatic) {
   if (!operation_.begin(OperationClass::RECOVERY)) { fail("DEVICE_BUSY"); return; }
   if (!sdReady_) { begin(); return; }
-  if (!Store::nextPending(path_,job_,captureImage_,captureContext_)) { Serial.println("No pending captures"); state(AppState::READY); return; }
+  if (!Store::nextPending(path_,job_,captureImage_,captureContext_,automatic)) { operation_.end(); if(!automatic) state(AppState::READY); return; }
   jobResult_=JobResult{};
   if (path_.endsWith(".jpg")) { job_=""; imagePending_=true; }
   attempts_=0; jobStart_=millis(); lastPoll_=0;
@@ -249,7 +251,7 @@ void App::tick() {
   runtime_.flags().lightOn=Illumination::state().actual;
   runtime_.flags().hapticEnabled=Feedback::hapticEnabled();
   ButtonAction action=button_.update();
-  if(WiFi.status()==WL_CONNECTED && state_!=AppState::RECORDING && state_!=AppState::SAVING &&
+  if(WiFi.status()==WL_CONNECTED && !Video::active() && state_!=AppState::RECORDING && state_!=AppState::SAVING &&
      state_!=AppState::UPLOADING && state_!=AppState::DOWNLOADING && state_!=AppState::PLAYING &&
      millis()-lastHeartbeat_>=30000){
     lastHeartbeat_=millis();String heartbeatError;
@@ -267,6 +269,13 @@ void App::tick() {
     return;
   }
   if (idle()) {
+    if(sdReady_ && action==ButtonAction::NONE && !Serial.available() &&
+       (state_==AppState::OFFLINE || state_==AppState::READY) && millis()-lastRecovery_>=45000){
+      lastRecovery_=millis();
+      if(WiFi.status()!=WL_CONNECTED || state_==AppState::OFFLINE) syncContext();
+      if(state_==AppState::READY) retry(true);
+      return;
+    }
     if(WiFi.status()==WL_CONNECTED&&millis()-lastRemotePoll_>=5000){
       lastRemotePoll_=millis();DeviceCommand remote;String remoteId,remoteError;bool available=false;
       if(Api::pollRemoteCommand(remote,remoteId,available,remoteError)&&available){
@@ -282,7 +291,8 @@ void App::tick() {
     else if (action==ButtonAction::CAMERA) handleCommand({CommandType::PHOTO_CAPTURE,CommandSource::BUTTON,String("button-")+millis()});
     if (idle() && Serial.available()) {
       char cmd=Serial.read();
-      if(cmd=='d') {
+      if(cmd=='@') NetworkProfile::configureUsb();
+      else if(cmd=='d') {
         if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK PCF/P1=%s PHOTO PCF/P0=%s PCF_INT=%s (pressed=LOW)\n",Expander::askPressed()?"LOW":"HIGH",Expander::photoPressed()?"LOW":"HIGH",Config::pcfInterrupt<0?"not-routed":(digitalRead(Config::pcfInterrupt)?"HIGH":"LOW"));
         else Serial.printf("Buttons: ASK/GPIO%d=%s PHOTO/GPIO%d=%s direct-photo=%s (pressed=LOW)\n",Config::button,digitalRead(Config::button)?"HIGH":"LOW",Config::cameraButton,digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
       }
@@ -300,6 +310,7 @@ void App::tick() {
     SessionContext policy;
     if (!Api::session(policy,error)) { fail(error,true); return; }
     if (policy.offlineRecording) { fail("OFFLINE_MODE_SAVED",true); return; }
+    if(!Store::markPending(path_,job_,captureImage_,captureContext_,false)){fail("PENDING_JOURNAL_FAILED");return;}
     if (path_.endsWith("_note.wav") || path_.endsWith(".avi")) {
       if (!Api::uploadRecording(path_,error)) { fail(error,true); return; }
       Store::complete(path_);
@@ -314,7 +325,7 @@ void App::tick() {
       SessionContext current;
       if (!Api::uploadImage(path_,current,error)) {
         Serial.printf("Image upload failed: %s\n",error.c_str());
-        if (++attempts_<3) { retryAt_=millis(); state(AppState::RETRYING); } else fail(error,true);
+        fail(error,true);
         return;
       }
       useContext(current); imagePending_=false; Store::complete(path_);
@@ -344,10 +355,10 @@ void App::tick() {
     if (millis()-lastPoll_<Config::pollIntervalMs) return;
     lastPoll_=millis();
     if (!Wifi::connect() || !Api::poll(job_,jobResult_,error)) {
-      if (error=="HTTP_404" || error=="JOB_NOT_FOUND") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_); }
+      if (error=="HTTP_404" || error=="JOB_NOT_FOUND") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_,false); }
       fail(error.length()?error:"WIFI_DISCONNECTED",true); return;
     }
-    if (jobResult_.status=="failed") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_); fail(jobResult_.error); return; }
+    if (jobResult_.status=="failed") { job_=""; Store::markPending(path_,"",captureImage_,captureContext_,false); fail(jobResult_.error); return; }
     if (jobResult_.status=="completed" && jobResult_.audio) {
       Serial.printf("Speech recognized: %s\nAI processing completed: %s\n",jobResult_.transcript.c_str(),jobResult_.answer.c_str());
       answerPath_=String("/inspectpin/answer_")+job_+".wav"; state(AppState::DOWNLOADING);

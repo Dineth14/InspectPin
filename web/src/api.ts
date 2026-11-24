@@ -47,8 +47,14 @@ export class ApiClient {
     const anchor = document.createElement('a'); anchor.href = url; anchor.download = `inspectpin-${id}.pdf`; anchor.click()
     URL.revokeObjectURL(url)
   }
-  async mediaObjectUrl(id: string) {
-    const response = await fetch(this.base + `/api/v1/media/${id}`, { headers: { Authorization: `Bearer ${this.token}` } })
+  async mediaObjectUrl(id: string, signal?: AbortSignal) {
+    const download = () => fetch(this.base + `/api/v1/media/${id}`, { signal, headers: { Authorization: `Bearer ${this.token}` } })
+    let response = await download()
+    for (let attempt = 0; response.status === 202 && attempt < 20; attempt++) {
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      response = await download()
+    }
+    if (response.status === 202) throw new Error('Video is still processing. Try again shortly.')
     if (!response.ok) throw new ApiError(response.status, 'MEDIA_FAILED', 'Media could not be loaded')
     return URL.createObjectURL(await response.blob())
   }

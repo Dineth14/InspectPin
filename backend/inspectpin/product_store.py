@@ -158,6 +158,8 @@ class ProductStore:
                 """
             )
             columns = {row[1] for row in self.db.execute("PRAGMA table_info(ai_configurations)")}
+            if "reported_state" not in {row[1] for row in self.db.execute("PRAGMA table_info(devices)")}:
+                self.db.execute("ALTER TABLE devices ADD COLUMN reported_state TEXT")
             if "mode" not in columns:
                 self.db.execute("ALTER TABLE ai_configurations ADD COLUMN mode TEXT NOT NULL DEFAULT 'automatic'")
             self.db.execute("CREATE TABLE IF NOT EXISTS inspection_notes (inspection_id TEXT PRIMARY KEY REFERENCES inspections(id) ON DELETE CASCADE, note TEXT NOT NULL)")
@@ -277,6 +279,8 @@ class ProductStore:
             existing = self.db.execute("SELECT owner_id,revoked_at FROM devices WHERE id=?", (device_id,)).fetchone()
             if existing and existing["owner_id"] != owner_id and existing["revoked_at"] is None:
                 raise ServiceError("DEVICE_ALREADY_PAIRED", "Device belongs to another account", 409)
+            if existing and existing["revoked_at"] is None:
+                raise ServiceError("DEVICE_ALREADY_PAIRED", "Select the existing paired device to verify its heartbeat", 409)
             self.db.execute(
                 "INSERT OR REPLACE INTO devices(id,owner_id,name,model,firmware_version,hardware_revision,token_hash,paired_at,revoked_at,last_seen,online) VALUES(?,?,?,?,?,?,?,?,NULL,NULL,0)",
                 (device_id, owner_id, name[:80] or "InspectPin", model[:80], firmware_version[:40],
@@ -342,6 +346,8 @@ class ProductStore:
                  int(bool(payload.get("sd_present", False))), payload.get("wifi_rssi"),
                  str(payload.get("connection", "wifi"))[:40], device_id),
             )
+            self.db.execute("UPDATE devices SET reported_state=? WHERE id=?",
+                            (str(payload.get("state", ""))[:32], device_id))
             return {"accepted": True, "server_time": now, "next_heartbeat_seconds": 30}
 
     def create_command(self, owner_id: str, device_id: str, command_type: str,
