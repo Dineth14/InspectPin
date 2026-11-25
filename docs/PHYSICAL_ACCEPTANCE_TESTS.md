@@ -1,5 +1,56 @@
 # Physical acceptance log
 
+## Follow-up timing rehearsal, 25 November 2026
+
+Three completed voice jobs immediately before this change took 8.65–14.97 seconds of receiver processing and produced 7.89–18.76 seconds of audio. Adding the five-second recording gives 21.5–38.7 seconds before Wi-Fi transfer and job polling. That interval is the time to complete the current question.
+
+Previous serial traces showed gaps of about 27 seconds near the periodic recovery check. The retry scan now reads directory entries and only opens retry journals. Firmware `4e31ede49d819773a65469422a9f2e03991133d88408716d624eb70cccac596e` was installed and verified on `pin-dc225c8fee68`. The first measured scan on this card took 3.453 seconds and found no eligible pending work. A physical ASK tap then started a five-second recording.
+
+The physical ASK at 13:30:22.964 started the microphone at 13:30:24.063. The first answer finished at 13:31:06.339 and the board reported READY at 13:31:06.575. The second physical ASK was accepted at 13:31:07.760, 1.421 seconds after playback finished. Its microphone started at 13:31:08.862. These are serial arrival timestamps rather than measured electrical button-edge times.
+
+The second answer finished at 13:31:41.542, 33.782 seconds after acceptance, and returned to READY. The first interaction took 43.375 seconds from acceptance to playback completion. Speech recognition differed from the scripted questions on both recordings, so this run confirms the physical handoff and timing while leaving spoken-question accuracy unresolved. A second idle retry scan took 3.454 seconds.
+
+## ASK input isolation, 25 November 2026
+
+Two held-ASK checks on the previous build showed only HIGH samples on GPIO5, with multi-second gaps in USB diagnostic replies. Those gaps made the traces insufficient to determine whether the switch or main-loop latency caused the missed press. The updated build samples direct GPIO buttons every 5 ms on an ESP timer, keeps one completed gesture for the main loop, and reports cumulative presses in the USB `d` diagnostic. Short ASK now plays a brief tone before the five-second recording.
+
+The app-only firmware update `ca83bbd217c177da73ea965c50b6539db3cdf3b242085cac93615c9b671f10a2` was installed and verified on `pin-dc225c8fee68`. The board initialized microSD, joined Wi-Fi and returned to `READY`. Both buttons read HIGH at rest and both press counters started at zero. After the operator retried ASK and reported no tone, the diagnostic still showed ASK=0 and the log had no VOICE_START. The operator is checking the switch and GPIO5 connection. A separate gap in USB responses remains visible even with the independent sampler. The exact earlier build remains available privately as `.backups/local-release-20261124-194703/ask-before-sampler.bin`.
+
+## End-to-end timing and failure checks, 25 November 2026
+
+The laptop website returned HTTP 200, the receiver reported its database ready, and the board reported `READY` through a fresh heartbeat. Serial logging was taken over on COM7 at 115200 baud. Timestamps below record when the laptop received each serial line.
+
+| Check | Result |
+|---|---|
+| Physical PHOTO | The button command arrived at 13:05:34.463, SD confirmed the JPEG at 13:05:36.954, and the board reached `READY` after upload at 13:05:41.253. Total 6.790 seconds. Inspection `69a65aecd79f4af7818cb8cdfedcd2de` has a readable 800 × 600 JPEG, 22,295 bytes. The receiver's file checksum matched its stored checksum. |
+| Physical ASK missed after a fresh photo | The operator reported pressing ASK while the fresh photo was current. The serial log showed no `VOICE_START` or microphone recording for the reported press. This failure occurred before transcription or model inference. |
+| Intermittent responsiveness | Button diagnostics were sent about four times per second. Replies stopped between 13:07:57.764 and about 13:08:24.47, then several arrived together. The diagnostics show a roughly 27-second gap in replies. The log does not identify which firmware call blocked or whether the pause coincided with the reported press. |
+| ASK over USB with deliberate silence | The USB command was sent at 13:09:49.481 and the board logged acceptance 4.547 seconds later. It recorded and saved a complete five-second WAV and uploaded job `d6531cf79faf4f70a6f53bfee127125d`. The receiver returned `NO_SPEECH`, and no answer played. This confirmed mic recording and upload with the physical button bypassed. |
+| Recent successful voice jobs | The three jobs immediately preceding the expiry failure each accepted a five-second recording. Receiver processing took 13.539–15.813 seconds and the returned audio lasted 7.1–13.0 seconds. Recording, processing, and playback total 25.6–33.8 seconds before adding network transfers and polling. The earliest of these jobs and the most recent produced complete question transcripts. The middle job recognized only “in the image.” |
+| Recorded evidence | The receiver had one standalone 60.0-second, 16 kHz, mono WAV and three existing silent AVI clips from this board. All files decoded, the three clips each had 21 frames and no audio tracks, and all four checksums matched the stored values. This check did not exercise the app player. |
+| Photo expired during a real question | The 12:58:49 photo expired at 13:03:49.489. The receiver began job `459b958a81634595beffd335d7500dab` with 4.853 seconds remaining. Processing crossed the deadline and finished with `IMAGE_EXPIRED`. The board cannot play an AI answer from that failed job. Take a new photo and repeat the question. |
+| Backend failure tests | All 174 tests passed. The suite exercises silent input, expired and missing images, image replacement during processing, overlapping questions, invalid media, failed model or speech synthesis, authorization, and retry without duplicate recording uploads. These tests exercise the backend in isolation. |
+
+For a visual question, wait for the capture to upload and the board to return to `READY`. After releasing ASK, start speaking immediately during the five-second recording. After an answer, wait for `Playback finished` and `STATE READY`. The photo is available to the board for five minutes from upload and must remain current through processing. Refresh it before that deadline when running a demonstration. If an image capture stops at `SAVING`, check microSD. If it stops at `UPLOADING`, check the hotspot and receiver. An older photo may still be available from the app’s inspection history.
+
+The current rehearsal did not complete two successive physical ASK actions. Closing the loop requires measuring GPIO5 during a missed press while also logging the duration of each background network call. The previous successful voice jobs establish the processing range, while this test establishes the intermittent input failure.
+
+## Button handoff rehearsal, 25 November 2026
+
+The firmware samples buttons during answer playback and can keep one short ASK or PHOTO tap from the end of the answer. After the board returns to `READY`, background network requests give the operator a 1.5-second window to start the next action. A held input can defer those requests for at most 2.5 seconds after debouncing.
+
+With both buttons released, the operator confirmed that neither was being held. Before enabling the internal PHOTO pull-up, GPIO44 repeatedly read LOW while the camera captured and uploaded valid photos over USB. The app-only update with SHA-256 `90331b81069611393513eaaacf7366f54e1b6bd434309c9bfe19a4c42646ee34` was written and verified on `pin-dc225c8fee68`. The updated board booted, joined Wi-Fi and printed HIGH for both released inputs.
+
+## Playback recovery rehearsal, 25 November 2026
+
+The operator's serial log showed a 30-second task-watchdog reset during an answer. After reboot, automatic recovery restarted the same saved voice job. The fix services the watchdog while downloading and playing audio. Immediately before playback, the SD retry journal becomes eligible only for manual retry. Successful playback removes the journal and retains the original recording.
+
+The replacement application was written to the same `pin-dc225c8fee68` board and the flash hash verified. Its SHA-256 is `bec66157845ad906c4001acb69e67ed6918e12ce0693fac361416cdd8f8313d8`. The verified previous application is available privately as `.backups/local-release-20261124-194703/playback-before-fix.bin`.
+
+The board replayed the saved 1,076,336-byte answer (33.634 seconds of audio), logged `Playback finished` and returned to `READY`. A subsequent USB-triggered PHOTO uploaded to inspection `deb4b01abc8f406eaccfc69049b86d0d`. The receiver's original decoded as an 800 × 600 JPEG at 17,584 bytes and matched its recorded checksum.
+
+The physical ASK button then started a new recording. Job `b3464544084244c08345128daf8f56cf` transcribed “So what is this photo?” and returned a description of the image. The board downloaded the new 429,892-byte answer, logged `Playback finished` and returned to `READY`. The operator confirmed hearing an equipment-panel description.
+
 ## Laptop evaluation rehearsal, 24 November 2026
 
 Verified on COM7, board `pin-dc225c8fee68`, using the single-layer profile. The original bootloader, partition table and application slot matched the private backup. The settings partition was read separately. Both application writes completed with a verified flash hash.

@@ -10,6 +10,8 @@ class App {
  private:
   AppState state_=AppState::BOOT;
   ButtonManager button_;
+  ButtonAction nextButton_=ButtonAction::NONE;
+  uint32_t readyAt_=0;
   OperationGuard operation_;
   StateController runtime_;
   String path_,job_,answerPath_;

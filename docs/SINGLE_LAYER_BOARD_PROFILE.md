@@ -11,7 +11,7 @@ This profile is selected with `-DIP_USE_SINGLE_LAYER_CONFIG`. It is separate fro
 | D3 | 4 | MAX98357A DIN | I2S output |
 | D4 | 5 | ASK and deep-sleep wake | `INPUT`; LOW when pressed; external 10 kOhm pull-up |
 | D5 | 6 | Amplifier shutdown | HIGH off; LOW on |
-| D7 | 44 | PHOTO | `INPUT`; LOW when pressed; external 10 kOhm pull-up |
+| D7 | 44 | PHOTO | `INPUT_PULLUP`; LOW when pressed; external 10 kΩ pull-up |
 
 Sense microSD remains GPIO7 SCK, GPIO8 MISO, GPIO9 MOSI and GPIO21 CS. The internal PDM microphone remains GPIO41 data and GPIO42 clock. The official XIAO Sense camera mapping in `camera_manager.cpp` is unchanged.
 

@@ -108,7 +108,16 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     liveTimer =
         Timer.periodic(const Duration(seconds: 15), (_) => updateDevices());
-    refresh();
+    if (Uri.base.queryParameters['inspection'] == 'latest') {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        if (!mounted) return;
+        await refresh();
+        final latest = data?.inspections.firstOrNull;
+        if (mounted && latest != null) await _openInspection(latest.id);
+      });
+    } else {
+      refresh();
+    }
   }
 
   @override
@@ -1066,11 +1075,12 @@ class _InspectionDetailState extends State<InspectionDetail> {
       final bytes = media == null
           ? await widget.api.report(id)
           : await widget.api.media(id);
-      final extension = mime == 'audio/wav'
-          ? 'wav'
-          : mime == 'application/pdf'
-              ? 'pdf'
-              : 'avi';
+      final extension = switch (mime) {
+        'image/jpeg' => 'jpg',
+        'audio/wav' => 'wav',
+        'application/pdf' => 'pdf',
+        _ => 'avi',
+      };
       await exportEvidence(bytes, 'inspectpin-$id.$extension', mime);
     } catch (e) {
       if (mounted) {
@@ -1207,7 +1217,17 @@ class _InspectionDetailState extends State<InspectionDetail> {
                                       child: CircularProgressIndicator()))))),
           const SizedBox(height: 8),
           const Text('Pinch to zoom. Original media remains unchanged.',
-              style: TextStyle(fontSize: 10, color: IpColors.textMuted))
+              style: TextStyle(fontSize: 10, color: IpColors.textMuted)),
+          if (item.imageMediaId != null)
+            OutlinedButton.icon(
+                icon: const Icon(Icons.download),
+                label: const Text('Download original photo'),
+                onPressed: busy
+                    ? null
+                    : () => exportFile({
+                          'id': item.imageMediaId,
+                          'content_type': 'image/jpeg'
+                        })),
         ])),
         const SizedBox(height: 12),
         IpPanel(
@@ -1288,7 +1308,22 @@ class _InspectionDetailState extends State<InspectionDetail> {
                     style: const TextStyle(
                         fontSize: 10, color: IpColors.textMuted))
               ]
-            ]))
+            ])),
+        Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: Wrap(spacing: 12, children: [
+            OutlinedButton.icon(
+                onPressed: busy ? null : editNote,
+                icon: const Icon(Icons.edit_note),
+                label: Text(item.note.isEmpty
+                    ? 'Add inspector note'
+                    : 'Edit inspector note')),
+            OutlinedButton.icon(
+                onPressed: busy ? null : () => exportFile(),
+                icon: const Icon(Icons.download),
+                label: const Text('Download inspection report')),
+          ]),
+        )
       ]));
 }
 

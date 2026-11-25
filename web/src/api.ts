@@ -31,6 +31,11 @@ export class ApiClient {
   unpairDevice(id: string) { return this.request<void>(`/api/v1/devices/${id}`, { method: 'DELETE' }) }
   inspections() { return this.request<{ items: Inspection[]; total: number }>('/api/v1/inspections?limit=50') }
   inspection(id: string) { return this.request<Inspection>(`/api/v1/inspections/${id}`) }
+  saveNote(id: string, note: string) {
+    return this.request<Inspection>(`/api/v1/inspections/${id}/note`, {
+      method: 'PATCH', body: JSON.stringify({ note }),
+    })
+  }
   command(device: string, type: string, payload: Record<string, unknown> = {}) {
     return this.request(`/api/v1/devices/${device}/commands`, { method: 'POST', body: JSON.stringify({ type, payload }) })
   }
@@ -44,8 +49,10 @@ export class ApiClient {
     const response = await fetch(this.base + `/api/v1/inspections/${id}/report`, { headers: { Authorization: `Bearer ${this.token}` } })
     if (!response.ok) throw new ApiError(response.status, 'REPORT_FAILED', 'Report download failed')
     const url = URL.createObjectURL(await response.blob())
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `inspectpin-${id}.pdf`; anchor.click()
-    URL.revokeObjectURL(url)
+    saveObjectUrl(url, `inspectpin-${id}.pdf`)
+  }
+  async downloadPhoto(id: string) {
+    saveObjectUrl(await this.mediaObjectUrl(id), `inspectpin-${id}.jpg`)
   }
   async mediaObjectUrl(id: string, signal?: AbortSignal) {
     const download = () => fetch(this.base + `/api/v1/media/${id}`, { signal, headers: { Authorization: `Bearer ${this.token}` } })
@@ -58,6 +65,16 @@ export class ApiClient {
     if (!response.ok) throw new ApiError(response.status, 'MEDIA_FAILED', 'Media could not be loaded')
     return URL.createObjectURL(await response.blob())
   }
+}
+
+function saveObjectUrl(url: string, filename: string) {
+  const anchor = document.createElement('a')
+  anchor.href = url
+  anchor.download = filename
+  document.body.appendChild(anchor)
+  anchor.click()
+  anchor.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 30000)
 }
 
 export function formatBytes(value: number | null): string {

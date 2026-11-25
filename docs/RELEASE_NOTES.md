@@ -2,7 +2,7 @@
 
 ## Laptop evaluation release
 
-For Thursday's evaluation use [Start InspectPin and the local operator guide](LOCAL_EVALUATION.md). Public hosting is deferred. The evaluation firmware uses the manufactured single-layer profile. The local build uses 1,234,954 bytes of flash and 60,656 bytes of static RAM. The app binds login sessions to receiver origins, can verify a newer authenticated heartbeat, and exposes **Open inspection**, **Inspector note** and **Download PDF** in inspection lists. Flutter analysis passed, six Flutter tests passed, the Android debug APK and web client built, the React production bundle built, and 174 backend tests passed. See the [measured USB and operator results](PHYSICAL_ACCEPTANCE_TESTS.md#laptop-evaluation-rehearsal-24-november-2026) before treating any battery acceptance item as complete.
+For Thursday's evaluation use [Start InspectPin and the local operator guide](LOCAL_EVALUATION.md). Public hosting is deferred. The evaluation firmware uses the manufactured single-layer profile. The local build uses 1,234,954 bytes of flash and 60,656 bytes of static RAM. The app binds login sessions to receiver origins, can verify a newer authenticated heartbeat, and exposes **Open inspection**, **Inspector note** and **Download PDF** in inspection lists. The open capture also keeps note and PDF actions directly beneath its title at every scroll position. Flutter analysis passed, seven Flutter tests passed, the Android debug APK and web client built, the React production bundle built, and 174 backend tests passed. See the [measured USB and operator results](PHYSICAL_ACCEPTANCE_TESTS.md#laptop-evaluation-rehearsal-24-november-2026) before treating any battery acceptance item as complete.
 
 ## Zero-cost cloud candidate
 
@@ -66,7 +66,7 @@ See the [board installation and acceptance record](PHYSICAL_ACCEPTANCE_TESTS.md)
 
 ## Artifacts and commands
 
-Run these from the repository root unless indicated. The original LAN firmware remains installed unless a technician explicitly uploads the new build.
+Run these from the repository root unless indicated. The November 24 evening installation and verified rollback details appear in the laptop evaluation section and local operator guide.
 
 | Deliverable | Location and use |
 |---|---|

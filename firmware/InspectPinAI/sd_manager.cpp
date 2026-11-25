@@ -30,7 +30,9 @@ String Store::newPath(bool image) {
 String Store::newVideoPath(){char path[80];do{snprintf(path,sizeof(path),"/inspectpin/%08lx_%08lx.avi",(unsigned long)esp_random(),(unsigned long)millis());}while(SD.exists(path)||SD.exists(String(path)+".part"));return String(path);}
 bool Store::markPending(const String &path, const String &job, const String &imageId, const String &contextId, bool unsent) {
   // Save the original association: retry must never silently use a newer image.
-  String temporary=path+".pending.tmp", finalPath=path+".pending";
+  const String replay=path+".replay";
+  String finalPath=SD.exists(replay)?replay:path+".pending";
+  String temporary=finalPath+".tmp";
   File f=SD.open(temporary,FILE_WRITE);
   if (!f) return false;
   JsonDocument doc; doc["version"]=2; doc["job"]=job; doc["image_id"]=imageId; doc["context_id"]=contextId;
@@ -44,10 +46,15 @@ bool Store::markPending(const String &path, const String &job, const String &ima
 bool Store::nextPending(String &path, String &job, String &imageId, String &contextId, bool automatic) {
   File dir=SD.open("/inspectpin");
   if (!dir) return false;
-  for (File entry=dir.openNextFile(); entry; entry=dir.openNextFile()) {
-    String name=entry.name();
-    if (!entry.isDirectory() && name.endsWith(".pending")) {
-      path=String("/inspectpin/")+name.substring(0,name.length()-8);
+  // Read directory entries without opening each JPEG, WAV, and answer file.
+  bool isDirectory=false;
+  for (String name=dir.getNextFileName(&isDirectory); name.length(); name=dir.getNextFileName(&isDirectory)) {
+    feedLoopWDT();
+    const bool replay = name.endsWith(".replay");
+    if (!isDirectory && (name.endsWith(".pending") || (!automatic && replay))) {
+      File entry=SD.open(name,FILE_READ);
+      if (!entry) continue;
+      path=name.substring(0,name.length()-(replay?7:8));
       job=""; imageId=""; contextId="";
       bool unsent=false;
       if (entry.peek()=='{') {
@@ -72,11 +79,20 @@ bool Store::nextPending(String &path, String &job, String &imageId, String &cont
       dir.close();
       return true;
     }
-    entry.close();
   }
   dir.close(); return false;
 }
-void Store::complete(const String &path) { SD.remove(path+".pending"); }
+bool Store::requireManualReplay(const String &path) {
+  // Once playback starts, a reboot must not replay the same answer unattended.
+  const String pending = path+".pending", replay = path+".replay";
+  if (!SD.exists(pending)) return SD.exists(replay);
+  if (SD.exists(replay) && !SD.remove(replay)) return false;
+  return SD.rename(pending,replay);
+}
+void Store::complete(const String &path) {
+  SD.remove(path+".pending");
+  SD.remove(path+".replay");
+}
 bool Store::selfTest() {
   const char *path="/inspectpin/sd-selftest.tmp";
   File f=SD.open(path,FILE_WRITE);

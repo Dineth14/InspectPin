@@ -15,7 +15,7 @@
 | Control | Action |
 |---|---|
 | Short PHOTO, then release | Save an optimized 800 × 600 JPEG. When connected, upload it and establish image context. |
-| Short ASK, then release | Speak toward the microphone during the five-second recording. Wait for the speaker before starting another operation. |
+| Short ASK, then release | Wait for the short recording tone, then speak toward the microphone during the five-second recording. Wait for the speaker to finish the answer before asking a follow-up. |
 | Hold ASK for at least two seconds, then release | Begin an independent audio note. Hold ASK for two seconds and release again to stop, or allow the 60-second limit to finish it. |
 | Hold PHOTO for at least two seconds, then release | Start silent video. Press and release either button to stop, or wait for the 30-second cap. |
 | ASK while asleep | Wake and restart the board. Wait for it to reconnect before starting a recording. The example profile uses five minutes of idle time. |

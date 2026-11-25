@@ -119,8 +119,43 @@ function AskForm({ inspection, api, onDone, compact = false }: { inspection: Ins
 }
 
 function Workspace({ item, api, onBack, onUpdated }: { item: Inspection; api: ApiClient; onBack: () => void; onUpdated: (item: Inspection) => void }) {
+  const [draft, setDraft] = useState(item.note ?? '')
+  const [busy, setBusy] = useState(false)
+  const [feedback, setFeedback] = useState('')
+  const photo = mediaId(item) ?? item.image_media_id
+  const unsaved = draft !== (item.note ?? '')
+  async function perform(action: () => Promise<void>, message: string) {
+    setBusy(true)
+    setFeedback('')
+    try {
+      await action()
+      setFeedback(message)
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : 'Inspection action failed')
+    } finally {
+      setBusy(false)
+    }
+  }
   async function reload() { onUpdated(await api.inspection(item.id)) }
-  return <><button className="back-button" onClick={onBack}>← Evidence library</button><header className="workspace-head"><div><Eyebrow>INSPECTION {item.id.slice(0, 8).toUpperCase()}</Eyebrow><h1>{item.title}</h1><p>{new Date(item.created_at * 1000).toLocaleString()} · {item.device_id ?? 'manual upload'}</p></div><button className="button secondary" onClick={() => api.downloadReport(item.id)}><Icon name="download" />Export report</button></header>
+  return <><button className="back-button" onClick={onBack}>← Evidence library</button><header className="workspace-head"><div><Eyebrow>INSPECTION {item.id.slice(0, 8).toUpperCase()}</Eyebrow><h1>{item.title}</h1><p>{new Date(item.created_at * 1000).toLocaleString()} · {item.device_id ?? 'manual upload'}</p></div></header>
+    <section className="inspection-actions panel">
+      <label htmlFor="inspection-note">Inspector note</label>
+      <textarea id="inspection-note" rows={3} maxLength={2000} value={draft} disabled={busy}
+        onChange={event => { setDraft(event.target.value); setFeedback('') }} />
+      <div className="hero-actions">
+        <button className="button primary" disabled={busy || !unsaved} onClick={() => perform(async () => {
+          const saved = await api.saveNote(item.id, draft)
+          setDraft(saved.note ?? '')
+          onUpdated(saved)
+        }, 'Inspector note saved')}>Save note</button>
+        <button className="button secondary" disabled={busy || unsaved}
+          onClick={() => perform(() => api.downloadReport(item.id), 'PDF download started')}><Icon name="download" />Download PDF</button>
+        {photo && <button className="button secondary" disabled={busy}
+          onClick={() => perform(() => api.downloadPhoto(photo), 'Photo download started')}>Download original photo</button>}
+      </div>
+      {unsaved && <small>Save your changes to include them in the PDF.</small>}
+      {feedback && <p role="status">{feedback}</p>}
+    </section>
     {item.simulated && <div className="notice warning"><Icon name="alert" />Simulator result — not a physical inspection.</div>}
     {item.media?.filter(m => ['audio/wav','video/x-msvideo'].includes(m.content_type)).map(m =>
       <Recording key={m.id} id={m.id} api={api} video={m.content_type==='video/x-msvideo'}
@@ -177,7 +212,7 @@ export default function App() {
     <main className="main"><header className="topbar"><div className="mobile-top-brand"><BrandWordmark compact /></div><div className="top-context"><span>{nav.find(item => item.id === view)?.label}</span><small>{devices.some(d => d.online) ? 'Live telemetry connected' : 'Backend workspace'}</small></div><div className="top-actions"><button className="icon-button" onClick={() => void refresh()} disabled={loading} aria-label="Refresh data"><Icon name="refresh" /></button><button className="avatar-button" onClick={() => changeView('settings')} aria-label="Open account settings">{user?.name.slice(0, 1).toUpperCase()}</button></div></header>
       <div className="content">{message && <div className={`notice ${message.kind}`} role="status"><Icon name={message.kind === 'error' ? 'alert' : 'shield'} />{message.text}<button onClick={() => setMessage(null)} aria-label="Dismiss"><Icon name="close" size={16} /></button></div>}
         {view === 'home' && <Dashboard devices={devices} inspections={inspections} api={api} onCapture={capture} onAsk={() => changeView('assistant')} onOpen={open} loading={loading} />}
-        {view === 'inspections' && (selected ? <Workspace item={selected} api={api} onBack={() => setSelected(null)} onUpdated={setSelected} /> : <History items={inspections} api={api} onOpen={open} />)}
+        {view === 'inspections' && (selected ? <Workspace key={selected.id} item={selected} api={api} onBack={() => setSelected(null)} onUpdated={setSelected} /> : <History items={inspections} api={api} onOpen={open} />)}
         {view === 'assistant' && <Assistant items={inspections} api={api} onRefresh={refresh} />}
         {view === 'device' && <Devices devices={devices} onCapture={capture} onPair={() => setPairing(true)} onUnpair={unpair} />}
         {view === 'settings' && <Settings user={user} theme={theme} onTheme={setTheme} onLogout={logout} />}

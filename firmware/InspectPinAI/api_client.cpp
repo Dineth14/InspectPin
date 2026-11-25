@@ -168,6 +168,7 @@ bool Api::download(const String &job, const String &destination, String &error) 
   auto *stream=http.getStreamPtr(); uint8_t buffer[1024]; size_t total=0;
   uint32_t began=millis(),lastData=began; bool ok=true;
   while (total<size_t(length) && millis()-began<60000 && millis()-lastData<Config::httpTimeoutMs) {
+    feedLoopWDT();
     int avail=stream->available();
     if (avail>0) {
       size_t want=min(sizeof(buffer),min(size_t(avail),size_t(length)-total));

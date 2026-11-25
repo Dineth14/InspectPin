@@ -24,6 +24,8 @@ Use **Stop InspectPin.cmd** with the board idle. It signals the launcher to clos
 
 Inside an open photo, **Inspector note** and **Download PDF** sit directly below the inspection title and stay there as you scroll. Choose **Inspector note**, enter the observation, then choose **Save note** before downloading the report. **Ask about this evidence** sends a follow-up question to the model. You can save a note or export a report while the analysis is pending.
 
+On the laptop, [open your latest inspection](http://127.0.0.1:5180/?view=inspections&inspection=latest). This opens the most recent inspection belonging to the signed-in account. A photo also has **Download original photo** beneath the image. At the bottom of the capture, **Add inspector note** (or **Edit inspector note**) and **Download inspection report** sit beneath the question form. In the separate React dashboard, open an inspection in the evidence library to find the note field, **Save note**, **Download PDF** and, for photos, **Download original photo**.
+
 ## Changing Wi-Fi or receiver
 
 Changing the app address and changing the board address are separate operations. Keep the working configuration for the evaluation unless a network change requires an update. On this release, connect the awake board by USB, close Serial Monitor, confirm the port using Device Manager and run the following from the repository in PowerShell.

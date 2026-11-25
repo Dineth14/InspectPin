@@ -42,7 +42,7 @@ bool recordingCue(bool starting) {
   Amp::enable(false);
   return ok;
 }
-bool playWav(const String &path) {
+bool playWav(const String &path, const std::function<void(bool finishing)> &pollButtons) {
   File f=SD.open(path,FILE_READ); uint32_t remaining=0;
   if (!Wav::validate(f,remaining) || f.size()>Config::maxAnswerBytes) { f.close(); Serial.println("Invalid playback WAV"); return false; }
   I2SClass speaker;
@@ -53,6 +53,8 @@ bool playWav(const String &path) {
   int16_t mono[256],stereo[512]; bool ok=true;
   uint32_t started=millis(),deadline=remaining/32+5000;
   while (remaining && millis()-started<deadline) {
+    feedLoopWDT();
+    if (pollButtons) pollButtons(remaining<=32000);  // Final second of 16 kHz mono PCM.
     size_t want=min(size_t(remaining),sizeof(mono)),got=f.read((uint8_t*)mono,want);
     if (got!=want) { ok=false; break; }
     const float gain=Config::playbackGain*(volumePercent/100.0f);
@@ -61,6 +63,10 @@ bool playWav(const String &path) {
     if (i2s_channel_write(speaker.txChan(),stereo,got*2,&sent,1000)!=ESP_OK || sent!=got*2) { ok=false; break; }
     remaining-=got; delay(1);
   }
-  delay(100); speaker.end(); Amp::enable(false); f.close();
+  for (uint8_t i=0; i<20; ++i) {
+    if (pollButtons) pollButtons(true);
+    delay(5);
+  }
+  speaker.end(); Amp::enable(false); f.close();
   Serial.println(ok && !remaining?"Playback finished":"Playback failed"); return ok && !remaining;
 }

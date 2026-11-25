@@ -53,7 +53,10 @@ void App::updateRuntimeState(AppState value) {
   runtime_.flags().lowBattery=value==AppState::LOW_BATTERY;
 }
 void App::state(AppState value) {
+  if (value==AppState::READY && state_!=AppState::READY) readyAt_=millis();
   state_=value;
+  button_.acceptDirectActions(idle() || value==AppState::PLAYING ||
+                              value==AppState::VIDEO_RECORDING);
   switch(value) {
     case AppState::RECORDING: operation_.transition(OperationClass::CAPTURE); break;
     case AppState::VIDEO_RECORDING: operation_.transition(OperationClass::VIDEO); break;
@@ -126,6 +129,7 @@ void App::capture(bool image) {
   path_=Store::newPath(image); job_=""; jobResult_=JobResult{}; attempts_=0;
   state(AppState::RECORDING); Feedback::signal(Feedback::Event::RECORDING_STARTED); Power::noteActivity();
   if(image) Illumination::photoBegin(Battery::latest().low);
+  else if (!recordingCue(true)) Serial.println("ASK recording cue unavailable");
   bool ok=image?captureJpeg(path_):recordWav(path_);
   if(image) Illumination::photoEnd();
   state(AppState::SAVING);
@@ -150,7 +154,9 @@ void App::recordNote() {
     path_.replace(".wav","_note.wav");
   } while (SD.exists(path_) || SD.exists(path_+".part"));
   state(AppState::RECORDING);
-  if (!recordingCue(true) || !recordWav(path_+".part",&button_)) { fail("NOTE_RECORD_FAILED"); return; }
+  if (!recordingCue(true)) { fail("NOTE_RECORD_FAILED"); return; }
+  button_.acceptDirectActions(true); // Allow a long ASK press to stop the note.
+  if (!recordWav(path_+".part",&button_)) { fail("NOTE_RECORD_FAILED"); return; }
   state(AppState::SAVING);
   if (!SD.rename(path_+".part",path_)) { fail("NOTE_FINALIZE_FAILED"); return; }
   queueRecording();
@@ -159,7 +165,11 @@ void App::recordNote() {
 void App::retry(bool automatic) {
   if (!operation_.begin(OperationClass::RECOVERY)) { fail("DEVICE_BUSY"); return; }
   if (!sdReady_) { begin(); return; }
-  if (!Store::nextPending(path_,job_,captureImage_,captureContext_,automatic)) { operation_.end(); if(!automatic) state(AppState::READY); return; }
+  const uint32_t scanStarted=millis();
+  const bool found=Store::nextPending(path_,job_,captureImage_,captureContext_,automatic);
+  if (IP_DEBUG)
+    Serial.printf("SD retry scan: %lu ms, pending=%s\n",(unsigned long)(millis()-scanStarted),found?"yes":"no");
+  if (!found) { operation_.end(); if(!automatic) state(AppState::READY); return; }
   jobResult_=JobResult{};
   if (path_.endsWith(".jpg")) { job_=""; imagePending_=true; }
   attempts_=0; jobStart_=millis(); lastPoll_=0;
@@ -251,11 +261,23 @@ void App::tick() {
   runtime_.flags().lightOn=Illumination::state().actual;
   runtime_.flags().hapticEnabled=Feedback::hapticEnabled();
   ButtonAction action=button_.update();
-  if(WiFi.status()==WL_CONNECTED && !Video::active() && state_!=AppState::RECORDING && state_!=AppState::SAVING &&
+  if (idle() && nextButton_!=ButtonAction::NONE) {
+    action=nextButton_;
+    nextButton_=ButtonAction::NONE;
+  }
+  // Give the operator the first turn after capture or playback. A background
+  // HTTP request can block button sampling until its timeout.
+  const bool localInput=action!=ButtonAction::NONE || button_.pressInProgress() || Serial.available();
+  const bool backgroundAllowed=!localInput && (state_!=AppState::READY || millis()-readyAt_>=1500);
+  if(backgroundAllowed && WiFi.status()==WL_CONNECTED && !Video::active() &&
+     state_!=AppState::RECORDING && state_!=AppState::SAVING &&
      state_!=AppState::UPLOADING && state_!=AppState::DOWNLOADING && state_!=AppState::PLAYING &&
      millis()-lastHeartbeat_>=30000){
     lastHeartbeat_=millis();String heartbeatError;
     if(!Api::heartbeat(names[int(state_)],heartbeatError)&&IP_DEBUG)Serial.printf("Heartbeat failed: %s\n",heartbeatError.c_str());
+    if (IP_DEBUG && millis()-lastHeartbeat_>=1000)
+      Serial.printf("Heartbeat took %lu ms\n",(unsigned long)(millis()-lastHeartbeat_));
+    if (idle()) return; // Let a button captured during HTTP run before more background work.
   }
   if(Video::active()) {
     if(IP_BATTERY_ENABLED&&millis()-lastBattery_>1000){lastBattery_=millis();Battery::sample();}
@@ -269,14 +291,14 @@ void App::tick() {
     return;
   }
   if (idle()) {
-    if(sdReady_ && action==ButtonAction::NONE && !Serial.available() &&
+    if(sdReady_ && backgroundAllowed &&
        (state_==AppState::OFFLINE || state_==AppState::READY) && millis()-lastRecovery_>=45000){
       lastRecovery_=millis();
       if(WiFi.status()!=WL_CONNECTED || state_==AppState::OFFLINE) syncContext();
       if(state_==AppState::READY) retry(true);
       return;
     }
-    if(WiFi.status()==WL_CONNECTED&&millis()-lastRemotePoll_>=5000){
+    if(backgroundAllowed&&WiFi.status()==WL_CONNECTED&&millis()-lastRemotePoll_>=5000){
       lastRemotePoll_=millis();DeviceCommand remote;String remoteId,remoteError;bool available=false;
       if(Api::pollRemoteCommand(remote,remoteId,available,remoteError)&&available){
         bool accepted=handleCommand(remote);
@@ -284,6 +306,8 @@ void App::tick() {
         if(accepted&&asynchronous){remoteOperationId_=remoteId;Api::acknowledgeRemoteCommand(remoteId,"accepted",names[int(state_)]);}
         else Api::acknowledgeRemoteCommand(remoteId,accepted?"completed":"rejected",names[int(state_)],accepted?"":"COMMAND_REJECTED");
       } else if(remoteError.length()&&IP_DEBUG)Serial.printf("Remote command poll failed: %s\n",remoteError.c_str());
+      if (IP_DEBUG && millis()-lastRemotePoll_>=1000)
+        Serial.printf("Remote command poll took %lu ms\n",(unsigned long)(millis()-lastRemotePoll_));
     }
     if (action==ButtonAction::VOICE) handleCommand({CommandType::VOICE_START,CommandSource::BUTTON,String("button-")+millis()});
     else if(action==ButtonAction::AUDIO_NOTE && idle()) recordNote();
@@ -294,7 +318,12 @@ void App::tick() {
       if(cmd=='@') NetworkProfile::configureUsb();
       else if(cmd=='d') {
         if(IP_PCF8574_ENABLED)Serial.printf("Buttons: ASK PCF/P1=%s PHOTO PCF/P0=%s PCF_INT=%s (pressed=LOW)\n",Expander::askPressed()?"LOW":"HIGH",Expander::photoPressed()?"LOW":"HIGH",Config::pcfInterrupt<0?"not-routed":(digitalRead(Config::pcfInterrupt)?"HIGH":"LOW"));
-        else Serial.printf("Buttons: ASK/GPIO%d=%s PHOTO/GPIO%d=%s direct-photo=%s (pressed=LOW)\n",Config::button,digitalRead(Config::button)?"HIGH":"LOW",Config::cameraButton,digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
+        else {
+          uint32_t askPresses, photoPresses;
+          button_.directPressCounts(askPresses,photoPresses);
+          Serial.printf("Buttons: ASK/GPIO%d=%s PHOTO/GPIO%d=%s direct-photo=%s (pressed=LOW)\n",Config::button,digitalRead(Config::button)?"HIGH":"LOW",Config::cameraButton,digitalRead(Config::cameraButton)?"HIGH":"LOW",IP_CAMERA_BUTTON_ENABLED?"yes":"no");
+          Serial.printf("Button presses since boot: ASK=%lu PHOTO=%lu\n",(unsigned long)askPresses,(unsigned long)photoPresses);
+        }
       }
       else handleCommand(Commands::fromSerial(cmd));
     }
@@ -303,7 +332,7 @@ void App::tick() {
       if (Battery::low()) { Serial.println("Battery low"); state(AppState::LOW_BATTERY); }
     }
   }
-  if(idle()&&operation_.sleepSafe()&&Power::idleExpired()) handleCommand({CommandType::SLEEP,CommandSource::INTERNAL,"idle-timeout"});
+  if(idle()&&!localInput&&operation_.sleepSafe()&&Power::idleExpired()) handleCommand({CommandType::SLEEP,CommandSource::INTERNAL,"idle-timeout"});
   String error;
   if (state_==AppState::UPLOADING) {
     if (!Wifi::connect()) { fail("OFFLINE_RECORDING_SAVED",true); return; }
@@ -365,9 +394,18 @@ void App::tick() {
     }
   } else if (state_==AppState::DOWNLOADING) {
     if (!Api::download(job_,answerPath_,error)) { fail(error,true); return; }
+    if (!Store::requireManualReplay(path_)) { fail("PLAYBACK_JOURNAL_FAILED"); return; }
     state(AppState::PLAYING);
   } else if (state_==AppState::PLAYING) {
-    if (!playWav(answerPath_)) { fail("PLAYBACK_FAILED"); return; }
+    const bool played=playWav(answerPath_, [this](bool finishing) {
+      const ButtonAction action=button_.update();
+      if (finishing && nextButton_==ButtonAction::NONE &&
+          (action==ButtonAction::VOICE || action==ButtonAction::CAMERA)) {
+        nextButton_=action;
+        Serial.println(action==ButtonAction::VOICE ? "ASK queued for after playback" : "PHOTO queued for after playback");
+      }
+    });
+    if (!played) { fail("PLAYBACK_FAILED"); return; }
     Store::complete(path_); Feedback::pulse(); state(AppState::READY);
     if(jobResult_.hasCommand) { DeviceCommand command=jobResult_.command; jobResult_.hasCommand=false; handleCommand(command); }
     if (IP_DEBUG) Serial.printf("Free heap=%u PSRAM=%u\n",ESP.getFreeHeap(),ESP.getFreePsram());
