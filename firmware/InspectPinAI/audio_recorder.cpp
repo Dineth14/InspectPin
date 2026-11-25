@@ -1,10 +1,13 @@
 #include "audio_recorder.h"
 #include "config.h"
 #include "wav_utils.h"
+#include "audio_player.h"
 #include <ESP_I2S.h>
 #include <SD.h>
 #include <cmath>
 bool recordWav(const String &path, ButtonManager *noteControls) {
+  AudioLease lease;
+  if (!lease) return false;
   const uint32_t seconds = noteControls ? 60 : Config::recordSeconds;
   const uint32_t target = seconds * 32000;
   if (noteControls && SD.totalBytes()-SD.usedBytes() < target+65536) return false;

@@ -158,8 +158,10 @@ class ProductStore:
                 """
             )
             columns = {row[1] for row in self.db.execute("PRAGMA table_info(ai_configurations)")}
-            if "reported_state" not in {row[1] for row in self.db.execute("PRAGMA table_info(devices)")}:
-                self.db.execute("ALTER TABLE devices ADD COLUMN reported_state TEXT")
+            device_columns = {row[1] for row in self.db.execute("PRAGMA table_info(devices)")}
+            for column in ("reported_state", "reported_firmware", "sound_settings"):
+                if column not in device_columns:
+                    self.db.execute(f"ALTER TABLE devices ADD COLUMN {column} TEXT")
             if "mode" not in columns:
                 self.db.execute("ALTER TABLE ai_configurations ADD COLUMN mode TEXT NOT NULL DEFAULT 'automatic'")
             self.db.execute("CREATE TABLE IF NOT EXISTS inspection_notes (inspection_id TEXT PRIMARY KEY REFERENCES inspections(id) ON DELETE CASCADE, note TEXT NOT NULL)")
@@ -309,6 +311,8 @@ class ProductStore:
     def _public_device(row: sqlite3.Row | dict) -> dict:
         data = dict(row)
         data.pop("token_hash", None)
+        for key in ("reported_firmware", "sound_settings"):
+            data[key] = json.loads(data[key]) if data.get(key) else None
         data["online"] = bool(data["online"] and data.get("last_seen") and _now() - data["last_seen"] < 90)
         for key in ("battery_estimated", "sd_present"):
             if data.get(key) is not None:
@@ -338,6 +342,18 @@ class ProductStore:
         if battery is not None and not 0 <= float(battery) <= 100:
             raise ServiceError("INVALID_BATTERY", "Battery percentage must be 0..100", 400)
         now = _now()
+        firmware = payload.get("reported_firmware")
+        firmware = ({
+            **{key: firmware[key][:96] for key in
+               ("version", "build", "built_at", "hardware", "boot_slot", "image_sha256", "last_update")
+               if isinstance(firmware.get(key), str)},
+            "ota_enabled": firmware.get("ota_enabled") is True,
+            "inactive_slot_bytes": firmware.get("inactive_slot_bytes")
+            if type(firmware.get("inactive_slot_bytes")) is int else None,
+        } if isinstance(firmware, dict) else None)
+        sound = payload.get("sound_settings")
+        if not ProductStore._valid_sound(sound) or type(sound.get("speech_volume")) is not int or not 0 <= sound["speech_volume"] <= 100:
+            sound = None
         with self.lock, self.db:
             self.db.execute(
                 "UPDATE devices SET last_seen=?,online=1,battery_percent=?,battery_voltage=?,battery_estimated=?,charge_state=?,storage_free=?,storage_total=?,sd_present=?,wifi_rssi=?,connection=? WHERE id=?",
@@ -346,13 +362,20 @@ class ProductStore:
                  int(bool(payload.get("sd_present", False))), payload.get("wifi_rssi"),
                  str(payload.get("connection", "wifi"))[:40], device_id),
             )
-            self.db.execute("UPDATE devices SET reported_state=? WHERE id=?",
-                            (str(payload.get("state", ""))[:32], device_id))
+            self.db.execute("UPDATE devices SET reported_state=?,reported_firmware=?,sound_settings=? WHERE id=?",
+                            (str(payload.get("state", ""))[:32], _json(firmware) if firmware else None,
+                             _json(sound) if sound else None, device_id))
             return {"accepted": True, "server_time": now, "next_heartbeat_seconds": 30}
+
+    @staticmethod
+    def _valid_sound(value) -> bool:
+        return (isinstance(value, dict) and type(value.get("groups")) is int and
+                type(value.get("volume")) is int and 0 <= value["groups"] <= 127 and
+                0 <= value["volume"] <= 100)
 
     def create_command(self, owner_id: str, device_id: str, command_type: str,
                        payload: dict, ttl: int = 120) -> dict:
-        allowed = {"capture_photo", "retry_upload", "status", "set_volume", "set_idle_timeout"}
+        allowed = {"capture_photo", "retry_upload", "status", "set_volume", "set_idle_timeout", "set_sound", "test_sound"}
         if command_type not in allowed:
             raise ServiceError("INVALID_COMMAND", "Command is not allow-listed", 400)
         if command_type == "set_volume" and (not isinstance(payload.get("percent"), int) or not 0 <= payload["percent"] <= 100):
@@ -360,6 +383,8 @@ class ProductStore:
         if command_type == "set_idle_timeout" and (
                 not isinstance(payload.get("seconds"), int) or not 30 <= payload["seconds"] <= 3600):
             raise ServiceError("INVALID_COMMAND_PAYLOAD", "Idle timeout must be 30..3600 seconds", 400)
+        if command_type == "set_sound" and not self._valid_sound(payload):
+            raise ServiceError("INVALID_COMMAND_PAYLOAD", "A sound group mask and volume from 0 to 100 are required", 400)
         self.device(owner_id, device_id)
         now, ident = _now(), _id()
         with self.lock, self.db:
@@ -410,6 +435,11 @@ class ProductStore:
                 raise ServiceError("COMMAND_NOT_FOUND", "Command was not found", 404)
             self.db.execute("UPDATE device_commands SET status=?,acknowledged_at=?,result=? WHERE id=?",
                             (status, _now(), _json(result), ident))
+            if status == "completed" and row["command_type"] in {"set_sound", "set_volume"}:
+                sound = result.get("sound_settings")
+                if self._valid_sound(sound) and type(sound.get("speech_volume")) is int and 0 <= sound["speech_volume"] <= 100:
+                    self.db.execute("UPDATE devices SET sound_settings=? WHERE id=?",
+                                    (_json(sound), device_id))
             return self._command(self.db.execute("SELECT * FROM device_commands WHERE id=?", (ident,)).fetchone())
 
     def create_inspection(self, owner_id: str, device_id: str | None, title: str,

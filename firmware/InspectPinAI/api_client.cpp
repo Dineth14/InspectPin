@@ -2,6 +2,8 @@
 #include "config.h"
 #include "network_profile.h"
 #include "wav_utils.h"
+#include "firmware_version.h"
+#include "settings_store.h"
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
@@ -199,7 +201,12 @@ bool Api::heartbeat(const String &state, String &error) {
   payload["storage_free"]=uint64_t(SD.cardSize()-SD.usedBytes());
   payload["sd_present"]=SD.cardType()!=CARD_NONE;
   payload["wifi_rssi"]=WiFi.RSSI(); payload["connection"]="wifi";
-  payload["state"]=state; payload["firmware_version"]="1.0.0";
+  payload["state"]=state;
+  FirmwareVersion::write(payload["reported_firmware"].to<JsonObject>());
+  const auto &settings=SettingsStore::get();
+  payload["sound_settings"]["groups"]=settings.sound.groups;
+  payload["sound_settings"]["volume"]=settings.sound.volume;
+  payload["sound_settings"]["speech_volume"]=settings.volumePercent;
   String body; serializeJson(payload,body); http.addHeader("Content-Type","application/json");
   int code=http.POST(body); JsonDocument reply;
   bool ok=code==200&&jsonReply(http,reply)&&(reply["accepted"]|false);
@@ -222,6 +229,13 @@ bool Api::pollRemoteCommand(DeviceCommand &command, String &remoteId, bool &avai
   else if(type=="status")command.type=CommandType::STATUS_GET;
   else if(type=="set_volume") {command.type=CommandType::VOLUME_SET;command.intValue=payload["percent"]|-1;}
   else if(type=="set_idle_timeout") {command.type=CommandType::SETTINGS_PATCH;command.intValue=(payload["seconds"]|0)*1000;}
+  else if(type=="set_sound") {
+    command.type=CommandType::SOUND_SET;
+    const int groups=payload["groups"]|-1, volume=payload["volume"]|-1;
+    command.intValue=groups>=0 && groups<=127 && volume>=0 && volume<=100
+        ? (volume<<8)|groups : -1;
+  }
+  else if(type=="test_sound")command.type=CommandType::SOUND_TEST;
   else {error="UNSUPPORTED_REMOTE_COMMAND";http.end();return false;}
   available=true;http.end();return true;
 }
@@ -231,6 +245,12 @@ bool Api::acknowledgeRemoteCommand(const String &remoteId, const String &status,
   RequestClient client; HTTPClient http;
   if(!start(http,client,"/api/v1/device/commands/"+remoteId+"/ack"))return false;
   JsonDocument payload;payload["status"]=status;payload["result"]["actual_state"]=actualState;
+  if (status=="completed") {
+    const auto &settings=SettingsStore::get();
+    payload["result"]["sound_settings"]["groups"]=settings.sound.groups;
+    payload["result"]["sound_settings"]["volume"]=settings.sound.volume;
+    payload["result"]["sound_settings"]["speech_volume"]=settings.volumePercent;
+  }
   if(errorCode.length())payload["result"]["error"]=errorCode;
   String body;serializeJson(payload,body);http.addHeader("Content-Type","application/json");
   int code=http.POST(body);http.end();return code==200;

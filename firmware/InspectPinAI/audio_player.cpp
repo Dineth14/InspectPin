@@ -18,37 +18,50 @@ void Amp::shutdownForSleep(){
   digitalWrite(Config::ampOff,HIGH);
   gpio_hold_en(gpio_num_t(Config::ampOff)); gpio_deep_sleep_hold_en();
 }
-namespace { uint8_t volumePercent=100; }
-void setPlaybackVolume(uint8_t percent){volumePercent=percent>100?100:percent;}
-uint8_t playbackVolume(){return volumePercent;}
-bool recordingCue(bool starting) {
-  I2SClass speaker;
+namespace {
+uint8_t volumePercent=100;
+bool audioInUse=false;
+bool beginSpeaker(I2SClass &speaker) {
   speaker.setPins(Config::bclk, Config::ws, Config::dout);
   if (!speaker.begin(I2S_MODE_STD,16000,I2S_DATA_BIT_WIDTH_16BIT,I2S_SLOT_MODE_STEREO)) return false;
   Amp::enable(true);
   delay(10);
-  int16_t block[160];
-  for (int i=0; i<80; ++i) {
-    int16_t sample = (i % (starting ? 16 : 32) < (starting ? 8 : 16)) ? 2200 : -2200;
-    block[2*i]=block[2*i+1]=sample;
-  }
-  bool ok=true;
-  for (int i=0; i<24 && ok; ++i) {
+  return true;
+}
+}
+AudioLease::AudioLease():acquired_(!audioInUse) { if (acquired_) audioInUse=true; }
+AudioLease::~AudioLease() { if (acquired_) audioInUse=false; }
+void setPlaybackVolume(uint8_t percent){volumePercent=percent>100?100:percent;}
+uint8_t playbackVolume(){return volumePercent;}
+bool playPcm(const std::function<size_t(int16_t *, size_t)> &fill) {
+  AudioLease lease;
+  if (!lease) return false;
+  I2SClass speaker;
+  if (!beginSpeaker(speaker)) return false;
+  int16_t mono[128], stereo[256];
+  const uint32_t started=millis();
+  bool complete=false;
+  while (millis()-started<850) {
+    const size_t frames=fill(mono,128);
+    if (!frames) { complete=true; break; }
+    if (frames>128) break;
+    for (size_t i=0; i<frames; ++i) stereo[2*i]=stereo[2*i+1]=mono[i];
+    const size_t bytes=frames*2*sizeof(int16_t);
     size_t sent=0;
-    ok=i2s_channel_write(speaker.txChan(),block,sizeof(block),&sent,100)==ESP_OK && sent==sizeof(block);
+    if (i2s_channel_write(speaker.txChan(),stereo,bytes,&sent,100)!=ESP_OK || sent!=bytes) break;
   }
-  delay(40);
-  speaker.end();
+  if (complete) delay(100); // Drain the 90 ms TX DMA ring before muting.
   Amp::enable(false);
-  return ok;
+  speaker.end();
+  return complete;
 }
 bool playWav(const String &path, const std::function<void(bool finishing)> &pollButtons) {
+  AudioLease lease;
+  if (!lease) return false;
   File f=SD.open(path,FILE_READ); uint32_t remaining=0;
   if (!Wav::validate(f,remaining) || f.size()>Config::maxAnswerBytes) { f.close(); Serial.println("Invalid playback WAV"); return false; }
   I2SClass speaker;
-  speaker.setPins(Config::bclk,Config::ws,Config::dout);
-  if (!speaker.begin(I2S_MODE_STD,16000,I2S_DATA_BIT_WIDTH_16BIT,I2S_SLOT_MODE_STEREO)) { Amp::enable(false); f.close(); return false; }
-  Amp::enable(true); delay(10);
+  if (!beginSpeaker(speaker)) { Amp::enable(false); f.close(); return false; }
   Serial.println("Speaker playback started");
   int16_t mono[256],stereo[512]; bool ok=true;
   uint32_t started=millis(),deadline=remaining/32+5000;

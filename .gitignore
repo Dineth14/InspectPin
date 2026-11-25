@@ -8,6 +8,8 @@ __pycache__/
 *.pyc
 .env
 config.local.h
+firmware_build.local.h
+ota_trust.local.h
 backend/data/*
 !backend/data/.gitkeep
 backend/models/

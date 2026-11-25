@@ -9,6 +9,8 @@ class DeviceSummary {
     required this.firmwareVersion,
     required this.lastSeen,
     this.reportedState = '',
+    this.reportedFirmware,
+    this.soundSettings,
     required this.storageFree,
     required this.storageTotal,
     required this.battery,
@@ -17,6 +19,7 @@ class DeviceSummary {
   final bool online;
   final DateTime? lastSeen;
   final String reportedState;
+  final Map<String, dynamic>? reportedFirmware, soundSettings;
   String get connectionLabel {
     if (lastSeen == null) return 'Paired · waiting for first heartbeat';
     if (!online) return 'Device not responding';
@@ -41,6 +44,8 @@ class DeviceSummary {
         name: json['name'] as String? ?? 'InspectPin',
         online: json['online'] == true,
         reportedState: json['reported_state']?.toString() ?? '',
+        reportedFirmware: json['reported_firmware'] as Map<String, dynamic>?,
+        soundSettings: json['sound_settings'] as Map<String, dynamic>?,
         hardwareRevision: json['hardware_revision'] as String? ?? 'Unknown',
         firmwareVersion: json['firmware_version'] as String? ?? 'Unknown',
         lastSeen: json['last_seen'] is num

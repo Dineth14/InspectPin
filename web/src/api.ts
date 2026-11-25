@@ -1,4 +1,4 @@
-import type { Device, Inspection, User } from './types'
+import type { Device, DeviceCommandStatus, Inspection, User } from './types'
 
 export class ApiError extends Error {
   constructor(public status: number, public code: string, message: string) { super(message) }
@@ -37,7 +37,10 @@ export class ApiClient {
     })
   }
   command(device: string, type: string, payload: Record<string, unknown> = {}) {
-    return this.request(`/api/v1/devices/${device}/commands`, { method: 'POST', body: JSON.stringify({ type, payload }) })
+    return this.request<DeviceCommandStatus>(`/api/v1/devices/${device}/commands`, { method: 'POST', body: JSON.stringify({ type, payload }) })
+  }
+  commandStatus(id: string) {
+    return this.request<DeviceCommandStatus>(`/api/v1/commands/${id}`)
   }
   ask(inspection: string, question: string) {
     return this.request<{ id: string; status: string; interaction_id: string }>(`/api/v1/inspections/${inspection}/questions`, {

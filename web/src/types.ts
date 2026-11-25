@@ -1,8 +1,15 @@
+export type DeviceSoundSettings = { groups: number; volume: number; speech_volume: number }
+export type DeviceCommandStatus = {
+  id: string; status: string; result?: { sound_settings?: DeviceSoundSettings; error?: string } | null
+}
+
 export type Device = {
   id: string; name: string; model: string; firmware_version: string; hardware_revision: string
   online: boolean; last_seen: number | null; battery_percent: number | null
   battery_voltage: number | null; battery_estimated: boolean | null; charge_state: string | null
   storage_free: number | null; storage_total: number | null; sd_present: boolean | null; wifi_rssi: number | null
+  reported_firmware?: { version: string; build: string; hardware: string; boot_slot?: string; ota_enabled: boolean }
+  sound_settings?: DeviceSoundSettings | null
 }
 
 export type Finding = { category?: string; description: string; severity?: string; confidence?: string; evidence?: string }
