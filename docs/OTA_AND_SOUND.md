@@ -55,7 +55,7 @@ Stop the existing launcher and start `Start InspectPin.cmd --with-ota` from Powe
    & '.\Update InspectPin.cmd' -Version 1.1.2 -Build ota-rehearsal -Notes 'Guided sound and OTA test' -Device pin-dc225c8fee68 -PublishOnly
    ```
 
-3. Power the board from a known-good wall adapter or a suitable power-only cable. For a wireless acceptance test disconnect laptop USB data. Wake with ASK, wait for the authenticated connection sound, then go to **Device → your InspectPin controls → Firmware update** in the laptop app.
+3. Power the board from a known-good wall adapter or a suitable power-only cable. For a wireless acceptance test disconnect laptop USB data. Wake with ASK, wait for the authenticated connection sound, then select **Firmware update** on the **Device** screen. The [direct laptop link](http://127.0.0.1:5180/?view=firmware&device=pin-dc225c8fee68) opens the reviewed board after sign-in.
 4. Select the approved higher version, confirm external power and select **Install approved firmware**. Keep the power connected until the device reconnects. Observe real progress, including downloaded bytes, verification, installation, restarting and confirmation. Cancellation is available while the request is still queued.
 5. Confirm the installed version and build, then capture a photo and ask a question. Use the test report for the distinction between instrument results and audible operator observations.
 
