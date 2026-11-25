@@ -28,6 +28,8 @@ On the laptop, [open your latest inspection](http://127.0.0.1:5180/?view=inspect
 
 The [sound and firmware guide](OTA_AND_SOUND.md) describes the prompts, settings, signed firmware preparation and USB recovery.
 
+You can ask a standalone voice question while a photo is active. A question such as “What is an inductor?” uses the text model. Say “General question” before the question to explicitly select the text model. Phrases such as “in this photo” or “on this label” keep the question with the active image.
+
 ## Changing Wi-Fi or receiver
 
 Changing the app address and changing the board address are separate operations. Keep the working configuration for the evaluation unless a network change requires an update. On this release, connect the awake board by USB, close Serial Monitor, confirm the port using Device Manager and run the following from the repository in PowerShell.

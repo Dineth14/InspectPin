@@ -148,7 +148,10 @@ class JobManager:
                     if job["status"] == "processing":
                         (folder / "answer.pending.wav").replace(folder / "answer.wav")
                         if job.get("context_id"):
-                            self.conversations.commit_turn(job, result["transcript"] or job["question"], result["answer"])
+                            if result.get("question_scope") == "general":
+                                self.conversations.release(job)
+                            else:
+                                self.conversations.commit_turn(job, result["transcript"] or job["question"], result["answer"])
                         self._finish(job, result=result)
             except ServiceError as exc:
                 with self.lock:

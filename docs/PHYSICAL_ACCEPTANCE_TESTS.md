@@ -1,5 +1,13 @@
 # Physical acceptance log
 
+## Standalone ASK after a photo, 25 November 2026
+
+Two physical voice jobs transcribed “What is the capacitor?” and “What is the inductor?” correctly. Both answered through the vision model because the board had an active image, so both replies described the wrong subject. The receiver now uses the text model for standalone spoken definitions and explicit “General question” requests without adding those turns to visual history. The regression test also asks a visual follow-up against the same image after three standalone turns.
+
+The laptop receiver restarted in normal mode with the new routing. Firmware maintenance remained off. The protected maintenance route returned 404 and the OTA TLS port had no listener.
+
+The first physical retest recognized “What is an inductor?”, used the text model and generated an answer about inductors. A subsequent physical test used an active photo uploaded at 18:26:47. Job `ff3b59519eb9424c9840885e04ee919a` transcribed “What is an inductor?”, recorded `question_scope=general`, selected the text model and produced a WAV answer. The automated regression also checked that a visual follow-up still uses the original image.
+
 ## Guided sound and OTA rehearsal, 25 November 2026
 
 | Check | Result |

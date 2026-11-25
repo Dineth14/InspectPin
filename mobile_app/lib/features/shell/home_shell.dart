@@ -8,7 +8,6 @@ import '../../models/product_models.dart';
 import '../../services/api_client.dart';
 import '../../services/evidence_export.dart';
 import '../device/device_control_screen.dart';
-import '../device/firmware_update_screen.dart';
 import '../settings/ai_configuration_screen.dart';
 
 class HomeShell extends StatefulWidget {
@@ -32,7 +31,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
   String? error, notice;
   int tab = switch (Uri.base.queryParameters['view']) {
     'inspections' => 1,
-    'device' || 'firmware' => 3,
+    'device' => 3,
     _ => 0,
   };
   String? assistantInspection;
@@ -113,23 +112,7 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     liveTimer =
         Timer.periodic(const Duration(seconds: 15), (_) => updateDevices());
-    if (Uri.base.queryParameters['view'] == 'firmware') {
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (!mounted) return;
-        await refresh();
-        if (!mounted) return;
-        final id = Uri.base.queryParameters['device'];
-        final device = data?.devices
-            .where((item) => id == null || item.id == id)
-            .firstOrNull;
-        if (device != null) {
-          await _openFirmware(device);
-        } else {
-          setState(() => notice =
-              'Pair this InspectPin with the signed-in account to open its firmware page.');
-        }
-      });
-    } else if (Uri.base.queryParameters['inspection'] == 'latest') {
+    if (Uri.base.queryParameters['inspection'] == 'latest') {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (!mounted) return;
         await refresh();
@@ -472,9 +455,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
             OutlinedButton(
                 onPressed: verifyingId == null ? () => verify(device) : null,
                 child: const Text('Verify live connection')),
-            OutlinedButton(
-                onPressed: () => _openFirmware(device),
-                child: const Text('Firmware update')),
             _DeviceTechnicalCard(
                 device: device,
                 onCapture: () => _capture(device),
@@ -611,11 +591,6 @@ class _HomeShellState extends State<HomeShell> with WidgetsBindingObserver {
       if (mounted) setState(() => loading = false);
     }
   }
-
-  Future<void> _openFirmware(DeviceSummary device) =>
-      Navigator.of(context).push(MaterialPageRoute(
-          builder: (_) =>
-              FirmwareUpdateScreen(api: widget.api, device: device)));
 
   Future<void> _openInspection(String id) async {
     try {

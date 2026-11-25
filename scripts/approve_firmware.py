@@ -2,9 +2,15 @@
 import argparse
 import getpass
 import json
+import os
+from pathlib import Path
+import sys
 import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "backend"))
+from inspectpin.firmware_package import maintenance_proof  # noqa: E402
 
 
 def main():
@@ -13,11 +19,14 @@ def main():
     parser.add_argument("--version", required=True)
     args = parser.parse_args()
     token = ""
+    folder = Path(os.environ["LOCALAPPDATA"]) / "InspectPin/ota-receiver"
+    proof = maintenance_proof(folder)
 
     def request(path, body=None):
         headers = {"Accept": "application/json"}
         if token:
             headers["Authorization"] = "Bearer " + token
+            headers["X-InspectPin-Maintenance-Key"] = proof
         if body is not None:
             headers["Content-Type"] = "application/json"
         payload = json.dumps(body).encode() if body is not None else None

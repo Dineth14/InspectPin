@@ -8,6 +8,7 @@ from .stt import GroqSTT, MockSTT, WhisperSTT
 from .tts import MockTTS, PiperTTS
 from .vision import Vision
 from .command_router import classify
+from .question_scope import general_voice_question
 
 
 @dataclass
@@ -58,6 +59,8 @@ def process(job, folder, services, settings, check_deadline):
     elif job["kind"] == "question":
         transcript = job["question"]
     routed = None
+    independent_question = (general_voice_question(transcript)
+                            if job["kind"] == "voice" and job.get("image_id") else None)
     if job["kind"] == "voice" and not job.get("image_id"):
         # Pure in-process allow-list routing is intentionally outside provider
         # timings so the existing API timing contract remains backward compatible.
@@ -66,6 +69,8 @@ def process(job, folder, services, settings, check_deadline):
         answer = routed.response
     elif job["kind"] == "image":
         answer = stage("vision", lambda: services.vision.analyze(folder / "input.jpg", job["question"]))
+    elif independent_question is not None:
+        answer = stage("llm", lambda: services.llm.answer(independent_question))
     elif job.get("image_id"):
         answer = stage("vision", lambda: services.vision.answer(
             (folder / "context.jpg").read_bytes(), transcript, job["history"]))
@@ -79,6 +84,8 @@ def process(job, folder, services, settings, check_deadline):
     stage("tts", lambda: services.tts.synthesize(answer, pending))
     parse_wav(pending.read_bytes())
     result = {"transcript": transcript, "answer": answer, "timings_seconds": timing}
+    if independent_question is not None:
+        result["question_scope"] = "general"
     result["providers_used"] = {name: services.providers[name] for name in timing
                                 if name in getattr(services, "providers", {})}
     if routed is not None:

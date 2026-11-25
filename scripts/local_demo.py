@@ -94,6 +94,7 @@ def main():
         receiver_env = dict(os.environ, HOST="0.0.0.0", PORT="5000", WHISPER_LOCAL_ONLY="true",
                             LLM_PROVIDER="ollama", VISION_PROVIDER="ollama", STT_PROVIDER="whisper",
                             TTS_PROVIDER="piper", LLM_MODEL="llama3.2:3b", VISION_MODEL="qwen2.5vl:3b")
+        receiver_env.update(INSPECTPIN_LOCAL_OTA_TLS="0", INSPECTPIN_OTA_DIR="")
         if args.with_ota:
             ota_dir = Path(os.environ["LOCALAPPDATA"]) / "InspectPin/ota-receiver"
             tls = ssl.create_default_context(cafile=str(ota_dir / "lan-ca.pem"))

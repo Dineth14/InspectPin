@@ -109,6 +109,39 @@ def test_explicit_pairing_followup_and_audio(factory, settings):
     assert "history" not in second
 
 
+def test_standalone_voice_question_ignores_active_photo_and_keeps_visual_history(factory, settings):
+    services, image_calls = services_with_recorder(settings)
+    text_calls = []
+    def text_answer(question):
+        text_calls.append(question)
+        return "An inductor stores energy in a magnetic field."
+    services.llm.answer = text_answer
+    c = factory(services=services).test_client()
+    ident = upload_image(c).json["image_id"]
+    done(c, ask(c, "What voltage is on this label?", ident))
+    for spoken, expected in (
+        ("What is the inductor?", "What is the inductor?"),
+        ("What is the capacitor?", "What is the capacitor?"),
+        ("General question, what is the unit of current?", "what is the unit of current?"),
+    ):
+        services.stt.transcribe = lambda path: spoken
+        response = c.post(f"/api/v1/jobs/voice?image_id={ident}", data=tone(), content_type="audio/wav", headers=headers())
+        result = done(c, response)
+        assert result["status"] == "completed"
+        assert result["question_scope"] == "general"
+        assert result["transcript"] == spoken
+        assert "llm" in result["timings_seconds"] and "vision" not in result["timings_seconds"]
+        assert text_calls[-1] == expected
+    active = c.get("/api/v1/session", headers=headers()).json
+    assert active["active_image_id"] == ident
+    assert active["history_turns"] == 1
+    services.stt.transcribe = lambda path: "What is the voltage?"
+    response = c.post(f"/api/v1/jobs/voice?image_id={ident}", data=tone(), content_type="audio/wav", headers=headers())
+    assert done(c, response)["status"] == "completed"
+    assert image_calls[-1][1] == "What is the voltage?"
+    assert len(image_calls[-1][2]) == 2
+
+
 def test_new_image_resets_history_and_old_id_rejected(factory, settings):
     services, calls = services_with_recorder(settings)
     c = factory(services=services).test_client()

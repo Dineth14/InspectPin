@@ -7,7 +7,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 import pytest
 
 from inspectpin.firmware_package import (
-    HARDWARE, SLOT_BYTES, canonical_grant, canonical_manifest, sign, validate_package, verify,
+    HARDWARE, SLOT_BYTES, canonical_grant, canonical_manifest, maintenance_proof, sign, validate_package, verify,
 )
 from test_product_api import account, paired
 
@@ -66,6 +66,11 @@ def test_firmware_approval_and_boot_proof(factory, release):
     heartbeat = {"state": "READY", "reported_firmware": expected}
     assert client.post("/api/v1/device/heartbeat", headers=device, json=heartbeat).status_code == 200
     body = {"sha256": manifest["sha256"], "external_power_confirmed": True}
+    assert client.get(route, headers=owner).status_code == 403
+    assert client.post(route, headers=owner, json=body).status_code == 403
+    proof = maintenance_proof(grant_key.parent)
+    owner = {**owner, "X-InspectPin-Maintenance-Key": proof}
+    other = {**other, "X-InspectPin-Maintenance-Key": proof}
     assert client.post(route, headers=other, json=body).status_code == 404
     assert client.post(route, headers=owner, json=body,
                        environ_overrides={"REMOTE_ADDR": "192.168.1.23"}).status_code == 403

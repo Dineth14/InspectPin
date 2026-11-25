@@ -5,7 +5,6 @@ import 'package:material_ui/material_ui.dart';
 import '../../design/components.dart';
 import '../../models/product_models.dart';
 import '../../services/api_client.dart';
-import 'firmware_update_screen.dart';
 
 class DeviceControlScreen extends StatefulWidget {
   const DeviceControlScreen(
@@ -208,18 +207,10 @@ class _DeviceControlScreenState extends State<DeviceControlScreen> {
                 const IpEyebrow('Firmware'),
                 if (widget.device.reportedFirmware case final firmware?)
                   Text('${firmware['version']} · build ${firmware['build']}\n'
-                      '${firmware['hardware']} · slot ${firmware['boot_slot'] ?? 'unknown'}\n'
-                      '${firmware['ota_enabled'] == true ? 'Wireless updates enabled' : 'USB firmware installation'}')
+                      '${firmware['hardware']} · slot ${firmware['boot_slot'] ?? 'unknown'}')
                 else
                   Text(
                       'Registered version ${widget.device.firmwareVersion}. Waiting for a device report.'),
-                OutlinedButton(
-                    onPressed: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => FirmwareUpdateScreen(
-                                device: widget.device, api: widget.api))),
-                    child: const Text('Firmware update')),
               ])),
         ]),
       );

@@ -205,20 +205,6 @@ class ApiClient {
           'PATCH', '/api/v1/inspections/$id/note',
           body: {'note': note}));
 
-  Future<Map<String, dynamic>> firmwareCatalog(String device) =>
-      _json('GET', '/api/v1/devices/$device/firmware');
-
-  Future<void> installFirmware(String device, String digest) async {
-    await _json('POST', '/api/v1/devices/$device/firmware', body: {
-      'sha256': digest,
-      'external_power_confirmed': true,
-    });
-  }
-
-  Future<void> cancelFirmware(String device) async {
-    await _json('DELETE', '/api/v1/devices/$device/firmware');
-  }
-
   Future<Uint8List> _download(String path) async {
     final response = await http.get(Uri.parse('$baseUrl$path'), headers: {
       if (_token != null) 'Authorization': 'Bearer $_token',

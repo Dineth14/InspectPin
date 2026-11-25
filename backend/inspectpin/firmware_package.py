@@ -14,6 +14,10 @@ SLOT_BYTES = 0x330000
 MANIFEST_FIELDS = ("version", "build", "target", "hardware", "size", "sha256", "slot_bytes")
 
 
+def maintenance_proof(folder):
+    return hashlib.sha256(b"InspectPin local maintenance v1\0" + (folder / "grant-private.pem").read_bytes()).hexdigest()
+
+
 def release_number(version):
     if not isinstance(version, str) or not re.fullmatch(r"(?:0|[1-9]\d{0,2})(?:\.(?:0|[1-9]\d{0,2})){2}", version, re.ASCII):
         raise ValueError("Expected a numeric semantic firmware version")

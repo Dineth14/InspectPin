@@ -2,6 +2,7 @@
 import json
 import os
 import re
+import secrets
 import time
 import uuid
 from pathlib import Path
@@ -10,7 +11,7 @@ from urllib.parse import urlsplit
 from flask import Blueprint, jsonify, request, send_file
 
 from .errors import ServiceError
-from .firmware_package import canonical_grant, canonical_manifest, release_number, sign, verify
+from .firmware_package import canonical_grant, canonical_manifest, maintenance_proof, release_number, sign, verify
 from .product_routes import device_auth, json_body, store, user_id
 
 firmware = Blueprint("firmware", __name__)
@@ -23,14 +24,20 @@ def root():
     return Path(value).resolve() if value else None
 
 
-def approval_transport():
+def maintenance_access():
     loopback = {"127.0.0.1", "::1", "localhost"}
-    if not request.is_secure and not (
-        request.remote_addr in loopback and urlsplit(request.host_url).hostname in loopback
-    ):
-        raise ServiceError("OTA_APPROVAL_TRANSPORT", "Approve using laptop loopback or HTTPS", 403)
+    directory = root()
+    if not directory:
+        raise ServiceError("OTA_MAINTENANCE_OFF", "Firmware maintenance is disabled", 404)
+    if request.remote_addr not in loopback or urlsplit(request.host_url).hostname not in loopback:
+        raise ServiceError("OTA_APPROVAL_TRANSPORT", "Use the laptop maintenance helper", 403)
+    supplied = request.headers.get("X-InspectPin-Maintenance-Key", "")
+    if not re.fullmatch(r"[0-9a-f]{64}", supplied) or not secrets.compare_digest(supplied, maintenance_proof(directory)):
+        raise ServiceError("OTA_MAINTENANCE_REQUIRED", "Use the laptop maintenance helper", 403)
 
 def trusted_device():
+    if not root():
+        raise ServiceError("OTA_MAINTENANCE_OFF", "Firmware maintenance is disabled", 404)
     if not request.is_secure:
         raise ServiceError("OTA_TLS_REQUIRED", "Firmware delivery requires verified HTTPS", 403)
     return device_auth()["id"]
@@ -84,6 +91,7 @@ def compatible(device, manifest):
 
 @firmware.get("/api/v1/devices/<device>/firmware")
 def catalog(device):
+    maintenance_access()
     current = store().device(user_id(), device)
     packages = []
     if root():
@@ -101,7 +109,7 @@ def catalog(device):
 
 @firmware.post("/api/v1/devices/<device>/firmware")
 def approve(device):
-    approval_transport()
+    maintenance_access()
     owner = user_id()
     current = store().device(owner, device)
     data = json_body()
@@ -127,7 +135,7 @@ def approve(device):
 
 @firmware.delete("/api/v1/devices/<device>/firmware")
 def cancel(device):
-    approval_transport()
+    maintenance_access()
     store().device(user_id(), device)
     with store().lock, store().db as db:
         cursor = db.execute("UPDATE firmware_updates SET state='cancelled',updated=? WHERE device_id=? AND state='queued'",
