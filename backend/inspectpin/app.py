@@ -10,6 +10,7 @@ from .job_manager import JobManager
 from .pipeline import Services
 from .routes import api
 from .product_routes import product
+from .firmware_routes import firmware
 from .product_store import ProductStore
 from .product_jobs import ProductJobManager
 from .storage import Storage
@@ -33,6 +34,7 @@ def create_app(settings=None, services=None):
         app.extensions["product_store"], app.extensions["ai_configuration"], settings)
     app.register_blueprint(api)
     app.register_blueprint(product)
+    app.register_blueprint(firmware)
 
     @app.errorhandler(ServiceError)
     def service_error(exc):

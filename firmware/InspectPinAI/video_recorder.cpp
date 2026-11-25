@@ -2,6 +2,7 @@
 #include "video_profile.h"
 #include "avi_writer.h"
 #include "camera_manager.h"
+#include "sound_feedback.h"
 #include <SD.h>
 namespace {AviWriter writer;Video::Stats current;String finalPath,partialPath;uint32_t nextFrame=0,lastStorageCheck=0,lastReport=0;}
 bool Video::begin(const String &path){
@@ -10,6 +11,7 @@ bool Video::begin(const String &path){
   if(SD.totalBytes()-SD.usedBytes()<VideoProfile::minimumFreeBytes){current.error="VIDEO_STORAGE_LOW";return false;}
   if(!beginVideoCamera()){current.error="VIDEO_CAMERA_INIT_FAILED";return false;}
   if(!writer.begin(partialPath,VideoProfile::width,VideoProfile::height,VideoProfile::targetFps)){current.error=writer.error();endVideoCamera();return false;}
+  SoundFeedback::play(SoundFeedback::Event::VideoStart);
   current.active=true;current.startedAt=millis();nextFrame=lastStorageCheck=lastReport=current.startedAt;Serial.printf("Video started: %s profile=%s %ux%u @ target %u fps\n",path.c_str(),VideoProfile::name,VideoProfile::width,VideoProfile::height,VideoProfile::targetFps);return true;
 }
 void Video::tick(bool criticalBattery){

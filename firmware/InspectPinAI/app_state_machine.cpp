@@ -6,6 +6,7 @@
 #include "audio_player.h"
 #include "sound_feedback.h"
 #include "firmware_version.h"
+#include "ota_manager.h"
 #include "api_client.h"
 #include "wifi_manager.h"
 #include "camera_manager.h"
@@ -23,6 +24,7 @@
 #include "ntc_monitor.h"
 #include <WiFi.h>
 #include <SD.h>
+#include <esp_heap_caps.h>
 namespace { const char *names[]={"BOOT","INITIALIZING","READY","RECORDING","VIDEO_RECORDING","SAVING","UPLOADING","WAITING_FOR_AI","DOWNLOADING","PLAYING","OFFLINE","RETRYING","ERROR","LOW_BATTERY"}; }
 using SoundEvent=SoundFeedback::Event;
 void App::updateRuntimeState(AppState value) {
@@ -90,11 +92,13 @@ void App::begin() {
   receiverReady_=false;
   Serial.println("BOOT: eventlog");EventLog::begin();Serial.println("BOOT: amp");
   state(AppState::INITIALIZING); Amp::begin(); Serial.println("BOOT: peripherals"); Expander::begin(); Feedback::begin(); Illumination::begin(); button_.begin(); Battery::begin(); Ntc::begin(); ChargeStatus::begin(); Power::begin();
-  if(!SettingsStore::begin()) Serial.println("Settings store unavailable; compile-time defaults active");
+  const bool settingsReady=SettingsStore::begin();
+  if (!settingsReady) Serial.println("Settings store unavailable; compile-time defaults active");
   setPlaybackVolume(SettingsStore::get().volumePercent);
   if (strcmp(Power::wakeCause(),"power-on/reset")==0) SoundFeedback::play(SoundEvent::Boot);
   Power::setIdleTimeout(SettingsStore::get().idleTimeoutMs);
-  Serial.printf("PSRAM total=%u free=%u heap=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),ESP.getFreeHeap());
+  Serial.printf("PSRAM total=%u free=%u heap=%u largest=%u\n",ESP.getPsramSize(),ESP.getFreePsram(),
+                ESP.getFreeHeap(),unsigned(heap_caps_get_largest_free_block(MALLOC_CAP_8BIT)));
   Serial.printf("Device ID: %s\n",Api::deviceId().c_str());
   Serial.printf("Firmware %s build=%s hardware=%s\n",FirmwareVersion::version(),FirmwareVersion::build(),FirmwareVersion::hardware());
   Serial.println("Commands: v=voice c=photo u=video-start o=video-stop m=media k=camera i=context x=clear r=retry s=SD w=Wi-Fi b=battery p=tone z=sleep d=buttons");
@@ -105,6 +109,7 @@ void App::begin() {
   else Serial.println(IP_CAMERA_BUTTON_ENABLED ? "Legacy bench buttons: D2/GPIO3=voice, D5/GPIO6=camera" : "ASK button: D2/GPIO3; PHOTO unavailable until PCF8574 is verified");
   #endif
   sdReady_=Store::begin();
+  OtaManager::verifyBoot(settingsReady,sdReady_);
   if (!sdReady_) { fail("SD_INITIALIZATION_FAILED"); return; }
   Video::recoverIncomplete();
   if (Wifi::connect()) syncContext();
@@ -208,7 +213,6 @@ bool App::handleCommand(const DeviceCommand &command) {
     case CommandType::VIDEO_START:
       if(!operation_.begin(OperationClass::VIDEO)){succeeded=false;fail("DEVICE_BUSY");break;}
       path_=Store::newVideoPath();
-      SoundFeedback::play(SoundEvent::VideoStart);
       if(Video::begin(path_)){state(AppState::VIDEO_RECORDING);Feedback::signal(Feedback::Event::VIDEO_STARTED);}
       else {succeeded=false;Serial.printf("Video start failed: %s\n",Video::stats().error.c_str());fail(Video::stats().error);}
       break;
@@ -360,6 +364,7 @@ void App::tick() {
       lastBattery_=millis();
       if (Battery::low()) { Serial.println("Battery low"); state(AppState::LOW_BATTERY); }
     }
+    if (state_==AppState::READY && backgroundAllowed) OtaManager::service();
   }
   if(idle()&&!localInput&&operation_.sleepSafe()&&Power::idleExpired()) handleCommand({CommandType::SLEEP,CommandSource::INTERNAL,"idle-timeout"});
   String error;
@@ -401,6 +406,7 @@ void App::tick() {
     if (!Api::upload(path_,job_,error,captureImage_,captureContext_,&returnedContext)) {
       Serial.printf("Upload failed: %s\n",error.c_str());
       if (error=="IMAGE_EXPIRED" || error=="CONTEXT_CHANGED" || error=="IMAGE_NOT_FOUND" || error=="IMAGE_ID_REQUIRED") {
+        if (!Store::requireManualReplay(path_)) Serial.println("Could not mark the outdated input for manual review");
         fail(error+": use i to inspect context, c to recapture, or x to clear. Original WAV pairing retained.");
       } else if (++attempts_<3) { retryAt_=millis(); state(AppState::RETRYING); }
       else fail(error,true);

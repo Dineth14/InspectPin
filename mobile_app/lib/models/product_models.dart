@@ -20,6 +20,9 @@ class DeviceSummary {
   final DateTime? lastSeen;
   final String reportedState;
   final Map<String, dynamic>? reportedFirmware, soundSettings;
+  String get firmwareLabel => reportedFirmware?['version'] is String
+      ? 'Device reported ${reportedFirmware!['version']}'
+      : 'Registered $firmwareVersion';
   String get connectionLabel {
     if (lastSeen == null) return 'Paired · waiting for first heartbeat';
     if (!online) return 'Device not responding';

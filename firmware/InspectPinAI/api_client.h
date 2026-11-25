@@ -1,5 +1,7 @@
 #pragma once
 #include <Arduino.h>
+#include <ArduinoJson.h>
+#include <functional>
 #include "command_types.h"
 struct JobResult { String status, transcript, answer, error; bool audio=false, hasCommand=false; DeviceCommand command; };
 struct SessionContext {
@@ -20,4 +22,7 @@ bool heartbeat(const String &state, String &error);
 bool pollRemoteCommand(DeviceCommand &command, String &remoteId, bool &available, String &error);
 bool acknowledgeRemoteCommand(const String &remoteId, const String &status,
                               const String &actualState, const String &errorCode="");
+bool firmwareRequest(const String &route, const JsonDocument &payload, JsonDocument &reply);
+bool streamFirmware(const String &id,size_t size,
+                    const std::function<bool(const uint8_t *,size_t)> &consume);
 }

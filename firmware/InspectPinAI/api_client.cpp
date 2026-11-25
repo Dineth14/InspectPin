@@ -4,6 +4,7 @@
 #include "wav_utils.h"
 #include "firmware_version.h"
 #include "settings_store.h"
+#include "ota_manager.h"
 #include <HTTPClient.h>
 #include <WiFi.h>
 #include <WiFiClientSecure.h>
@@ -13,16 +14,17 @@
 #include "charge_status.h"
 namespace {
 struct RequestClient { WiFiClient plain; WiFiClientSecure secure; };
-bool start(HTTPClient &http, RequestClient &client, const String &route) {
-  String base=NetworkProfile::active().origin;
+bool start(HTTPClient &http, RequestClient &client, const String &route,bool firmwareTls=false) {
+  String base=firmwareTls?OtaManager::origin():NetworkProfile::active().origin;
   const bool tls=base.startsWith("https://");
   if (!tls && !base.startsWith("http://")) return false;
   while (base.endsWith("/")) base.remove(base.length()-1);
   http.setConnectTimeout(Config::httpTimeoutMs); http.setTimeout(Config::httpTimeoutMs);
   http.useHTTP10(true); http.setReuse(false);
   if(tls){
-    if(strlen(IP_SERVER_CA_CERT)<100)return false;
-    client.secure.setCACert(IP_SERVER_CA_CERT);
+    const char *certificate=firmwareTls?OtaManager::ca():IP_SERVER_CA_CERT;
+    if(strlen(certificate)<100)return false;
+    client.secure.setCACert(certificate);
     if(!http.begin(client.secure,base+route))return false;
   } else if (!http.begin(client.plain,base+route)) return false;
   http.addHeader("X-Device-Token",NetworkProfile::active().token);
@@ -254,4 +256,41 @@ bool Api::acknowledgeRemoteCommand(const String &remoteId, const String &status,
   if(errorCode.length())payload["result"]["error"]=errorCode;
   String body;serializeJson(payload,body);http.addHeader("Content-Type","application/json");
   int code=http.POST(body);http.end();return code==200;
+}
+
+bool Api::firmwareRequest(const String &route,const JsonDocument &payload,JsonDocument &reply) {
+  if (!OtaManager::enabled()) return false;
+  RequestClient client; HTTPClient http;
+  if (!start(http,client,route,true)) return false;
+  http.addHeader("Content-Type","application/json");
+  String body; serializeJson(payload,body);
+  const bool ok=http.POST(body)==200 && jsonReply(http,reply);
+  http.end();
+  return ok;
+}
+
+bool Api::streamFirmware(const String &id,size_t size,
+                         const std::function<bool(const uint8_t *,size_t)> &consume) {
+  if (!validJob(id) || !OtaManager::enabled()) return false;
+  RequestClient client; HTTPClient http;
+  if (!start(http,client,"/api/v1/device/firmware/"+id+"/image",true)) return false;
+  if (http.GET()!=200 || size_t(http.getSize())!=size) { http.end(); return false; }
+  auto *stream=http.getStreamPtr();
+  uint8_t chunk[2048];
+  size_t total=0;
+  const uint32_t started=millis();
+  uint32_t last=started;
+  while (total<size && http.connected() && millis()-started<120000 && millis()-last<10000) {
+    feedLoopWDT();
+    const int available=stream->available();
+    if (available<=0 || (total==0 && available<24)) { delay(3); continue; }
+    const size_t want=min(sizeof(chunk),min(size-total,size_t(available)));
+    const int got=stream->read(chunk,want);
+    if (got<=0 || !consume(chunk,size_t(got))) break;
+    total+=got;
+    last=millis();
+    delay(1);
+  }
+  http.end();
+  return total==size;
 }

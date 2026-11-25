@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../design/components.dart';
 import '../../models/product_models.dart';
 import '../../services/api_client.dart';
+import 'firmware_update_screen.dart';
 
 class DeviceControlScreen extends StatefulWidget {
   const DeviceControlScreen(
@@ -212,6 +213,13 @@ class _DeviceControlScreenState extends State<DeviceControlScreen> {
                 else
                   Text(
                       'Registered version ${widget.device.firmwareVersion}. Waiting for a device report.'),
+                OutlinedButton(
+                    onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => FirmwareUpdateScreen(
+                                device: widget.device, api: widget.api))),
+                    child: const Text('Firmware update')),
               ])),
         ]),
       );

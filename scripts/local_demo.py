@@ -6,10 +6,12 @@ import os
 from pathlib import Path
 import shutil
 import socket
+import ssl
 import subprocess
 import sys
 import webbrowser
 from urllib.request import urlopen
+from urllib.error import HTTPError
 
 from open_laptop_app import is_inspectpin
 
@@ -33,6 +35,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--stop", action="store_true")
     parser.add_argument("--no-browser", action="store_true")
+    parser.add_argument("--with-ota", action="store_true", help="Enable the provisioned local OTA endpoint")
     args = parser.parse_args()
     kernel = ctypes.WinDLL("kernel32", use_last_error=True)
     from ctypes import wintypes as w
@@ -88,10 +91,26 @@ def main():
         def ready():
             return (get(origin + "/healthz").get("service") == "InspectPin AI" and
                     get(origin + "/api/v1/ready").get("database") == "ok")
-        ensure("receiver", ready, [sys.executable, "backend/receiver.py"],
-               dict(os.environ, HOST="0.0.0.0", PORT="5000", WHISPER_LOCAL_ONLY="true",
-                    LLM_PROVIDER="ollama", VISION_PROVIDER="ollama", STT_PROVIDER="whisper",
-                    TTS_PROVIDER="piper", LLM_MODEL="llama3.2:3b", VISION_MODEL="qwen2.5vl:3b"))
+        receiver_env = dict(os.environ, HOST="0.0.0.0", PORT="5000", WHISPER_LOCAL_ONLY="true",
+                            LLM_PROVIDER="ollama", VISION_PROVIDER="ollama", STT_PROVIDER="whisper",
+                            TTS_PROVIDER="piper", LLM_MODEL="llama3.2:3b", VISION_MODEL="qwen2.5vl:3b")
+        if args.with_ota:
+            ota_dir = Path(os.environ["LOCALAPPDATA"]) / "InspectPin/ota-receiver"
+            tls = ssl.create_default_context(cafile=str(ota_dir / "lan-ca.pem"))
+            receiver_env.update(INSPECTPIN_LOCAL_OTA_TLS="1", INSPECTPIN_OTA_DIR=str(ota_dir))
+        ensure("receiver", ready, [sys.executable, "backend/receiver.py"], receiver_env)
+        if args.with_ota:
+            ota_url = f"https://{ip}:5443/api/v1/device/firmware/offer"
+            def ota_ready():
+                from urllib.request import Request
+                try:
+                    urlopen(Request(ota_url, b"{}", {"Content-Type": "application/json"}),
+                            context=tls, timeout=2).close()
+                except HTTPError as exc:
+                    return exc.code == 401
+                return False
+            ensure("ota-tls", ota_ready, [sys.executable, "scripts/ota_lan_tls.py", "serve",
+                                         "--dir", str(ota_dir), "--address", ip])
         ensure("app", lambda: is_inspectpin(ui), [sys.executable, "scripts/open_laptop_app.py", "--serve"])
         print(f"Receiver for board and phone: {origin}\nLaptop application: {ui}\nKeep this window open.", flush=True)
         if not args.no_browser:

@@ -14,7 +14,7 @@ The laptop runs Whisper base.en, Ollama llama3.2:3b and qwen2.5vl:3b, and Piper.
 | Action | What to verify |
 | --- | --- |
 | Aim at a de-energized component label. Tap PHOTO and release. | Open the newest inspection and inspect the original 800 × 600 photograph. |
-| Tap ASK, then ask “What voltage can you read?” during the five-second recording. | Hear a spoken answer and compare it with the printed label. Ask about another visible detail using the same photo. |
+| Tap ASK, wait for the listening tone, then ask “What voltage can you read?” during the five-second recording. | Hear a spoken answer and compare it with the printed label. Ask about another visible detail using the same photo. |
 | Hold ASK for at least two seconds. Use the implemented stop gesture or allow the 60-second limit. | Open and play the standalone WAV. |
 | Hold PHOTO for at least two seconds. Stop with the board button or allow the 30-second limit. | Open the silent clip preview and download its original AVI. |
 | On the bottom navigation select **Inspections**. Under the desired record choose **Open inspection**, **Inspector note** or **Download PDF**. In the note dialog enter an observation and choose **Save note**. Reopen it to check persistence. | The PDF downloads with the inspection ID in its filename. If these actions are missing, press Ctrl+F5 on the laptop. The record must belong to the signed-in account. |
@@ -25,6 +25,8 @@ Use **Stop InspectPin.cmd** with the board idle. It signals the launcher to clos
 Inside an open photo, **Inspector note** and **Download PDF** sit directly below the inspection title and stay there as you scroll. Choose **Inspector note**, enter the observation, then choose **Save note** before downloading the report. **Ask about this evidence** sends a follow-up question to the model. You can save a note or export a report while the analysis is pending.
 
 On the laptop, [open your latest inspection](http://127.0.0.1:5180/?view=inspections&inspection=latest). This opens the most recent inspection belonging to the signed-in account. A photo also has **Download original photo** beneath the image. At the bottom of the capture, **Add inspector note** (or **Edit inspector note**) and **Download inspection report** sit beneath the question form. In the separate React dashboard, open an inspection in the evidence library to find the note field, **Save note**, **Download PDF** and, for photos, **Download original photo**.
+
+The [sound and firmware guide](OTA_AND_SOUND.md) describes the prompts, settings, signed firmware preparation and USB recovery.
 
 ## Changing Wi-Fi or receiver
 

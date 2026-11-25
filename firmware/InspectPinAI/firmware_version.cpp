@@ -1,9 +1,17 @@
 #include "firmware_version.h"
 #include "config.h"
 #include <esp_ota_ops.h>
+#include "ota_manager.h"
+
+#if __has_include("firmware_build.local.h")
+#include "firmware_build.local.h"
+#endif
 
 #ifndef IP_FIRMWARE_VERSION
 #define IP_FIRMWARE_VERSION "1.1.0"
+#endif
+#ifndef IP_FIRMWARE_RELEASE
+#define IP_FIRMWARE_RELEASE 1001000UL
 #endif
 #ifndef IP_FIRMWARE_BUILD_ID
 #define IP_FIRMWARE_BUILD_ID __DATE__ " " __TIME__
@@ -11,6 +19,7 @@
 
 const char *FirmwareVersion::version() { return IP_FIRMWARE_VERSION; }
 const char *FirmwareVersion::build() { return IP_FIRMWARE_BUILD_ID; }
+uint32_t FirmwareVersion::releaseNumber() { return IP_FIRMWARE_RELEASE; }
 const char *FirmwareVersion::hardware() {
 #if defined(IP_USE_SINGLE_LAYER_CONFIG)
   return "xiao-esp32s3-sense-single-layer";
@@ -35,5 +44,6 @@ void FirmwareVersion::write(JsonObject out) {
   }();
   if (imageDigest.length()) out["image_sha256"]=imageDigest;
   out["inactive_slot_bytes"]=available?available->size:0;
-  out["ota_enabled"]=false;
+  out["ota_enabled"]=OtaManager::enabled();
+  out["last_update"]=OtaManager::lastResult();
 }

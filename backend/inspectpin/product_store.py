@@ -139,6 +139,12 @@ class ProductStore:
                     digest TEXT NOT NULL, inspection_id TEXT NOT NULL REFERENCES inspections(id) ON DELETE CASCADE,
                     PRIMARY KEY(device_id,owner_id,filename)
                 );
+                CREATE TABLE IF NOT EXISTS firmware_updates (
+                    id TEXT PRIMARY KEY, owner_id TEXT NOT NULL, device_id TEXT NOT NULL,
+                    digest TEXT NOT NULL, version TEXT NOT NULL, build TEXT NOT NULL, state TEXT NOT NULL,
+                    bytes INTEGER NOT NULL, created REAL NOT NULL, updated REAL NOT NULL,
+                    expires REAL NOT NULL, detail TEXT NOT NULL
+                );
                 CREATE TABLE IF NOT EXISTS ai_configurations (
                     owner_id TEXT PRIMARY KEY,
                     llm_provider TEXT NOT NULL, llm_model TEXT NOT NULL,
@@ -462,19 +468,20 @@ class ProductStore:
         return result
 
     def inspection(self, owner_id: str, ident: str) -> dict:
-        row = self.db.execute("SELECT * FROM inspections WHERE id=? AND owner_id=?", (ident, owner_id)).fetchone()
-        if row is None:
-            raise ServiceError("INSPECTION_NOT_FOUND", "Inspection was not found", 404)
-        result = self._inspection(row)
-        note = self.db.execute("SELECT note FROM inspection_notes WHERE inspection_id=?", (ident,)).fetchone()
-        result["note"] = note[0] if note else ""
-        result["media"] = [dict(r) for r in self.db.execute(
-            "SELECT id,media_type,content_type,byte_size,checksum,created_at FROM media WHERE inspection_id=? ORDER BY created_at",
-            (ident,)).fetchall()]
-        result["voice_interactions"] = [dict(r) for r in self.db.execute(
-            "SELECT id,transcript,question,ai_response,status,created_at FROM voice_interactions WHERE inspection_id=? ORDER BY created_at",
-            (ident,)).fetchall()]
-        return result
+        with self.lock:
+            row = self.db.execute("SELECT * FROM inspections WHERE id=? AND owner_id=?", (ident, owner_id)).fetchone()
+            if row is None:
+                raise ServiceError("INSPECTION_NOT_FOUND", "Inspection was not found", 404)
+            result = self._inspection(row)
+            note = self.db.execute("SELECT note FROM inspection_notes WHERE inspection_id=?", (ident,)).fetchone()
+            result["note"] = note[0] if note else ""
+            result["media"] = [dict(r) for r in self.db.execute(
+                "SELECT id,media_type,content_type,byte_size,checksum,created_at FROM media WHERE inspection_id=? ORDER BY created_at",
+                (ident,)).fetchall()]
+            result["voice_interactions"] = [dict(r) for r in self.db.execute(
+                "SELECT id,transcript,question,ai_response,status,created_at FROM voice_interactions WHERE inspection_id=? ORDER BY created_at",
+                (ident,)).fetchall()]
+            return result
 
     def inspections(self, owner_id: str, limit: int, offset: int, status: str | None = None) -> dict:
         where, args = "owner_id=?", [owner_id]
@@ -524,16 +531,18 @@ class ProductStore:
             return dict(self.db.execute("SELECT * FROM processing_jobs WHERE id=?", (ident,)).fetchone())
 
     def processing_job_internal(self, ident: str) -> dict:
-        row = self.db.execute("SELECT * FROM processing_jobs WHERE id=?", (ident,)).fetchone()
-        if row is None:
-            raise ServiceError("JOB_NOT_FOUND", "Processing job was not found", 404)
-        return dict(row)
+        with self.lock:
+            row = self.db.execute("SELECT * FROM processing_jobs WHERE id=?", (ident,)).fetchone()
+            if row is None:
+                raise ServiceError("JOB_NOT_FOUND", "Processing job was not found", 404)
+            return dict(row)
 
     def processing_job(self, owner_id: str, ident: str) -> dict:
-        row = self.db.execute("SELECT * FROM processing_jobs WHERE id=? AND owner_id=?", (ident, owner_id)).fetchone()
-        if row is None:
-            raise ServiceError("JOB_NOT_FOUND", "Processing job was not found", 404)
-        return dict(row)
+        with self.lock:
+            row = self.db.execute("SELECT * FROM processing_jobs WHERE id=? AND owner_id=?", (ident, owner_id)).fetchone()
+            if row is None:
+                raise ServiceError("JOB_NOT_FOUND", "Processing job was not found", 404)
+            return dict(row)
 
     def start_processing_job(self, ident: str) -> None:
         with self.lock, self.db:

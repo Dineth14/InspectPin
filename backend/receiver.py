@@ -36,9 +36,11 @@ def main():
                  settings.stt_provider, settings.llm_provider, settings.tts_provider,
                  settings.tts_gain, TTS_PEAK_LIMIT, settings.vision_provider)
     try:
+        trusted = (dict(trusted_proxy="127.0.0.1", trusted_proxy_headers={"x-forwarded-proto"})
+                   if os.getenv("INSPECTPIN_LOCAL_OTA_TLS") == "1" else {})
         serve(app, host=settings.host, port=settings.port, threads=4,
               max_request_body_size=max(MAX_RECORDING_BYTES, settings.max_voice_bytes, settings.max_image_bytes, settings.vision_max_image_bytes),
-              channel_timeout=30)
+              channel_timeout=30, **trusted)
     finally:
         app.extensions["product_jobs"].close()
         app.extensions["product_store"].close()

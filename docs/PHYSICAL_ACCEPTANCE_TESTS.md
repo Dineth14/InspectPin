@@ -1,5 +1,15 @@
 # Physical acceptance log
 
+## Guided sound and OTA rehearsal, 25 November 2026
+
+| Check | Result |
+|---|---|
+| Recovery check | COM7 ESP32-S3 MAC `68:ee:8f:5c:22:dc`, measured 8 MiB flash. App0 matched the saved app digest. The first 64 KiB were copied and reverified, and the bootloader and partition table matched the previously compiled binaries. The matching SDK has rollback enabled. |
+| Sound build over USB | Version 1.1.0 compiled at 1,247,330 bytes flash and 60,752 bytes static RAM. The app-only flash write and hash verified. Output logged startup, receiver-ready, local photo save and image-ready sounds during a real photo upload. |
+| Physical ASK and playback | Job `ab6049690a5f408290e0d8ad4bfafdb3` logged the listening, recording-completed and processing tones. It recognized “What can you see in this photo?” and played the full spoken answer. The operator reported that the answer described a person. Receiver processing took 18.104 seconds. |
+| Original voice WAV | Exactly 5.000 seconds, 16 kHz mono PCM. Frequency-band checks on the first 115 ms and last 100 ms found no strong peaks at the listening or recording-completed cue frequencies. This covers the measured voice sample. A new standalone audio-note waveform still needs checking. |
+| Local OTA endpoint | Laptop local launcher verified the CA and hostname at `https://172.20.10.4:5443`. An unauthenticated request reached the TLS route and received 401. Two signed packages for versions 1.1.1 and 1.1.2 were published. Each is 1,265,984 bytes, about 38% of its slot. |
+
 ## Follow-up timing rehearsal, 25 November 2026
 
 Three completed voice jobs immediately before this change took 8.65–14.97 seconds of receiver processing and produced 7.89–18.76 seconds of audio. Adding the five-second recording gives 21.5–38.7 seconds before Wi-Fi transfer and job polling. That interval is the time to complete the current question.
